@@ -1,0 +1,60 @@
+/* =============================================================================
+   ZHAIMER — Premium game table (Stage B)
+   Purely decorative: background-image, box-shadow, and border only.
+   Deliberately avoids touching width/height/padding/margin/gap on .table,
+   .midrow, .pile, or .player-block, since fitTableToScreen() in game.js
+   measures those boxes to compute the mobile scale factor — changing box
+   size here would silently break that calculation.
+   ============================================================================= */
+
+/* ---------- Felt table surface: dark green with subtle texture ---------- */
+.table{
+  position:relative;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(63,199,182,0.05) 0%, transparent 55%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 5px),
+    radial-gradient(ellipse at 50% 45%, #16281d 0%, #0d1712 60%, #0a120d 100%);
+}
+
+/* ---------- Soft spotlight behind the draw/discard piles ---------- */
+.midrow{
+  position:relative;
+}
+.midrow::before{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:min(320px, 80%);
+  height:130%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center, rgba(233,198,92,0.10) 0%, rgba(233,198,92,0.03) 45%, transparent 75%);
+  pointer-events:none;
+  z-index:0;
+}
+.midrow > *{ position:relative; z-index:1; }
+
+/* ---------- Clearer separation between draw and discard piles ---------- */
+.midrow{ position:relative; }
+.midrow .pile:first-child::after{
+  content:"";
+  position:absolute;
+  right:-11px; top:10%;
+  width:1px; height:80%;
+  background:linear-gradient(to bottom, transparent, rgba(215,173,79,0.25), transparent);
+}
+.midrow .pile{ position:relative; }
+
+/* ---------- Player seats: subtle felt-inset feel, no dimension change ---------- */
+.player-block{
+  box-shadow:0 3px 10px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.02), inset 0 12px 20px -14px rgba(0,0,0,0.4);
+}
+
+/* ---------- Smooth (non-continuous) transition when the active seat changes ---------- */
+.player-block{
+  transition:transform .18s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .table{ background:var(--bg); }
+}
