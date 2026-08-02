@@ -1,0 +1,111 @@
+/* =============================================================================
+   ZHAIMER — Turn guidance & card interaction animations (Stage A)
+   Purely additive: new classes only, nothing here changes existing markup
+   structure, game rules, or state. Safe alongside style.css/tutorial.css.
+   ============================================================================= */
+
+/* ---------- "Your Turn" banner ---------- */
+.turn-banner{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin:0 0 10px; padding:8px 14px;
+  border-radius:8px;
+  background:linear-gradient(135deg, rgba(63,199,182,0.18), rgba(201,162,39,0.14));
+  border:1px solid rgba(63,199,182,0.4);
+  color:var(--brass-soft);
+  font-weight:700; font-size:13.5px; letter-spacing:.5px;
+  animation:turnBannerIn .45s ease, turnBannerFade .5s ease 1.6s forwards;
+}
+@keyframes turnBannerIn{
+  from{ opacity:0; transform:translateY(-6px) scale(0.96); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes turnBannerFade{
+  from{ opacity:1; }
+  to{ opacity:0; }
+}
+
+/* ---------- Card lift on selection ---------- */
+.card.selectable,
+.card.own-slot-target{
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.card.selectable:hover,
+.card.own-slot-target:hover{
+  transform:translateY(-5px) scale(1.04);
+  box-shadow:0 8px 16px rgba(0,0,0,0.4);
+}
+.card.selectable{
+  outline:2px solid var(--teal); outline-offset:2px;
+  transform:translateY(-3px);
+}
+
+/* ---------- Drawn card slides in from the deck ---------- */
+.card-deal-in{ animation:cardDealIn .35s ease; }
+@keyframes cardDealIn{
+  from{ opacity:0; transform:translateY(-14px) scale(0.9); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+/* ---------- Queen reveal: eye effect ---------- */
+.queen-eye-wrap{
+  display:flex; align-items:center; justify-content:center; gap:10px; margin:6px 0 10px;
+}
+.queen-eye-badge{
+  font-size:26px;
+  animation:queenEyeOpen .5s ease;
+}
+@keyframes queenEyeOpen{
+  0%{ transform:scaleY(0.1); opacity:0; }
+  60%{ transform:scaleY(1.15); opacity:1; }
+  100%{ transform:scaleY(1); opacity:1; }
+}
+
+/* ---------- Jack swap: crossing arrows ---------- */
+.jack-arrows-wrap{
+  display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 0;
+  font-size:20px; color:var(--teal);
+}
+.jack-arrows-wrap .arrow-cross{
+  display:inline-block;
+  animation:jackArrowsCross .6s ease;
+}
+@keyframes jackArrowsCross{
+  0%{ opacity:0; transform:scale(0.6) rotate(-10deg); }
+  100%{ opacity:1; transform:scale(1) rotate(0deg); }
+}
+
+/* ---------- King: double-card deal-in, staggered ---------- */
+.king-double-deal > div:nth-child(1) .card{ animation:cardDealIn .35s ease; }
+.king-double-deal > div:nth-child(2) .card{ animation:cardDealIn .35s ease .12s backwards; }
+
+/* ---------- Burn feedback: gold particles (success) / shake (fail) ---------- */
+.actions.burn-fx-success{ position:relative; }
+.burn-particle{
+  position:absolute; top:50%; left:50%; width:5px; height:5px; border-radius:50%;
+  background:var(--brass-soft); pointer-events:none;
+  animation:burnParticleFly .8s ease-out forwards;
+}
+@keyframes burnParticleFly{
+  0%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  100%{ opacity:0; transform:translate(calc(-50% + var(--dx,20px)), calc(-50% + var(--dy,-24px))) scale(0.3); }
+}
+.actions.burn-fx-fail{
+  animation:burnShake .35s ease;
+}
+@keyframes burnShake{
+  0%,100%{ transform:translateX(0); }
+  25%{ transform:translateX(-5px); }
+  75%{ transform:translateX(5px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .turn-banner{ animation:none; opacity:1; }
+  .card.selectable:hover, .card.own-slot-target:hover{ transform:none; }
+  .card.selectable{ transform:none; }
+  .card-deal-in{ animation:none; }
+  .queen-eye-badge{ animation:none; }
+  .jack-arrows-wrap .arrow-cross{ animation:none; }
+  .king-double-deal > div .card{ animation:none; }
+  .burn-particle{ display:none; }
+  .actions.burn-fx-fail{ animation:none; }
+}

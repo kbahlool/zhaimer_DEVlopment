@@ -1151,6 +1151,7 @@ const I18N = {
     startGameBtn:'Start Game', needMorePlayers:'Need at least 2 players to start',
     waitingForHost:'Waiting for the host to start the game…',
     waitingForPeeks:'Waiting for other players to finish peeking…',
+    yourTurnBanner:'Your Turn',
     joinBtn:'Join', joiningErrorFull:'That room is full.',
     joiningErrorStarted:'That game has already started.',
     joiningErrorMissing:'No room found with that code.',
@@ -1374,6 +1375,7 @@ const I18N = {
     startGameBtn:'ابدأ اللعبة', needMorePlayers:'لازم لاعبين اثنين على الأقل عشان تبدأ',
     waitingForHost:'بانتظار المضيف يبدأ اللعبة…',
     waitingForPeeks:'بانتظار بقية اللاعبين ينتهون من النظر لأوراقهم…',
+    yourTurnBanner:'دورك الآن',
     joinBtn:'انضم', joiningErrorFull:'الغرفة مليانة.',
     joiningErrorStarted:'اللعبة بدأت خلاص.',
     joiningErrorMissing:'ما لقينا غرفة بهذا الكود.',
@@ -1469,11 +1471,24 @@ function confirmBurn(){
   updateRoom(room=>roomAttemptBurn(room, myUid, slots));
   setTimeout(()=>{
     if(ROOM && ROOM.players[myUid]){
-      if(ROOM.players[myUid].hand.length < handLenBefore) sfxSuccess(); else sfxFail();
+      const success = ROOM.players[myUid].hand.length < handLenBefore;
+      if(success) sfxSuccess(); else sfxFail();
+      // Stage A: brief visual feedback — gold particles on success, a
+      // gentle shake on a failed match. Purely local/visual, auto-clears.
+      burnFx = success ? 'success' : 'fail';
+      render();
+      setTimeout(()=>{ burnFx = null; render(); }, 750);
     }
   }, 60);
 }
+let burnFx = null; // 'success' | 'fail' | null — see confirmBurn()
 let peekRevealUntil = null;
+// Stage A: "Your Turn" banner — purely local/visual, shown once per turn
+// (tracked by uid+round+turn-count so it doesn't replay on every re-render).
+let turnBannerShownKey = null;
+function turnBannerKey(){
+  return ROOM ? `${ROOM.round}:${ROOM.currentUid}:${(ROOM.turnCount||0)}` : null;
+}
 
 function finishCheckSecondsLeft(){
   if(!ROOM || !ROOM.finishCheckUntil) return null;
@@ -2232,6 +2247,21 @@ function renderMidRow(compact){
 }
 
 function renderActions(){
+  const isMyTurnForBanner = ROOM && ROOM.phase==='playing' && ROOM.currentUid===myUid;
+  let turnBannerHtml = '';
+  if(isMyTurnForBanner){
+    const key = turnBannerKey();
+    if(key !== turnBannerShownKey){
+      turnBannerShownKey = key;
+      turnBannerHtml = `<div class="turn-banner">🎯 ${t('yourTurnBanner')}</div>`;
+    }
+  }
+  const body = renderActionsInner();
+  if(!turnBannerHtml || !body) return body;
+  // Inject the banner as the first child of the outer .actions wrapper.
+  return body.replace(/^(\s*<div class="actions[^"]*"[^>]*>)/, `$1${turnBannerHtml}`);
+}
+function renderActionsInner(){
   if(ROOM.phase==='peek'){
     if(ROOM.peekedUids.includes(myUid)){
       return `<div class="actions"><div class="hint" style="color:var(--muted);font-size:12.5px;">${t('waitingForPeeks')}</div></div>`;
@@ -2262,7 +2292,14 @@ function renderActions(){
         <button class="ghost-btn" data-action="cancelBurnAttempt">${t('backBtn')}</button>
       </div>`;
     }
-    return `<div class="actions">
+    const burnFxClass = burnFx==='success' ? ' burn-fx-success' : (burnFx==='fail' ? ' burn-fx-fail' : '');
+    const burnParticlesHtml = burnFx==='success' ? Array.from({length:8}).map((_,i)=>{
+      const angle = (i/8)*2*Math.PI;
+      const dx = Math.round(Math.cos(angle)*34), dy = Math.round(Math.sin(angle)*34);
+      return `<span class="burn-particle" style="--dx:${dx}px;--dy:${dy}px;animation-delay:${i*20}ms;"></span>`;
+    }).join('') : '';
+    return `<div class="actions${burnFxClass}">
+      ${burnParticlesHtml}
       <button class="primary-btn" data-action="actDraw" data-val="deck">${t('drawDeckBtn')}</button>
       <button class="ghost-btn" data-action="actDraw" data-val="discard" ${ROOM.discard.length===0?'disabled':''}>${t('drawDiscardBtn')}</button>
       ${ROOM.discard.length>0?`<button class="ghost-btn burn-btn" data-action="declareBurnAttempt">🔥 ${t('burnBtn')}</button>`:''}
@@ -2270,7 +2307,7 @@ function renderActions(){
   }
   const canDiscardDirect = ROOM.drawnCard.source==='deck';
   return `<div class="actions"><div class="drawn-panel">
-      <div draggable="true" data-drag="drawnCard" class="draggable-card">${renderCardFace(ROOM.drawnCard.card,'big')}</div>
+      <div draggable="true" data-drag="drawnCard" class="draggable-card card-deal-in">${renderCardFace(ROOM.drawnCard.card,'big')}</div>
       <div class="hint">${canDiscardDirect? t('swapHintDiscard') : t('swapHintNo')}</div>
       ${canDiscardDirect? `<button class="ghost-btn" data-action="actDiscardDrawn">${t('discardDirectlyBtn')}</button>`:''}
     </div></div>`;
@@ -2302,7 +2339,7 @@ function renderModal(){
   if(m.type==='king'){
     return modalWrap(`<h3>${t('kingTitle')}</h3>
       <p>${t('kingBody')}</p>
-      <div class="modal-cards">
+      <div class="modal-cards king-double-deal">
         <div>${renderCardFace(m.c1,'big')}<div style="margin-top:6px"><button class="ghost-btn" data-action="actKingChoose" data-val="c1">${t('keepThisBtn')}</button></div></div>
         <div>${renderCardFace(m.c2,'big')}<div style="margin-top:6px"><button class="ghost-btn" data-action="actKingChoose" data-val="c2">${t('keepThisBtn')}</button></div></div>
       </div>
@@ -2319,6 +2356,7 @@ function renderModal(){
   if(m.type==='jackPreview'){
     return modalWrap(`<h3>${t('jackPreviewTitle')}</h3>
       <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">${t('jackPreviewBody')}</p>
+      <div class="jack-arrows-wrap"><span class="arrow-cross">⇄</span></div>
       <div style="display:flex;justify-content:center;margin:10px 0;">${renderCardFace(m.card,'big')}</div>
       <div class="jack-preview-bar-track">
         <div class="jack-preview-bar-fill" data-reveal-until="${m.revealUntil}" data-duration="${JACK_PREVIEW_MS}"></div>
@@ -2341,7 +2379,9 @@ function renderModal(){
   }
   if(m.type==='queenPick') return bannerWrap(t('queenPickTitle'), t('queenPickBody'));
   if(m.type==='queenReveal'){
-    return modalWrap(`<h3>${t('queenGlimpseTitle')}</h3><p style="font-size:16px;color:var(--brass-soft)">${t('slotVal', m.slotIdx+1, m.rank, m.suit, m.value)}</p>
+    return modalWrap(`<h3>${t('queenGlimpseTitle')}</h3>
+      <div class="queen-eye-wrap"><span class="queen-eye-badge">👁️</span></div>
+      <p style="font-size:16px;color:var(--brass-soft)">${t('slotVal', m.slotIdx+1, m.rank, m.suit, m.value)}</p>
       <div class="modal-actions"><button class="primary-btn" data-action="actQueenAck">${t('continueTurn')}</button></div>`);
   }
   return '';
