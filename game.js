@@ -1874,25 +1874,8 @@ function closeMobileMenu(){
   document.body.classList.remove('mobile-menu-open');
 }
 
-// Radial interface (circular command-center redesign): which topic panel,
-// if any, is currently open. Only one at a time — opening a new topic
-// replaces whatever was open, per spec.
-let activeTopic = null;
-const TOPIC_IDS = ['tutorial','howto','special','modes','about','leaderboard'];
-function openTopic(id){
-  activeTopic = (activeTopic===id) ? null : id;
-  render();
-}
-function closeTopic(){
-  if(!activeTopic) return;
-  activeTopic = null;
-  render();
-}
 document.addEventListener('keydown', (e)=>{
-  if(e.key==='Escape'){
-    if(mobileMenuOpen){ closeMobileMenu(); render(); }
-    else if(activeTopic){ closeTopic(); }
-  }
+  if(e.key==='Escape' && mobileMenuOpen){ closeMobileMenu(); render(); }
 });
 
 function goAISetup(){ VIEW='aiSetup'; PENDING_PRACTICE=false; render(); }
@@ -2276,50 +2259,6 @@ function renderLandingHeader(){
 
 function renderLandingEmblem(){
   return `<img class="landing-emblem" src="assets/images/logo-full.webp" alt="Zhaimer" width="180" height="98" />`;
-}
-
-function renderTopicPanel(id){
-  if(!id) return '';
-  let inner = '';
-  if(id==='tutorial'){
-    inner = `<h3>${t('panelTutorialTitle')}</h3>
-      <p>${t('panelTutorialBody')}</p>
-      <button class="topic-panel-cta" data-action="startTutorial">${t('circleStartTutorial')}</button>`;
-  } else if(id==='howto'){
-    const steps = [t('howToStep1'),t('howToStep2'),t('howToStep3'),t('howToStep4'),t('howToStep5'),t('howToStep6')];
-    inner = `<h3>${t('panelHowToTitle')}</h3>
-      <ol class="howto-steps">${steps.map(s=>`<li>${s}</li>`).join('')}</ol>
-      <button class="topic-panel-cta" data-action="goRules">${t('viewCompleteRules')}</button>`;
-  } else if(id==='special'){
-    inner = `<h3>${t('panelSpecialTitle')}</h3>
-      <div class="special-cards-row">
-        <div class="special-card-mini"><span class="scm-letter">J</span><b>${t('specialJackName')}</b><span>${t('specialJackDesc')}</span></div>
-        <div class="special-card-mini"><span class="scm-letter">Q</span><b>${t('specialQueenName')}</b><span>${t('specialQueenDesc')}</span></div>
-        <div class="special-card-mini"><span class="scm-letter">K</span><b>${t('specialKingName')}</b><span>${t('specialKingDesc')}</span></div>
-      </div>`;
-  } else if(id==='modes'){
-    inner = `<h3>${t('panelModesTitle')}</h3>
-      <ul class="modes-list">
-        <li>🧠 ${t('modesAI')}</li>
-        <li>🎚️ ${t('modesAIDiff')}</li>
-        <li>👥 ${t('modesMultiplayer')} <span class="coming-soon-badge" style="position:static;">${t('comingSoonTag')}</span></li>
-      </ul>
-      <button class="topic-panel-cta" data-action="goAISetup">${t('modeAIBtn')}</button>`;
-  } else if(id==='about'){
-    inner = `<h3>${t('panelAboutTitle')}</h3>
-      <p>${t('aboutText')}</p>
-      <p class="about-credit">${t('createdBy')}<br>${t('zhaimerLabsProduction')}</p>`;
-  } else if(id==='leaderboard'){
-    inner = `<h3>${t('panelLeaderboardTitle')}</h3>
-      <p>${t('panelLeaderboardBody')}</p>
-      <a class="topic-panel-cta" href="leaderboard.html">${t('viewLeaderboardBtn')}</a>`;
-  }
-  return `<div class="topic-panel-overlay" data-action="closeTopic">
-    <div class="topic-panel" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-      <button class="topic-panel-close" data-action="closeTopic" aria-label="${t('panelClose')}">✕</button>
-      ${inner}
-    </div>
-  </div>`;
 }
 
 function renderLanding(){
@@ -3259,8 +3198,6 @@ function attach(){
       case 'toggleMotionReduced': toggleMotionReduced(); break;
       case 'toggleMusic': toggleMusic(); break;
       case 'toggleMobileMenu': toggleMobileMenu(); break;
-      case 'openTopic': openTopic(val); break;
-      case 'closeTopic': closeTopic(); break;
     case 'startTutorial': if(window.ZhaimerTutorial) window.ZhaimerTutorial.start(); break;
       case 'goRules': goRules(); break;
       case 'goTheme': goTheme(); break;
