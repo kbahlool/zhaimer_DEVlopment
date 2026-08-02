@@ -340,25 +340,73 @@
   }
   .card.clickable{cursor:pointer; transition:transform .12s;}
   .card.clickable:hover{transform:translateY(-4px) scale(1.03); box-shadow:0 6px 14px rgba(0,0,0,0.35);}
+  .card.clickable.faceDown:hover::before{
+    background-image:
+      linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.16) 50%, transparent 60%),
+      repeating-linear-gradient(45deg, rgba(215,173,79,0.05) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(-45deg, rgba(215,173,79,0.05) 0 1px, transparent 1px 9px);
+    background-size:220% 220%, auto, auto;
+    animation:cardBackSweep .7s ease-out 1;
+  }
   .card.selectable{outline:2px solid var(--teal); outline-offset:2px;}
   .draggable-card{cursor:grab; display:inline-block; transition:transform .12s, opacity .12s;}
   .draggable-card:active{cursor:grabbing;}
   .draggable-card.dragging{opacity:.4; transform:scale(0.95);}
   [data-drop="slot"]{ transition:transform .15s, box-shadow .15s; border-radius:9px; }
   [data-drop="slot"].drag-hover{ transform:scale(1.08); box-shadow:0 0 0 3px var(--teal), 0 8px 18px rgba(63,199,182,0.35); }
+  /* ===================== ZHAIMER Classic card back =====================
+     Premium black/dark-green/gold branded back. Symmetrical so it never
+     hints at orientation or value. data-cardback scaffold lets future
+     skins (Bahrain Heritage, Memory Lab, Royal Edition) be added later by
+     copying this block under [data-cardback="yourkey"] — only "classic"
+     is active for now. */
   .card.faceDown{
+    position:relative;
     background:
-      repeating-radial-gradient(circle at 50% 50%, #23305a 0 6px, #1b2545 6px 12px);
-    border:1px solid #33406b;
+      radial-gradient(circle at 50% 50%, #0e2019 0%, #060d09 72%),
+      linear-gradient(155deg, #081410 0%, #050a07 100%);
+    border:1px solid rgba(215,173,79,0.55);
+    box-shadow:
+      inset 0 0 0 1px rgba(215,173,79,0.14),
+      inset 0 0 14px rgba(0,0,0,0.55),
+      0 3px 10px rgba(0,0,0,0.45);
+    overflow:hidden;
+  }
+  .card.faceDown::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(215,173,79,0.05) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(-45deg, rgba(215,173,79,0.05) 0 1px, transparent 1px 9px);
+    opacity:.5;
   }
   .card.faceDown::after{
-    content:"◆";
-    color:var(--brass-soft);
-    font-size:15px;
-    opacity:.85;
+    content:"";
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='34' fill='none' stroke='%23d7ad4f' stroke-width='2' opacity='0.55'/><text x='50' y='63' font-family='Georgia,serif' font-size='46' font-weight='700' text-anchor='middle' fill='%23e9c65c'>Z</text></svg>");
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:52%;
+    filter:drop-shadow(0 0 3px rgba(0,0,0,0.6));
   }
   .card.faceDown.burnt{
     background:#0d1220; opacity:.35;
+  }
+  .card.faceDown.burnt::before, .card.faceDown.burnt::after{ opacity:0; }
+  .card.faceDown.card-flash::before{
+    background-image:
+      linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.16) 50%, transparent 60%),
+      repeating-linear-gradient(45deg, rgba(215,173,79,0.05) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(-45deg, rgba(215,173,79,0.05) 0 1px, transparent 1px 9px);
+    background-size:220% 220%, auto, auto;
+    animation:cardBackSweep .7s ease-out 1;
+  }
+  @keyframes cardBackSweep{
+    from{ background-position:-40% -40%, 0 0, 0 0; }
+    to{ background-position:140% 140%, 0 0, 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card.faceDown.card-flash::before{ animation:none; }
   }
   .card.faceUp.jack-preview-face{
     box-shadow:0 0 0 2px var(--teal), 0 0 16px rgba(63,199,182,0.5);
@@ -815,6 +863,32 @@ html[data-theme="living"] .avatar{ border-radius:40% 60% 55% 45%; }
 
 /* How-to-play guide */
 .how-guide .guide-kicker{color:var(--brass-soft);font-size:.78rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin:0 0 8px}.how-guide .guide-lead{font-size:1.08rem;color:var(--muted);max-width:75ch}.guide-toc{display:flex;flex-wrap:wrap;gap:9px;margin:24px 0 8px}.guide-toc a{border:1px solid var(--line);border-radius:999px;padding:8px 13px;color:var(--brass-soft);text-decoration:none;font-size:.9rem}.guide-toc a:hover{background:rgba(212,169,73,.08)}.guide-section{scroll-margin-top:20px;padding-top:6px}.guide-tip{margin:18px 0;padding:15px 17px;border-left:4px solid var(--brass-soft);background:rgba(212,169,73,.08);border-radius:8px}.rtl-info .guide-tip{border-left:0;border-right:4px solid var(--brass-soft)}.guide-table-wrap{overflow-x:auto}.guide-table{width:100%;border-collapse:collapse;margin:14px 0 6px}.guide-table th,.guide-table td{padding:12px 14px;border:1px solid var(--line);text-align:left}.rtl-info .guide-table th,.rtl-info .guide-table td{text-align:right}.guide-table th{color:var(--brass-soft);background:rgba(212,169,73,.08)}.special-grid,.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}.special-box,.score-card{border:1px solid var(--line);border-radius:12px;padding:18px;background:rgba(255,255,255,.025)}.special-symbol{font-family:Georgia,serif;font-size:2.4rem;color:var(--brass-soft);line-height:1}.special-box h3,.score-card h3{margin:8px 0;color:var(--cream)}.match-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.match-grid div{padding:14px;border:1px solid var(--line);border-radius:10px;text-align:center}.match-grid strong{display:block;color:var(--brass-soft);font-size:1.15rem}.match-grid span{display:block;margin-top:4px;color:var(--muted);font-size:.9rem}.score-cards{font-family:Georgia,serif;color:var(--brass-soft);font-size:1.15rem}.guide-section details{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:10px 0;background:rgba(255,255,255,.02)}.guide-section summary{cursor:pointer;color:var(--cream);font-weight:700}.guide-section details p{margin:10px 0 0;color:var(--muted)}@media(max-width:760px){.special-grid,.score-grid,.match-grid{grid-template-columns:1fr}.guide-toc{gap:7px}.guide-toc a{font-size:.82rem;padding:7px 10px}}
+.visual-steps{display:flex;flex-direction:column;gap:22px;margin:20px 0 8px}
+.visual-step{display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:16px;background:rgba(255,255,255,.02)}
+.visual-step:nth-child(even){grid-template-columns:1fr 220px}
+.visual-step:nth-child(even) .visual-step-img{order:2}
+.visual-step-img{border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.visual-step-img img{display:block;width:100%;height:auto}
+.visual-step-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(212,169,73,.12);color:var(--brass-soft);font-size:.85rem;font-weight:800;margin-right:8px}
+.visual-step h3{margin:0 0 8px;color:var(--cream);display:flex;align-items:center}
+.visual-step p{margin:0;color:var(--muted);line-height:1.7}
+@media(max-width:700px){.visual-step,.visual-step:nth-child(even){grid-template-columns:1fr}.visual-step:nth-child(even) .visual-step-img{order:0}}
+.tutorial-widget{border:1px solid var(--line);border-radius:14px;padding:18px;background:rgba(255,255,255,.02);margin:20px 0 8px}
+.tutorial-widget-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tutorial-widget-head span{color:var(--muted);font-size:.9rem}
+.tutorial-dots{display:flex;gap:5px}
+.tutorial-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:block}
+.tutorial-dots i.active{background:var(--brass-soft)}
+.tutorial-body{display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center;min-height:200px}
+.tutorial-body-img{border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.tutorial-body-img img{display:block;width:100%;height:auto}
+.tutorial-body h3{margin:0 0 8px;color:var(--cream)}
+.tutorial-body p{margin:0;color:var(--muted);line-height:1.7}
+.tutorial-nav{display:flex;justify-content:space-between;margin-top:16px}
+.tutorial-nav button{border:1px solid var(--line);border-radius:10px;padding:10px 18px;background:transparent;color:var(--cream);font-size:.9rem;cursor:pointer;font-family:inherit}
+.tutorial-nav button:hover{background:rgba(212,169,73,.08)}
+.tutorial-nav button#tut-next{border-color:var(--brass-soft);color:var(--brass-soft)}
+@media(max-width:700px){.tutorial-body{grid-template-columns:1fr}}
 
 /* Persistent floating Home button — same as home.css, kept in sync here
    for pages that load style.css instead. */

@@ -1,0 +1,62 @@
+/* ===========================================================================
+   ZHAIMER — social links (Instagram / YouTube)
+   Shared across index.html, index-ar.html, game.html and the in-game menu.
+   Premium dark/green/gold styling to match the existing design system.
+   =========================================================================== */
+.social-links{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.social-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:40px;
+  height:40px;
+  min-width:44px;
+  min-height:44px;
+  border-radius:50%;
+  border:1px solid rgba(215,173,79,0.45);
+  background:rgba(13,26,18,0.6);
+  color:#d7ad4f;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+}
+.social-icon svg{
+  width:19px;
+  height:19px;
+  fill:currentColor;
+  display:block;
+}
+.social-icon:hover,
+.social-icon:focus-visible{
+  background:linear-gradient(135deg,#e1b85b,#a87321);
+  color:#0a0a07;
+  border-color:#e9c65c;
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.4);
+  outline:none;
+}
+.social-icon:focus-visible{
+  box-shadow:0 0 0 3px rgba(215,173,79,0.5), 0 6px 14px rgba(0,0,0,0.4);
+}
+
+/* Header placement: sits beside the language/nav links, never overlapping */
+.navigation .social-links{ margin-inline-start:6px; }
+
+/* Footer placement */
+.footer-social{
+  display:flex;
+  justify-content:center;
+  margin-top:22px;
+}
+
+/* In-game menu placement (game.js renderLandingHeader) */
+.header-landing .social-links{ margin-inline-start:auto; }
+
+/* RTL mirrors spacing automatically via logical properties above */
+html[lang="ar"] .social-icon{ direction:ltr; }
+
+@media (max-width:600px){
+  .social-icon{ width:40px; height:40px; }
+}

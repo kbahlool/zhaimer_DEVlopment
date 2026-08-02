@@ -12,9 +12,9 @@ const CORE_ASSETS = [
   './game.html',
   './style.css',
   './manifest.json',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png',
-  './assets/icons/favicon-32.png',
+  './icon-192.png',
+  './icon-512.png',
+  './favicon-32.png',
 ];
 
 self.addEventListener('install', (event) => {

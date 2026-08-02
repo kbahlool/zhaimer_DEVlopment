@@ -49,8 +49,114 @@
       <p class="guide-lead">Zhaimer is a strategic memory card game where the best hand is the one with the lowest score. Remember your hidden cards, use special abilities carefully, and decide when to end the round.</p>
 
       <nav class="guide-toc" aria-label="Page sections">
-        <a href="#setup">Setup</a><a href="#objective">Objective</a><a href="#values">Card Values</a><a href="#special">Special Cards</a><a href="#ending">End of Round</a><a href="#scoring">Scoring</a><a href="#faq">FAQ</a>
+        <a href="#visual">Visual Walkthrough</a><a href="#setup">Setup</a><a href="#objective">Objective</a><a href="#values">Card Values</a><a href="#special">Special Cards</a><a href="#ending">End of Round</a><a href="#scoring">Scoring</a><a href="#faq">FAQ</a>
       </nav>
+
+      <section id="visual" class="guide-section">
+        <h2>See It In Action</h2>
+        <p style="color:var(--muted);margin:0 0 6px;">Click through the steps below, or scroll down for the full picture-guided walkthrough.</p>
+
+        <div class="tutorial-widget">
+          <div class="tutorial-widget-head">
+            <span id="tut-label">Step 1 of 9</span>
+            <div class="tutorial-dots" id="tut-dots"></div>
+          </div>
+          <div class="tutorial-body">
+            <div class="tutorial-body-img"><img id="tut-img" src="assets/images/tutorial/step-goal.jpg" alt="" loading="lazy" /></div>
+            <div>
+              <h3 id="tut-title">The goal</h3>
+              <p id="tut-text">End each round with the lowest hidden score. Reach 100 points total and you're eliminated. Last player standing wins the game.</p>
+            </div>
+          </div>
+          <div class="tutorial-nav">
+            <button id="tut-prev">Back</button>
+            <button id="tut-next">Next</button>
+          </div>
+        </div>
+
+        <script>
+        (function(){
+          var steps = [
+            {img:"assets/images/tutorial/step-goal.jpg", title:"The goal", text:"End each round with the lowest hidden score. Reach 100 points total and you're eliminated. Last player standing wins the game."},
+            {img:"assets/images/tutorial/step-hand.jpg", title:"Your starting hand", text:"You get 4 face-down cards in a grid. You peek at 2 of them for 4 seconds, then they flip back over. From there, it's all memory."},
+            {img:"assets/images/tutorial/step-values.jpg", title:"Card values", text:"Ace = 1. Number cards = face value. Red 10s (hearts, diamonds) = 0, the best card in the game. Black 10s, Jack, Queen, King = 10."},
+            {img:"assets/images/tutorial/step-turn.jpg", title:"Taking a turn", text:"Draw from the deck (unknown) or the discard pile (visible). Then swap it into your hand, or discard it directly if it came from the deck."},
+            {img:"assets/images/tutorial/step-powers.jpg", title:"Special powers", text:"Discard a King, Jack or Queen directly (don't swap it in) to activate it. King: draw 2, keep what you want. Jack: blind swap with an opponent. Queen: peek at your own card."},
+            {img:"assets/images/tutorial/step-burning.jpg", title:"Burning", text:"Instead of drawing, guess that one of your hidden cards matches the top discard card. Right: both cards vanish. Wrong: draw 2 penalty cards. Either way, your turn ends."},
+            {img:"assets/images/tutorial/step-finished.jpg", title:"Declaring finished", text:"After your turn, you have 5 seconds to declare Finished if you think you have the lowest hand. Everyone else gets one last turn, then all hands reveal."},
+            {img:"assets/images/tutorial/step-scoring.jpg", title:"Round winner", text:"Whoever truly has the lowest hand scores 0 for that round, whether they declared or not. Guessing wrong on a declare doubles your score instead."},
+            {img:"assets/images/tutorial/step-finished.jpg", title:"Winning the game", text:"Rounds repeat. Once your total hits 100 points, you're out. The last player remaining wins the whole game. Ready to try it yourself?"}
+          ];
+          var i = 0;
+          var label = document.getElementById("tut-label");
+          var dotsWrap = document.getElementById("tut-dots");
+          var img = document.getElementById("tut-img");
+          var title = document.getElementById("tut-title");
+          var text = document.getElementById("tut-text");
+          var prevBtn = document.getElementById("tut-prev");
+          var nextBtn = document.getElementById("tut-next");
+
+          steps.forEach(function(){
+            var d = document.createElement("i");
+            dotsWrap.appendChild(d);
+          });
+
+          function render(){
+            var s = steps[i];
+            img.src = s.img;
+            img.alt = s.title;
+            title.textContent = s.title;
+            text.textContent = s.text;
+            label.textContent = "Step " + (i+1) + " of " + steps.length;
+            var dots = dotsWrap.children;
+            for (var k=0;k<dots.length;k++){ dots[k].className = (k===i ? "active" : ""); }
+            prevBtn.style.visibility = i===0 ? "hidden" : "visible";
+            nextBtn.textContent = i===steps.length-1 ? "Play now" : "Next";
+          }
+          prevBtn.onclick = function(){ if(i>0){ i--; render(); } };
+          nextBtn.onclick = function(){
+            if(i<steps.length-1){ i++; render(); }
+            else { window.location.href = "game.html"; }
+          };
+          render();
+        })();
+        </script>
+
+        <p style="color:var(--muted);margin:22px 0 6px;">Prefer to scroll? Here's the same walkthrough laid out with full screenshots.</p>
+        <div class="visual-steps">
+          <div class="visual-step">
+            <div class="visual-step-img"><img src="assets/images/tutorial/step-hand.jpg" alt="Peeking at two hidden cards at the start of a Zhaimer round" loading="lazy" /></div>
+            <div>
+              <h3><span class="visual-step-num">1</span>Peek at your cards</h3>
+              <p>Every player starts with four face-down cards. Click two of them to peek for four seconds — then they flip back over. This is your only free look, so remember both the value and the position.</p>
+            </div>
+          </div>
+
+          <div class="visual-step">
+            <div class="visual-step-img"><img src="assets/images/tutorial/step-turn.jpg" alt="Choosing to draw from the deck, draw from discard, or burn during a turn" loading="lazy" /></div>
+            <div>
+              <h3><span class="visual-step-num">2</span>Take your turn</h3>
+              <p>On your turn, choose to draw from the deck (unknown card), draw from the discard pile (visible card), or attempt a burn. A countdown timer keeps the game moving.</p>
+            </div>
+          </div>
+
+          <div class="visual-step">
+            <div class="visual-step-img"><img src="assets/images/tutorial/step-powers.jpg" alt="Discarding a King, Jack or Queen directly to activate its power" loading="lazy" /></div>
+            <div>
+              <h3><span class="visual-step-num">3</span>Use special powers</h3>
+              <p>Draw a King, Jack or Queen and discard it directly instead of swapping it in to activate its power: King draws two, Jack blind-swaps with an opponent, Queen lets you peek at your own card.</p>
+            </div>
+          </div>
+
+          <div class="visual-step">
+            <div class="visual-step-img"><img src="assets/images/tutorial/step-scoring.jpg" alt="Round scoring summary showing a low hidden total versus a 100 point elimination penalty" loading="lazy" /></div>
+            <div>
+              <h3><span class="visual-step-num">4</span>Reveal and score</h3>
+              <p>Once the round ends, every hand flips face-up. The lowest total scores zero for the round, and everyone else adds their raw total to their running score. Reach 100 and you're eliminated.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div class="rules-body info-content">
         <section id="setup" class="guide-section">
