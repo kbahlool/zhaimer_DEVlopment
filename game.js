@@ -1200,6 +1200,22 @@ const I18N = {
     modeQuestion:'How do you want to play?', playAIBtn:'Play vs AI',
     opponentsLabel:'AI Opponents', difficultyLabel:'Difficulty',
     opponentsPreviewLabel:"Who You'll Face",
+    navHome:'Home', navHowToPlay:'How to Play', navRules:'Game Rules', navLeaderboard:'Leaderboard', navAbout:'About',
+    navPlayNow:'Play Now', navMenuLabel:'Menu',
+    heroTagline:'Memory Is Your Greatest Weapon.',
+    heroSupport:'A strategic memory card game where every card, decision, and hidden move can change the outcome.',
+    heroNoDownload:'No download required • Play directly in your browser',
+    heroPlayAI:'Play vs AI', heroPlayFriends:'Play with Friends', heroLearnHow:'Learn How to Play',
+    modeSectionTitle:'Choose Your Challenge',
+    modeAITitle:'Play vs AI', modeAIDesc:'Learn the game, practise your memory, and challenge intelligent opponents.',
+    modeAIFeat1:'Beginner friendly', modeAIFeat2:'Adjustable difficulty', modeAIFeat3:'Instant gameplay', modeAIBtn:'Start AI Game',
+    modeFriendsTitle:'Play with Friends', modeFriendsDesc:'Create a private room and challenge your friends.',
+    modeFriendsFeat1:'Private room code', modeFriendsFeat2:'Multiplayer experience', modeFriendsFeat3:'Friendly competition',
+    modeFriendsBtn:'Create a Room', comingSoonTag:'Coming Soon',
+    modeTutorialTitle:'Interactive Tutorial', modeTutorialDesc:'Learn ZHAIMER through a guided step-by-step practice round.',
+    modeTutorialFeat1:'Beginner friendly', modeTutorialFeat2:'Visual instructions', modeTutorialFeat3:'Practise every important action',
+    modeTutorialBtn:'Start Tutorial',
+    moreWaysTitle:'More Ways to Play',
     practiceModeBtn:'Practice Mode', practiceModeSub:'Play freely — nothing is recorded',
     practiceModeNote:"Practice games don't affect your stats, achievements, or the leaderboard.",
     dailyChallengeBtn:'Daily Challenge', dailyChallengeSub:'Same cards for everyone, once a day',
@@ -1403,6 +1419,22 @@ const I18N = {
     modeQuestion:'كيف تحب تلعب؟', playAIBtn:'العب ضد الكمبيوتر',
     opponentsLabel:'عدد خصوم الكمبيوتر', difficultyLabel:'مستوى الصعوبة',
     opponentsPreviewLabel:'من ستواجه',
+    navHome:'الرئيسية', navHowToPlay:'طريقة اللعب', navRules:'قواعد اللعبة', navLeaderboard:'المتصدرون', navAbout:'عن اللعبة',
+    navPlayNow:'العب الآن', navMenuLabel:'القائمة',
+    heroTagline:'الذاكرة هي أقوى سلاحك.',
+    heroSupport:'لعبة بطاقات استراتيجية للذاكرة حيث كل بطاقة وقرار وحركة خفية يمكن أن تغيّر النتيجة.',
+    heroNoDownload:'لا حاجة للتحميل • العب مباشرة من متصفحك',
+    heroPlayAI:'العب ضد الذكاء الاصطناعي', heroPlayFriends:'العب مع الأصدقاء', heroLearnHow:'تعلّم طريقة اللعب',
+    modeSectionTitle:'اختر تحديك',
+    modeAITitle:'العب ضد الذكاء الاصطناعي', modeAIDesc:'تعلّم اللعبة، درّب ذاكرتك، وتحدَّ خصومًا أذكياء.',
+    modeAIFeat1:'مناسب للمبتدئين', modeAIFeat2:'صعوبة قابلة للتعديل', modeAIFeat3:'لعب فوري', modeAIBtn:'ابدأ مباراة',
+    modeFriendsTitle:'العب مع الأصدقاء', modeFriendsDesc:'أنشئ غرفة خاصة وتحدَّ أصدقاءك.',
+    modeFriendsFeat1:'رمز غرفة خاص', modeFriendsFeat2:'تجربة متعددة اللاعبين', modeFriendsFeat3:'منافسة ودّية',
+    modeFriendsBtn:'أنشئ غرفة', comingSoonTag:'قريبًا',
+    modeTutorialTitle:'تعليم تفاعلي', modeTutorialDesc:'تعلّم زهايمر من خلال جولة تدريبية موجّهة خطوة بخطوة.',
+    modeTutorialFeat1:'مناسب للمبتدئين', modeTutorialFeat2:'تعليمات مرئية', modeTutorialFeat3:'تدرّب على كل إجراء مهم',
+    modeTutorialBtn:'ابدأ التعليم',
+    moreWaysTitle:'طرق أخرى للعب',
     practiceModeBtn:'وضع التدريب', practiceModeSub:'العب بحرية — لا شيء يُسجَّل',
     practiceModeNote:'مباريات التدريب لا تؤثر على إحصائياتك أو إنجازاتك أو لوحة المتصدرين.',
     dailyChallengeBtn:'التحدي اليومي', dailyChallengeSub:'نفس الأوراق للجميع، مرة كل يوم',
@@ -1786,6 +1818,21 @@ function renderSettings(){
   </div>`;
 }
 function goPracticeSetup(){ VIEW='aiSetup'; PENDING_PRACTICE=true; render(); }
+let mobileMenuOpen = false;
+function toggleMobileMenu(){
+  mobileMenuOpen = !mobileMenuOpen;
+  document.body.classList.toggle('mobile-menu-open', mobileMenuOpen);
+  render();
+}
+function closeMobileMenu(){
+  if(!mobileMenuOpen) return;
+  mobileMenuOpen = false;
+  document.body.classList.remove('mobile-menu-open');
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && mobileMenuOpen){ closeMobileMenu(); render(); }
+});
+
 function goAISetup(){ VIEW='aiSetup'; PENDING_PRACTICE=false; render(); }
 function preserveAINameField(){
   const el = document.getElementById('aiNameField');
@@ -2148,21 +2195,45 @@ function screenHeader(subtitleOverride, showQuit, compact){
 function renderLandingHeader(){
   const igLabel = LANG==='ar' ? 'تابعوا Zhaimer Labs على إنستغرام' : 'Follow Zhaimer Labs on Instagram';
   const ytLabel = LANG==='ar' ? 'اشتركوا في قناة Zhaimer Labs على يوتيوب' : 'Subscribe to Zhaimer Labs on YouTube';
-  return `<div class="header header-landing">
-    <div class="choice-group">
-      <button class="quit-btn" data-action="toggleSound" title="${t('soundBtn')}">${soundOn?'🔊':'🔇'}</button>
-      <button class="choice-btn ${LANG==='en'?'active':''}" data-action="setLang" data-val="en">EN</button>
-      <button class="choice-btn ${LANG==='ar'?'active':''}" data-action="setLang" data-val="ar">ع</button>
-    </div>
-    <div class="social-links">
-      <a class="social-icon" href="https://www.instagram.com/zhaimerlabs/" target="_blank" rel="noopener noreferrer" aria-label="${igLabel}" title="${igLabel}">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.06 2 .25 2.6.5.7.27 1.2.6 1.7 1.1.5.5.86 1 1.1 1.7.25.6.44 1.4.5 2.6.07 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.06 1.2-.25 2-.5 2.6-.27.7-.6 1.2-1.1 1.7-.5.5-1 .86-1.7 1.1-.6.25-1.4.44-2.6.5-1.3.07-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.06-2-.25-2.6-.5-.7-.27-1.2-.6-1.7-1.1-.5-.5-.86-1-1.1-1.7-.25-.6-.44-1.4-.5-2.6C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.06-1.2.25-2 .5-2.6.27-.7.6-1.2 1.1-1.7.5-.5 1-.86 1.7-1.1.6-.25 1.4-.44 2.6-.5C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.52 0-4.76.07-1 .05-1.5.2-1.86.34-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.14.36-.29.87-.34 1.86C3.2 8.4 3.2 8.76 3.2 12s0 3.52.07 4.76c.05 1 .2 1.5.34 1.86.18.47.4.8.75 1.15.35.35.68.57 1.15.75.36.14.87.29 1.86.34 1.24.07 1.6.07 4.76.07s3.52 0 4.76-.07c1-.05 1.5-.2 1.86-.34.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.14-.36.29-.87.34-1.86.07-1.24.07-1.6.07-4.76s0-3.52-.07-4.76c-.05-1-.2-1.5-.34-1.86-.18-.47-.4-.8-.75-1.15-.35-.35-.68-.57-1.15-.75-.36-.14-.87-.29-1.86-.34C15.52 4 15.15 4 12 4zm0 3.4a4.6 4.6 0 110 9.2 4.6 4.6 0 010-9.2zm0 1.8a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6zm4.8-2a1.08 1.08 0 110 2.15 1.08 1.08 0 010-2.15z"/></svg>
+  const igIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.06 2 .25 2.6.5.7.27 1.2.6 1.7 1.1.5.5.86 1 1.1 1.7.25.6.44 1.4.5 2.6.07 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.06 1.2-.25 2-.5 2.6-.27.7-.6 1.2-1.1 1.7-.5.5-1 .86-1.7 1.1-.6.25-1.4.44-2.6.5-1.3.07-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.06-2-.25-2.6-.5-.7-.27-1.2-.6-1.7-1.1-.5-.5-.86-1-1.1-1.7-.25-.6-.44-1.4-.5-2.6C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.06-1.2.25-2 .5-2.6.27-.7.6-1.2 1.1-1.7.5-.5 1-.86 1.7-1.1.6-.25 1.4-.44 2.6-.5C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.52 0-4.76.07-1 .05-1.5.2-1.86.34-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.14.36-.29.87-.34 1.86C3.2 8.4 3.2 8.76 3.2 12s0 3.52.07 4.76c.05 1 .2 1.5.34 1.86.18.47.4.8.75 1.15.35.35.68.57 1.15.75.36.14.87.29 1.86.34 1.24.07 1.6.07 4.76.07s3.52 0 4.76-.07c1-.05 1.5-.2 1.86-.34.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.14-.36.29-.87.34-1.86.07-1.24.07-1.6.07-4.76s0-3.52-.07-4.76c-.05-1-.2-1.5-.34-1.86-.18-.47-.4-.8-.75-1.15-.35-.35-.68-.57-1.15-.75-.36-.14-.87-.29-1.86-.34C15.52 4 15.15 4 12 4zm0 3.4a4.6 4.6 0 110 9.2 4.6 4.6 0 010-9.2zm0 1.8a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6zm4.8-2a1.08 1.08 0 110 2.15 1.08 1.08 0 010-2.15z"/></svg>`;
+  const ytIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.5 7.2s-.22-1.55-.9-2.23c-.85-.9-1.8-.9-2.24-.95C16.3 3.8 12 3.8 12 3.8h-.01s-4.3 0-7.35.22c-.44.05-1.39.05-2.24.95-.68.68-.9 2.23-.9 2.23S1.2 9.02 1.2 10.85v1.7c0 1.83.28 3.65.28 3.65s.22 1.55.9 2.23c.85.9 1.97.87 2.47.97 1.8.17 7.15.22 7.15.22s4.3-.01 7.35-.22c.44-.05 1.39-.06 2.24-.97.68-.68.9-2.23.9-2.23s.28-1.82.28-3.65v-1.7c0-1.83-.28-3.65-.28-3.65zM9.75 14.9V8.7l6.02 3.1-6.02 3.1z"/></svg>`;
+  const learnLabel = LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play';
+
+  const navLinks = `
+    <a href="index.html" data-nav-link>${t('navHome')}</a>
+    <a href="how-to-play${LANG==='ar'?'-ar':''}.html" data-nav-link>${t('navHowToPlay')}</a>
+    <button data-action="goRules" data-nav-link>${t('navRules')}</button>
+    <a href="leaderboard.html" data-nav-link>${t('navLeaderboard')}</a>
+    <a href="about${LANG==='ar'?'-ar':''}.html" data-nav-link>${t('navAbout')}</a>`;
+
+  return `<header class="premium-nav">
+    <div class="premium-nav-inner">
+      <a href="index.html" class="premium-nav-logo" aria-label="ZHAIMER — Home">
+        <img src="assets/images/logo-full.webp" alt="" width="34" height="34" />
+        <span>ZHAIMER</span>
       </a>
-      <a class="social-icon" href="https://www.youtube.com/@ZhaimerLabs" target="_blank" rel="noopener noreferrer" aria-label="${ytLabel}" title="${ytLabel}">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.5 7.2s-.22-1.55-.9-2.23c-.85-.9-1.8-.9-2.24-.95C16.3 3.8 12 3.8 12 3.8h-.01s-4.3 0-7.35.22c-.44.05-1.39.05-2.24.95-.68.68-.9 2.23-.9 2.23S1.2 9.02 1.2 10.85v1.7c0 1.83.28 3.65.28 3.65s.22 1.55.9 2.23c.85.9 1.97.87 2.47.97 1.8.17 7.15.22 7.15.22s4.3-.01 7.35-.22c.44-.05 1.39-.06 2.24-.97.68-.68.9-2.23.9-2.23s.28-1.82.28-3.65v-1.7c0-1.83-.28-3.65-.28-3.65zM9.75 14.9V8.7l6.02 3.1-6.02 3.1z"/></svg>
-      </a>
+      <nav class="premium-nav-links" aria-label="Main">${navLinks}</nav>
+      <div class="premium-nav-actions">
+        <a class="social-icon" href="https://www.instagram.com/zhaimerlabs/" target="_blank" rel="noopener noreferrer" aria-label="${igLabel}" title="${igLabel}">${igIcon}</a>
+        <a class="social-icon" href="https://www.youtube.com/@ZhaimerLabs" target="_blank" rel="noopener noreferrer" aria-label="${ytLabel}" title="${ytLabel}">${ytIcon}</a>
+        <button class="quit-btn" data-action="toggleSound" title="${t('soundBtn')}">${soundOn?'🔊':'🔇'}</button>
+        <button class="choice-btn ${LANG==='en'?'active':''}" data-action="setLang" data-val="en">EN</button>
+        <button class="choice-btn ${LANG==='ar'?'active':''}" data-action="setLang" data-val="ar">ع</button>
+        <button class="premium-nav-play" data-action="goAISetup">${t('navPlayNow')}</button>
+      </div>
+      <button class="premium-nav-burger" data-action="toggleMobileMenu" aria-label="${t('navMenuLabel')}" aria-expanded="${mobileMenuOpen}">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-  </div>`;
+    <div class="premium-nav-mobile-panel ${mobileMenuOpen?'open':''}" role="dialog" aria-modal="true" aria-hidden="${!mobileMenuOpen}">
+      <nav class="premium-nav-mobile-links" aria-label="Mobile">${navLinks}</nav>
+      <div class="premium-nav-mobile-social">
+        <a class="social-icon" href="https://www.instagram.com/zhaimerlabs/" target="_blank" rel="noopener noreferrer" aria-label="${igLabel}" title="${igLabel}">${igIcon}</a>
+        <a class="social-icon" href="https://www.youtube.com/@ZhaimerLabs" target="_blank" rel="noopener noreferrer" aria-label="${ytLabel}" title="${ytLabel}">${ytIcon}</a>
+      </div>
+      <button class="premium-nav-play" style="width:100%;margin-top:10px;" data-action="goAISetup">${t('navPlayNow')}</button>
+    </div>
+  </header>`;
 }
 
 function renderLandingEmblem(){
@@ -2175,74 +2246,96 @@ function renderLanding(){
     fbNote = `<div class="setup-explainer" style="border-top:none;margin-top:14px;color:var(--crimson)">${t('firebaseMissing')}</div>`;
   }
   return `${renderLandingHeader()}
-  <div class="landing-hero">
-    <img class="landing-hero-banner" src="assets/images/landing-hero.webp" alt="Zhaimer - The Game of Hidden Strategy" />
-  </div>
-  ${renderPublicPlayerCount()}
-  <div class="setup-card landing-card">
-    <div class="dest-title">${t('modeQuestion')}</div>
-    <button class="dest-row dest-gold" data-action="goAISetup">
-    <button class="dest-row dest-gold" data-action="goAISetup">
-      <span class="dest-icon">🧠</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('playAIBtn')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-learn" data-action="startTutorial">
-      <span class="dest-icon">🎓</span>
-      <span class="dest-text">
-        <span class="dest-label">${LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play'}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-teal" data-action="goPracticeSetup">
-      <span class="dest-icon">🎯</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('practiceModeBtn')}</span>
-        <span class="dest-sub">${t('practiceModeSub')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-gold" data-action="startDailyChallenge">
-      <span class="dest-icon">📅</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('dailyChallengeBtn')}</span>
-        <span class="dest-sub">${dailyChallengeSubLabel()}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
+  <main class="premium-landing">
+    <section class="hero-section">
+      <div class="hero-copy">
+        <div class="hero-title-wrap">
+          <h1 class="hero-title">ZHAIMER</h1>
+          <p class="hero-tagline">${t('heroTagline')}</p>
+        </div>
+        <p class="hero-support">${t('heroSupport')}</p>
+        <div class="hero-buttons-row">
+          <button class="hero-btn hero-btn-primary" data-action="goAISetup">${t('heroPlayAI')}</button>
+          <button class="hero-btn hero-btn-secondary" data-action="goCreate" ${!fbReady?'disabled':''}>${t('heroPlayFriends')}</button>
+        </div>
+        <button class="hero-btn-tertiary" data-action="startTutorial">${t('heroLearnHow')} ›</button>
+        <p class="hero-no-download">${t('heroNoDownload')}</p>
+      </div>
+      <div class="hero-cards" aria-hidden="true">
+        <div class="hero-card-float hc-1"><div class="card faceDown big"></div></div>
+        <div class="hero-card-float hc-2"><div class="card faceDown big"></div></div>
+        <div class="hero-card-float hc-3"><div class="card faceDown big"></div></div>
+        <div class="hero-card-float hc-4"><div class="card faceDown big"></div></div>
+      </div>
+    </section>
 
-    <!-- Secondary/utility items condensed into a 2-column grid so the
-         menu doesn't require scrolling to reach the primary actions above. -->
-    <div class="dest-grid-2">
-      <button class="dest-row-compact dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
-        <span class="dest-icon">👥</span>
-        <span class="dest-label">${t('createRoomBtn')}</span>
-      </button>
-      <button class="dest-row-compact dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
-        <span class="dest-icon">🔑</span>
-        <span class="dest-label">${t('joinRoomBtn')}</span>
-      </button>
-      <button class="dest-row-compact dest-purple" data-action="goRules">
-        <span class="dest-icon">📖</span>
-        <span class="dest-label">${t('howToPlayBtn')}</span>
-      </button>
-      <button class="dest-row-compact dest-theme" data-action="goTheme">
-        <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
-        <span class="dest-label">${t('themeBtn')}</span>
-      </button>
-      <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
-        <span class="dest-icon">👤</span>
-        <span class="dest-label">${t('profileBtn')}</span>
-      </a>
-      <button class="dest-row-compact dest-purple" data-action="goSettings">
-        <span class="dest-icon">⚙️</span>
-        <span class="dest-label">${t('settingsBtn')}</span>
-      </button>
-    </div>
-    ${fbNote}
-  </div>
+    ${renderPublicPlayerCount()}
+
+    <section class="mode-section">
+      <h2 class="section-title-premium">${t('modeSectionTitle')}</h2>
+      <div class="mode-cards-grid">
+        <article class="mode-card mode-card-ai">
+          <div class="mode-card-icon">🧠</div>
+          <h3>${t('modeAITitle')}</h3>
+          <p>${t('modeAIDesc')}</p>
+          <ul class="mode-card-features">
+            <li>${t('modeAIFeat1')}</li><li>${t('modeAIFeat2')}</li><li>${t('modeAIFeat3')}</li>
+          </ul>
+          <button class="mode-card-btn" data-action="goAISetup">${t('modeAIBtn')}</button>
+        </article>
+        <article class="mode-card mode-card-friends ${!fbReady?'is-coming-soon':''}">
+          ${!fbReady?`<span class="coming-soon-badge">${t('comingSoonTag')}</span>`:''}
+          <div class="mode-card-icon">👥</div>
+          <h3>${t('modeFriendsTitle')}</h3>
+          <p>${t('modeFriendsDesc')}</p>
+          <ul class="mode-card-features">
+            <li>${t('modeFriendsFeat1')}</li><li>${t('modeFriendsFeat2')}</li><li>${t('modeFriendsFeat3')}</li>
+          </ul>
+          <button class="mode-card-btn" data-action="goCreate" ${!fbReady?'disabled':''}>${t('modeFriendsBtn')}</button>
+        </article>
+        <article class="mode-card mode-card-tutorial">
+          <div class="mode-card-icon">🎓</div>
+          <h3>${t('modeTutorialTitle')}</h3>
+          <p>${t('modeTutorialDesc')}</p>
+          <ul class="mode-card-features">
+            <li>${t('modeTutorialFeat1')}</li><li>${t('modeTutorialFeat2')}</li><li>${t('modeTutorialFeat3')}</li>
+          </ul>
+          <button class="mode-card-btn mode-card-btn-featured" data-action="startTutorial">${t('modeTutorialBtn')}</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="more-ways-section">
+      <h2 class="section-title-premium">${t('moreWaysTitle')}</h2>
+      <div class="dest-grid-2">
+        <button class="dest-row-compact dest-teal" data-action="goPracticeSetup">
+          <span class="dest-icon">🎯</span>
+          <span class="dest-label">${t('practiceModeBtn')}</span>
+        </button>
+        <button class="dest-row-compact dest-gold" data-action="startDailyChallenge">
+          <span class="dest-icon">📅</span>
+          <span class="dest-label">${t('dailyChallengeBtn')}</span>
+        </button>
+        <button class="dest-row-compact dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
+          <span class="dest-icon">🔑</span>
+          <span class="dest-label">${t('joinRoomBtn')}</span>
+        </button>
+        <button class="dest-row-compact dest-theme" data-action="goTheme">
+          <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
+          <span class="dest-label">${t('themeBtn')}</span>
+        </button>
+        <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
+          <span class="dest-icon">👤</span>
+          <span class="dest-label">${t('profileBtn')}</span>
+        </a>
+        <button class="dest-row-compact dest-purple" data-action="goSettings">
+          <span class="dest-icon">⚙️</span>
+          <span class="dest-label">${t('settingsBtn')}</span>
+        </button>
+      </div>
+      ${fbNote}
+    </section>
+  </main>
   <div class="trailer-slot" id="trailerSlot">
     ${hasSeenTrailer() ? `
     <video id="zhaimerTrailer" class="trailer-video" src="assets/videos/zhaimer-trailer.mp4"
@@ -3090,6 +3183,7 @@ function attach(){
     const player = t2.dataset.player!==undefined? t2.dataset.player:null;
     if(action!=='toggleSound') sfxClick();
     if(musicOn && !ambienceNodes) startAmbience();
+    if(mobileMenuOpen && action!=='toggleMobileMenu') closeMobileMenu();
     switch(action){
       case 'setLang': setLang(val); break;
       case 'toggleSound': toggleSound(); break;
@@ -3101,6 +3195,7 @@ function attach(){
       case 'goSettings': goSettings(); break;
       case 'toggleMotionReduced': toggleMotionReduced(); break;
       case 'toggleMusic': toggleMusic(); break;
+      case 'toggleMobileMenu': toggleMobileMenu(); break;
     case 'startTutorial': if(window.ZhaimerTutorial) window.ZhaimerTutorial.start(); break;
       case 'goRules': goRules(); break;
       case 'goTheme': goTheme(); break;

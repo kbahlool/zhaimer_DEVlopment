@@ -1,0 +1,262 @@
+/* =============================================================================
+   ZHAIMER — Premium landing page redesign (game.html front page)
+   Scope: navigation, hero, and mode-selection sections. Reuses existing
+   design-system CSS variables from style.css (--bg, --panel, --brass-soft,
+   --teal, etc.) so it inherits the active table theme automatically.
+   Respects prefers-reduced-motion and the manual reduce-motion-pref class.
+   ============================================================================= */
+
+.premium-landing{
+  max-width:1180px;
+  margin:0 auto;
+  padding:0 clamp(14px, 4vw, 32px);
+}
+
+/* ============================= NAVIGATION ============================= */
+.premium-nav{
+  position:sticky; top:0; z-index:200;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.premium-nav-inner{
+  max-width:1180px; margin:0 auto;
+  display:flex; align-items:center; gap:18px;
+  padding:10px clamp(14px, 4vw, 32px);
+  min-height:56px;
+}
+.premium-nav-logo{
+  display:flex; align-items:center; gap:8px;
+  text-decoration:none; color:var(--cream);
+  font-family:Georgia,serif; font-weight:800; font-size:17px; letter-spacing:2px;
+  flex-shrink:0;
+}
+.premium-nav-logo img{ display:block; border-radius:6px; }
+.premium-nav-links{
+  display:flex; align-items:center; gap:22px;
+  flex:1;
+}
+.premium-nav-links a, .premium-nav-links button{
+  background:none; border:none; cursor:pointer;
+  color:var(--muted); text-decoration:none;
+  font-size:13.5px; font-weight:600; letter-spacing:.2px;
+  padding:6px 2px;
+  transition:color .15s ease;
+}
+.premium-nav-links a:hover, .premium-nav-links button:hover{ color:var(--brass-soft); }
+.premium-nav-actions{ display:flex; align-items:center; gap:10px; }
+.premium-nav-play{
+  background:linear-gradient(135deg, var(--brass-soft), var(--brass));
+  color:#0a0a07; border:none; border-radius:9px;
+  padding:10px 20px; font-weight:800; font-size:13.5px; letter-spacing:.3px;
+  cursor:pointer; white-space:nowrap;
+  min-height:44px;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.premium-nav-play:hover{ transform:translateY(-1px); box-shadow:0 6px 16px color-mix(in srgb, var(--brass-soft) 35%, transparent); }
+
+.premium-nav-burger{
+  display:none;
+  flex-direction:column; justify-content:center; gap:4px;
+  width:44px; height:44px; border-radius:8px;
+  background:transparent; border:1px solid var(--line);
+  cursor:pointer; flex-shrink:0;
+}
+.premium-nav-burger span{
+  display:block; width:20px; height:2px; margin:0 auto;
+  background:var(--cream); border-radius:2px;
+  transition:transform .2s ease, opacity .2s ease;
+}
+.premium-nav-mobile-panel{
+  display:none;
+}
+
+@media (max-width: 860px){
+  .premium-nav-links{ display:none; }
+  .premium-nav-actions > .social-icon,
+  .premium-nav-actions > .quit-btn,
+  .premium-nav-actions > .choice-btn{ display:none; }
+  .premium-nav-burger{ display:flex; margin-inline-start:auto; }
+  .premium-nav-mobile-panel{
+    display:flex; flex-direction:column; gap:14px;
+    max-height:0; overflow:hidden; opacity:0;
+    padding:0 clamp(14px, 4vw, 32px);
+    transition:max-height .25s ease, opacity .2s ease, padding .25s ease;
+  }
+  .premium-nav-mobile-panel.open{
+    max-height:420px; opacity:1; padding:10px clamp(14px, 4vw, 32px) 18px;
+    border-top:1px solid var(--line);
+  }
+  .premium-nav-mobile-links{ display:flex; flex-direction:column; gap:2px; }
+  .premium-nav-mobile-links a, .premium-nav-mobile-links button{
+    background:none; border:none; text-align:start; cursor:pointer;
+    color:var(--cream); text-decoration:none;
+    font-size:15px; font-weight:600;
+    padding:12px 4px; min-height:44px;
+    border-bottom:1px solid var(--line);
+  }
+  .premium-nav-mobile-social{ display:flex; gap:10px; padding-top:4px; }
+}
+
+/* Body scroll lock while the mobile menu is open */
+body.mobile-menu-open{ overflow:hidden; }
+
+/* ============================= HERO ============================= */
+.hero-section{
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  align-items:center;
+  gap:clamp(20px, 4vw, 48px);
+  padding:clamp(28px, 6vw, 64px) 0 clamp(20px, 4vw, 40px);
+}
+.hero-copy{ min-width:0; }
+.hero-title-wrap{ margin-bottom:14px; }
+.hero-title{
+  margin:0; font-family:Georgia,serif; font-weight:800;
+  font-size:clamp(40px, 8vw, 72px); letter-spacing:4px;
+  color:var(--brass-soft);
+  text-shadow:0 4px 24px color-mix(in srgb, var(--brass-soft) 25%, transparent);
+  line-height:1;
+}
+.hero-tagline{
+  margin:10px 0 0; font-size:clamp(16px, 2.4vw, 20px); font-weight:700;
+  color:var(--cream);
+}
+.hero-support{
+  color:var(--muted); font-size:clamp(13.5px, 1.6vw, 15px); line-height:1.6;
+  max-width:52ch; margin:0 0 22px;
+}
+.hero-buttons-row{ display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+.hero-btn{
+  min-height:48px; padding:13px 26px; border-radius:11px;
+  font-size:14.5px; font-weight:800; letter-spacing:.3px;
+  cursor:pointer; border:1px solid transparent;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.hero-btn-primary{
+  background:linear-gradient(135deg, var(--brass-soft), var(--brass));
+  color:#0a0a07;
+  box-shadow:0 10px 26px color-mix(in srgb, var(--brass-soft) 25%, transparent);
+}
+.hero-btn-secondary{
+  background:color-mix(in srgb, var(--panel2) 80%, transparent);
+  color:var(--cream); border-color:var(--line);
+}
+.hero-btn:hover:not(:disabled){ transform:translateY(-2px); filter:brightness(1.06); }
+.hero-btn:disabled{ opacity:.4; cursor:not-allowed; }
+.hero-btn-tertiary{
+  display:inline-block; background:none; border:none; cursor:pointer;
+  color:var(--teal); font-size:13.5px; font-weight:700;
+  padding:6px 2px; min-height:44px;
+}
+.hero-no-download{
+  margin:14px 0 0; font-size:11.5px; color:var(--muted); letter-spacing:.3px;
+}
+
+/* Floating face-down card display */
+.hero-cards{
+  position:relative;
+  height:clamp(180px, 26vw, 320px);
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-card-float{
+  position:absolute;
+  width:clamp(70px, 9vw, 108px);
+  transition:transform .3s ease;
+}
+.hero-card-float .card{
+  width:100%; aspect-ratio:5/7; height:auto;
+}
+.hc-1{ transform:translate(-90px,-30px) rotate(-14deg); z-index:1; }
+.hc-2{ transform:translate(-28px, 10px) rotate(-4deg); z-index:2; }
+.hc-3{ transform:translate(34px, 4px) rotate(6deg); z-index:2; }
+.hc-4{ transform:translate(96px,-24px) rotate(15deg); z-index:1; }
+@media (min-width: 861px){
+  .hero-cards:hover .hc-1{ transform:translate(-100px,-40px) rotate(-16deg); }
+  .hero-cards:hover .hc-2{ transform:translate(-32px, 0px) rotate(-5deg); }
+  .hero-cards:hover .hc-3{ transform:translate(38px, -6px) rotate(7deg); }
+  .hero-cards:hover .hc-4{ transform:translate(106px,-34px) rotate(17deg); }
+}
+
+@media (max-width: 860px){
+  .hero-section{ grid-template-columns:1fr; text-align:center; padding-top:20px; }
+  .hero-copy{ order:1; }
+  .hero-cards{ order:2; height:150px; }
+  .hero-support{ margin-inline:auto; }
+  .hero-buttons-row{ justify-content:center; }
+  .hero-btn{ flex:1 1 auto; min-width:130px; }
+  .hero-card-float{ width:64px; }
+  .hc-1{ transform:translate(-64px,-10px) rotate(-12deg); }
+  .hc-2{ transform:translate(-20px, 6px) rotate(-3deg); }
+  .hc-3{ transform:translate(24px, 4px) rotate(4deg); }
+  .hc-4{ transform:translate(66px,-8px) rotate(12deg); }
+}
+
+/* ============================= MODE SELECTION ============================= */
+.section-title-premium{
+  text-align:center; font-family:Georgia,serif; font-weight:800;
+  font-size:clamp(22px, 3.4vw, 30px); color:var(--cream);
+  margin:0 0 22px;
+}
+.mode-section{ padding:clamp(20px, 4vw, 40px) 0; }
+.mode-cards-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+}
+@media (max-width: 900px){
+  .mode-cards-grid{ grid-template-columns:1fr; }
+}
+.mode-card{
+  position:relative;
+  display:flex; flex-direction:column;
+  background:color-mix(in srgb, var(--panel2) 82%, transparent);
+  border:1px solid var(--line); border-radius:16px;
+  padding:22px 20px;
+  transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.mode-card:hover{ transform:translateY(-4px); border-color:var(--brass-soft); box-shadow:0 14px 30px rgba(0,0,0,0.3); }
+.mode-card-icon{ font-size:30px; margin-bottom:8px; }
+.mode-card h3{ margin:0 0 8px; font-size:17px; color:var(--cream); }
+.mode-card p{ margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.55; flex:1; }
+.mode-card-features{
+  list-style:none; margin:0 0 18px; padding:0;
+  display:flex; flex-direction:column; gap:6px;
+}
+.mode-card-features li{
+  font-size:12px; color:var(--muted); padding-inline-start:18px; position:relative;
+}
+.mode-card-features li::before{
+  content:"✓"; position:absolute; inset-inline-start:0; color:var(--teal); font-weight:800;
+}
+.mode-card-btn{
+  min-height:46px; border-radius:10px; border:1px solid var(--line);
+  background:color-mix(in srgb, var(--panel) 90%, transparent);
+  color:var(--cream); font-weight:700; font-size:13.5px; cursor:pointer;
+  transition:background .15s ease, border-color .15s ease;
+}
+.mode-card-btn:hover:not(:disabled){ border-color:var(--brass-soft); }
+.mode-card-btn:disabled{ opacity:.4; cursor:not-allowed; }
+.mode-card-btn-featured{
+  background:linear-gradient(135deg, var(--brass-soft), var(--brass));
+  color:#0a0a07; border-color:transparent;
+}
+.mode-card.is-coming-soon{ opacity:.85; }
+.coming-soon-badge{
+  position:absolute; top:14px; inset-inline-end:14px;
+  background:color-mix(in srgb, var(--crimson) 20%, var(--panel));
+  color:var(--crimson); font-size:10px; font-weight:800; letter-spacing:.5px;
+  text-transform:uppercase; padding:4px 8px; border-radius:6px;
+}
+
+.more-ways-section{ padding:clamp(16px, 3vw, 28px) 0 clamp(24px, 5vw, 48px); }
+
+@media (prefers-reduced-motion: reduce), (max-width: 0){
+  .hero-card-float{ transition:none; }
+}
+html.reduce-motion-pref .hero-card-float,
+html.reduce-motion-pref .mode-card{ transition:none; }
+@media (prefers-reduced-motion: reduce){
+  .hero-card-float, .mode-card, .premium-nav-play, .hero-btn{ transition:none; }
+}
