@@ -109,3 +109,19 @@
   .burn-particle{ display:none; }
   .actions.burn-fx-fail{ animation:none; }
 }
+
+/* ---------- AI personalities (Stage C): opponent preview cards ---------- */
+.ai-persona-list{
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+.ai-persona-card{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:3px; padding:10px 12px; min-width:96px; flex:1;
+  border-radius:10px; border:1px solid var(--line);
+  background:linear-gradient(165deg, var(--panel2) 0%, var(--panel) 70%);
+  transition:transform .15s ease, border-color .15s ease;
+}
+.ai-persona-card:hover{ transform:translateY(-2px); border-color:var(--brass-soft); }
+.ai-persona-avatar{ font-size:22px; line-height:1; }
+.ai-persona-name{ font-size:12px; font-weight:700; color:var(--cream); }
+.ai-persona-desc{ font-size:10.5px; color:var(--muted); line-height:1.35; }

@@ -774,7 +774,31 @@ let LOCAL_MODE = false;
 let DIFFICULTY = 'medium';
 let NUM_AI = 2;
 let processingLocalAI = false;
-const AI_NAMES = ['Hasan','Ali','Yousef','Omar','Sultan'];
+
+// Stage C: AI personalities. Purely presentational layer (name, avatar,
+// short description) on top of the existing difficulty engine — the actual
+// decision logic below still reads the single global DIFFICULTY exactly as
+// before, so behavior is unchanged and low-risk. Personas are picked from
+// the tier matching whatever difficulty the player selected, so a "Master"
+// name never shows up in an Easy game and vice versa.
+const AI_PERSONAS = {
+  easy: [
+    { name:'Rookie Rami', avatar:'🐣', descEn:'New to the game and a little forgetful.', descAr:'جديد على اللعبة وينسى أحيانًا.' },
+    { name:'Rookie Sara', avatar:'🌱', descEn:'Still learning the ropes.', descAr:'لا تزال تتعلم أساسيات اللعبة.' },
+    { name:'Rookie Adam', avatar:'🐥', descEn:'Plays it safe, sometimes too safe.', descAr:'يلعب بحذر، أحيانًا أكثر من اللازم.' },
+  ],
+  medium: [
+    { name:'Memory Mira', avatar:'🧠', descEn:'A balanced player with a solid memory.', descAr:'لاعبة متوازنة بذاكرة قوية.' },
+    { name:'Strategist Zain', avatar:'♟️', descEn:'Plans a few moves ahead.', descAr:'يخطط لعدة خطوات مقدمًا.' },
+    { name:'Tactician Noor', avatar:'🔍', descEn:'Watches the discard pile closely.', descAr:'يراقب كومة الرمي عن كثب.' },
+  ],
+  hard: [
+    { name:'Master Z', avatar:'👑', descEn:'A tough, calculating opponent.', descAr:'خصم قوي وحسابي.' },
+    { name:'Master Layla', avatar:'🎯', descEn:'Rarely makes a wasted move.', descAr:'نادرًا ما تهدر حركة.' },
+    { name:'Master Idris', avatar:'⚡', descEn:'Fast, sharp, and unforgiving.', descAr:'سريع، حاد، ولا يرحم.' },
+  ],
+};
+function aiPersonasFor(difficulty){ return AI_PERSONAS[difficulty] || AI_PERSONAS.medium; }
 
 async function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
@@ -812,10 +836,15 @@ function startLocalGame(numAI, difficulty){
   LOCAL_MODE = true;
   DIFFICULTY = difficulty;
   const room = freshRoom(myUid, myName || 'You');
+  const personas = aiPersonasFor(difficulty);
   for(let i=0;i<numAI;i++){
     const aiUid = 'ai'+i;
-    roomAddPlayer(room, aiUid, AI_NAMES[i]);
+    const persona = personas[i % personas.length];
+    roomAddPlayer(room, aiUid, persona.name);
     room.players[aiUid].isAI = true;
+    room.players[aiUid].aiAvatar = persona.avatar;
+    room.players[aiUid].aiDescEn = persona.descEn;
+    room.players[aiUid].aiDescAr = persona.descAr;
   }
   ROOM = room;
   ROOM_CODE = null;
@@ -1020,6 +1049,7 @@ const I18N = {
     title:'ZHAIMER', subtitle:'Online — play with friends', soundBtn:'Toggle sound',
     modeQuestion:'How do you want to play?', playAIBtn:'Play vs AI',
     opponentsLabel:'AI Opponents', difficultyLabel:'Difficulty',
+    opponentsPreviewLabel:"Who You'll Face",
     diff_easy:'Easy', diff_medium:'Medium', diff_hard:'Hard', dealBtn:'Deal the cards',
     timeLeft:'Time left',
     howToPlayBtn:'How to Play', rulesTitle:'How to Play ZHAIMER',
@@ -1203,6 +1233,7 @@ const I18N = {
     title:'زهايمر', subtitle:'أونلاين — العب مع أصحابك', soundBtn:'تشغيل/كتم الصوت',
     modeQuestion:'كيف تحب تلعب؟', playAIBtn:'العب ضد الكمبيوتر',
     opponentsLabel:'عدد خصوم الكمبيوتر', difficultyLabel:'مستوى الصعوبة',
+    opponentsPreviewLabel:'من ستواجه',
     diff_easy:'سهل', diff_medium:'متوسط', diff_hard:'صعب', dealBtn:'وزّع الأوراق',
     timeLeft:'الوقت المتبقي',
     howToPlayBtn:'كيف تلعب', rulesTitle:'كيف تلعب زهايمر',
@@ -2040,6 +2071,17 @@ function renderAISetup(){
         ${['easy','medium','hard'].map(d=>`<button class="choice-btn ${DIFFICULTY===d?'active':''}" data-action="setDifficulty" data-val="${d}">${t('diff_'+d)}</button>`).join('')}
       </div>
     </div>
+    <div class="setup-row ai-persona-preview">
+      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('opponentsPreviewLabel')}</label>
+      <div class="ai-persona-list">
+        ${aiPersonasFor(DIFFICULTY).slice(0, NUM_AI).map(p=>`
+          <div class="ai-persona-card">
+            <span class="ai-persona-avatar">${p.avatar}</span>
+            <span class="ai-persona-name">${p.name}</span>
+            <span class="ai-persona-desc">${LANG==='ar'?p.descAr:p.descEn}</span>
+          </div>`).join('')}
+      </div>
+    </div>
     <div class="actions" style="margin-top:16px">
       <button class="ghost-btn" data-action="goBackToLanding">${t('backBtn')}</button>
       <button class="primary-btn" data-action="submitAISetup">${t('dealBtn')}</button>
@@ -2157,7 +2199,7 @@ function renderPlayerBlock(uid){
   return `<div class="player-block ${activeNow?'active-turn':''} ${declared?'declared':''}" style="${colorStyleVars(col)} ${p.eliminated?'opacity:.4':''}">
     ${timerBadgeHtml(uid)}
     <div class="player-row-top">
-      <div class="avatar">${avatarInitial(p.name)}</div>
+      <div class="avatar" ${p.isAI && (p.aiDescEn||p.aiDescAr) ? `title="${(LANG==='ar'?p.aiDescAr:p.aiDescEn)||''}"` : ''}>${p.isAI && p.aiAvatar ? p.aiAvatar : avatarInitial(p.name)}</div>
       <div class="player-namecol">
         <div class="player-name">
           <span class="nm">${p.name}${uid===myUid?` (${t('you')})`:''}${p.isAI?' 🤖':''}</span>
