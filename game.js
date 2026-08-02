@@ -1383,7 +1383,7 @@ const I18N = {
     roundWinnerMsg:(n)=>`${n} had the lowest hand this round and scores 0 for it!`,
     runningTotals:'Running totals',
     nextRoundBtn:'Next Round', seeResultBtn:'See Final Result',
-    gameOverHeading:'Game Over', winsLabel:(n)=>`${n} wins`, playAgainBtn:'Back to Menu',
+    gameOverHeading:'Game Over', winsLabel:(n)=>`${n} wins`, winsSuffixLabel:'wins the match! 🏆', playAgainBtn:'Back to Menu',
     matchSummaryTitle:'Match Summary', bestRoundLabel:'Best Round', burnsLabel:'Successful Burns',
     smartExchangeLabel:'Smart Exchanges', highValueReplacedLabel:'High Cards Replaced',
     newPersonalBest:'🎉 New personal best!', vsBestScore:(b)=>`Your best score so far is ${b}.`,
@@ -1627,7 +1627,7 @@ const I18N = {
     roundWinnerMsg:(n)=>`كان لدى ${n} أقل مجموع هذه الجولة، فيحصل على 0 نقطة!`,
     runningTotals:'المجموع التراكمي',
     nextRoundBtn:'الجولة التالية', seeResultBtn:'عرض النتيجة النهائية',
-    gameOverHeading:'انتهت المباراة', winsLabel:(n)=>`${n} يفوز`, playAgainBtn:'رجوع للقائمة',
+    gameOverHeading:'انتهت المباراة', winsLabel:(n)=>`${n} يفوز`, winsSuffixLabel:'يفوز بالمباراة! 🏆', playAgainBtn:'رجوع للقائمة',
     matchSummaryTitle:'ملخص المباراة', bestRoundLabel:'أفضل جولة', burnsLabel:'حرق ناجح',
     smartExchangeLabel:'تبديلات ذكية', highValueReplacedLabel:'أوراق عالية استُبدلت',
     newPersonalBest:'🎉 رقم قياسي شخصي جديد!', vsBestScore:(b)=>`أفضل نتيجة لك حتى الآن هي ${b}.`,
@@ -2756,18 +2756,23 @@ function renderDailyResult(){
   return `<div class="table">
   ${screenHeader()}
   <div class="reveal-wrap">
-    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding-top:14px;">
-      <h2>${t('dailyResultHeading')}</h2>
-      <div style="font-family:Georgia,serif;font-size:36px;color:var(--brass-soft);margin:10px 0;">${score}</div>
-      <div style="color:var(--muted);font-size:13px;">${t('pts')}</div>
-      ${isNewBest ? `<div style="color:var(--teal);font-size:13px;margin-top:8px;">${t('newPersonalBest')}</div>` : ''}
+    <div class="reveal-scroll results-scroll">
+      <div class="results-hero">
+        <div class="results-icon">📅</div>
+        <h2 class="results-heading">${t('dailyResultHeading')}</h2>
+        <div class="results-score-badge ${isNewBest?'is-best':''}">
+          <span class="results-score-num">${score}</span>
+          <span class="results-score-unit">${t('pts')}</span>
+        </div>
+        ${isNewBest ? `<div class="results-best-tag">${t('newPersonalBest')}</div>` : ''}
+      </div>
       ${dc ? `<div class="match-stats-panel">
         <div class="match-stats-grid">
           <div class="match-stat"><div class="num">${dc.bestScore!==null?dc.bestScore:'—'}</div><div class="label">${t('dailyBestLabel')}</div></div>
-          <div class="match-stat"><div class="num">${dc.streak}</div><div class="label">${t('dailyStreakLabel')}</div></div>
+          <div class="match-stat"><div class="num">${dc.streak}🔥</div><div class="label">${t('dailyStreakLabel')}</div></div>
         </div>
       </div>` : ''}
-      <div style="color:var(--muted);font-size:11.5px;margin-top:10px;max-width:280px;">${t('dailyRetryNote')}</div>
+      <div class="results-note">${t('dailyRetryNote')}</div>
     </div>
     <div class="reveal-footer" style="border-top:none;">
       <button class="primary-btn" style="width:100%" data-action="startDailyChallenge">${t('dailyRetryBtn')}</button>
@@ -2817,11 +2822,18 @@ function renderGameOver(){
   return `<div class="table">
   ${screenHeader()}
   <div class="reveal-wrap">
-    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding-top:14px;">
-      <h2>${t('gameOverHeading')}</h2>
-      <div style="font-family:Georgia,serif;font-size:24px;color:var(--brass-soft);margin:12px 0;">${t('winsLabel', winner.name)}</div>
-      <div style="color:var(--muted);font-size:13px;">
-        ${ROOM.turnOrder.map(uid=>`<div>${ROOM.players[uid].name}: ${ROOM.players[uid].total} ${t('pts')} ${ROOM.players[uid].eliminated?`(${t('eliminatedTag')})`:''}</div>`).join('')}
+    <div class="reveal-scroll results-scroll">
+      <div class="results-hero">
+        <div class="results-icon">🏆</div>
+        <h2 class="results-heading">${t('gameOverHeading')}</h2>
+        <div class="results-winner-name">${winner.name}</div>
+        <div class="results-winner-sub">${t('winsSuffixLabel')}</div>
+      </div>
+      <div class="final-scores-list">
+        ${ROOM.turnOrder.map(uid=>`<div class="final-score-row ${uid===winner.uid || ROOM.players[uid].name===winner.name ? 'is-winner':''}">
+          <span>${ROOM.players[uid].name}${ROOM.players[uid].eliminated?` <span class="eliminated-tag">(${t('eliminatedTag')})</span>`:''}</span>
+          <b>${ROOM.players[uid].total} ${t('pts')}</b>
+        </div>`).join('')}
       </div>
       ${statsBlockHtml}
     </div>

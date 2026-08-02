@@ -202,3 +202,73 @@ html[dir="rtl"] .settings-toggle.on .settings-toggle-knob{ transform:translateX(
 .dest-row-compact .dest-icon{ font-size:19px; line-height:1; }
 .dest-row-compact .dest-label{ font-size:11.5px; font-weight:700; color:var(--cream); line-height:1.25; }
 .dest-row-compact[disabled]{ opacity:.45; pointer-events:none; }
+
+/* ---------- Fix: hide static SEO section + footer during active gameplay ---------- */
+/* The "About Zhaimer" section and footer in game.html sit right after #app
+   in the DOM and were never hidden, so they stayed visible below the game
+   at all times — including during actual gameplay — forcing a scroll past
+   a fully-playable game. body.page-scroll is already toggled by render():
+   present on the landing/menu screen (where this content is useful and
+   scrolling is expected), absent during active play (peek, drawing,
+   reveal, etc.) where the game should fill the whole viewport. */
+body:not(.page-scroll) .game-information,
+body:not(.page-scroll) .site-footer{
+  display:none;
+}
+
+/* ---------- Results screens redesign (Daily Challenge + Game Over) ---------- */
+.results-scroll{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  padding-top:10px;
+}
+.results-hero{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:10px 0 16px; width:100%;
+}
+.results-icon{
+  font-size:34px; line-height:1;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+.results-heading{
+  margin:2px 0 4px; font-size:15px; letter-spacing:1px;
+  text-transform:uppercase; color:var(--muted); font-weight:700;
+}
+.results-score-badge{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:118px; height:118px; border-radius:50%; margin:8px 0;
+  background:radial-gradient(circle at 50% 35%, var(--panel2) 0%, var(--panel) 75%);
+  border:2px solid var(--line);
+  box-shadow:0 8px 20px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+.results-score-badge.is-best{
+  border-color:var(--brass-soft);
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--brass-soft) 18%, transparent), 0 8px 20px rgba(0,0,0,0.35);
+}
+.results-score-num{ font-family:Georgia,serif; font-size:38px; font-weight:800; color:var(--brass-soft); line-height:1; }
+.results-score-unit{ font-size:11px; color:var(--muted); margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+.results-best-tag{
+  font-size:12.5px; color:var(--teal); font-weight:700; margin-top:2px;
+}
+.results-winner-name{
+  font-family:Georgia,serif; font-size:26px; font-weight:800; color:var(--brass-soft); margin-top:4px;
+}
+.results-winner-sub{ font-size:13px; color:var(--muted); }
+.results-note{
+  color:var(--muted); font-size:11.5px; margin-top:12px; max-width:300px; line-height:1.5;
+}
+.final-scores-list{
+  width:100%; max-width:340px; margin-top:6px;
+  border:1px solid var(--line); border-radius:12px; overflow:hidden;
+}
+.final-score-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px; font-size:13.5px; color:var(--cream);
+  background:rgba(255,255,255,0.015);
+  border-bottom:1px solid var(--line);
+}
+.final-score-row:last-child{ border-bottom:none; }
+.final-score-row.is-winner{
+  background:linear-gradient(90deg, color-mix(in srgb, var(--brass-soft) 10%, transparent), transparent);
+  color:var(--brass-soft); font-weight:700;
+}
+.eliminated-tag{ color:var(--crimson); font-size:11px; font-weight:400; }
