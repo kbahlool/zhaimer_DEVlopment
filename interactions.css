@@ -110,6 +110,27 @@
   .actions.burn-fx-fail{ animation:none; }
 }
 
+/* ---------- Post-match results (Stage D): match summary panel ---------- */
+.match-stats-panel{
+  margin-top:16px; width:100%; max-width:360px;
+  border:1px solid var(--line); border-radius:12px;
+  background:linear-gradient(165deg, var(--panel2) 0%, var(--panel) 70%);
+  padding:14px;
+}
+.match-stats-title{
+  font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+}
+.match-stats-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;
+}
+.match-stat{ text-align:center; }
+.match-stat .num{ font-size:20px; font-weight:800; color:var(--brass-soft); }
+.match-stat .label{ font-size:10px; color:var(--muted); margin-top:2px; letter-spacing:.3px; }
+.match-stats-note{
+  margin-top:10px; padding-top:8px; border-top:1px solid var(--line);
+  font-size:12px; color:var(--teal); text-align:center;
+}
+
 /* ---------- AI personalities (Stage C): opponent preview cards ---------- */
 .ai-persona-list{
   display:flex; flex-wrap:wrap; gap:8px;

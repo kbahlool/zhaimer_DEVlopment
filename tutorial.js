@@ -280,7 +280,15 @@
 
   function closeTutorial(completed){
     if(TUT && TUT.peekTimer) clearInterval(TUT.peekTimer);
-    if(completed){ storageSet(STORAGE_DONE, '1'); }
+    if(completed){
+      storageSet(STORAGE_DONE, '1');
+      // Stage D/E: unlock the Tutorial Graduate achievement, if the
+      // achievements module happens to be loaded. Purely additive — the
+      // tutorial's own completion tracking above is unaffected either way.
+      if(window.ZhaimerProfile && typeof window.ZhaimerProfile.markTutorialComplete==='function'){
+        try{ window.ZhaimerProfile.markTutorialComplete(); }catch(e){}
+      }
+    }
     TUT = null;
     if(root){ root.setAttribute('hidden',''); }
     const lastFocused = TUT && TUT.lastFocused;

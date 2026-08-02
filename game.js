@@ -721,6 +721,12 @@ let ROOM_CODE = null;
 let ROOM = null;
 applyTheme(); // INITIAL THEME APPLY — safe now that ROOM exists
 let gameResultRecorded = false;
+// Stage D: lightweight local-only tracking for the post-match results
+// screen and memory report. Never synced to Firebase, never touches the
+// existing zhaimer_stats/leaderboard system — purely additive.
+let matchStats = { exchanges:0, smartExchanges:0, bestImprovement:0, highValueReplaced:0, burnsSuccessful:0, burnsFailed:0, roundScores:[] };
+function resetMatchStats(){ matchStats = { exchanges:0, smartExchanges:0, bestImprovement:0, highValueReplaced:0, burnsSuccessful:0, burnsFailed:0, roundScores:[] }; }
+let lastRoundStatRecorded = -1;
 let roomRef = null;
 let joinError = null;
 
@@ -835,6 +841,8 @@ function shouldAIUseAbility(card, p){
 function startLocalGame(numAI, difficulty){
   LOCAL_MODE = true;
   DIFFICULTY = difficulty;
+  resetMatchStats();
+  lastRoundStatRecorded = -1;
   const room = freshRoom(myUid, myName || 'You');
   const personas = aiPersonasFor(difficulty);
   for(let i=0;i<numAI;i++){
@@ -1222,6 +1230,13 @@ const I18N = {
     runningTotals:'Running totals',
     nextRoundBtn:'Next Round', seeResultBtn:'See Final Result',
     gameOverHeading:'Game Over', winsLabel:(n)=>`${n} wins`, playAgainBtn:'Back to Menu',
+    matchSummaryTitle:'Match Summary', bestRoundLabel:'Best Round', burnsLabel:'Successful Burns',
+    smartExchangeLabel:'Smart Exchanges', highValueReplacedLabel:'High Cards Replaced',
+    newPersonalBest:'🎉 New personal best!', vsBestScore:(b)=>`Your best score so far is ${b}.`,
+    shareResultBtn:'Share Result',
+    shareTextWin:(s)=>`I just won a round of Zhaimer with ${s} points! 🏆`,
+    shareTextLoss:(s)=>`I just played Zhaimer and finished with ${s} points.`,
+    shareCopied:'Copied to clipboard!',
     slotVal:(i,rank,suit,val)=>`Slot ${i}: ${rank}${suit} — value ${val}`,
     aGlimpseTitle:'A Glimpse', queenGlimpseTitle:"Queen's Glimpse",
     swapDoneTitle:'Swap Complete', swapDoneBody:(n)=>`Your card and one of ${n}'s cards have switched places — neither of you saw the other's card.`,
@@ -1447,6 +1462,13 @@ const I18N = {
     runningTotals:'المجموع التراكمي',
     nextRoundBtn:'الجولة التالية', seeResultBtn:'عرض النتيجة النهائية',
     gameOverHeading:'انتهت المباراة', winsLabel:(n)=>`${n} يفوز`, playAgainBtn:'رجوع للقائمة',
+    matchSummaryTitle:'ملخص المباراة', bestRoundLabel:'أفضل جولة', burnsLabel:'حرق ناجح',
+    smartExchangeLabel:'تبديلات ذكية', highValueReplacedLabel:'أوراق عالية استُبدلت',
+    newPersonalBest:'🎉 رقم قياسي شخصي جديد!', vsBestScore:(b)=>`أفضل نتيجة لك حتى الآن هي ${b}.`,
+    shareResultBtn:'شارك النتيجة',
+    shareTextWin:(s)=>`فزت للتو بجولة زهايمر بـ ${s} نقطة! 🏆`,
+    shareTextLoss:(s)=>`لعبت زهايمر للتو وأنهيت بـ ${s} نقطة.`,
+    shareCopied:'تم النسخ إلى الحافظة!',
     slotVal:(i,rank,suit,val)=>`الخانة ${i}: ${rank}${suit} — القيمة ${val}`,
     aGlimpseTitle:'لمحة سريعة', queenGlimpseTitle:'لمحة الملكة',
     swapDoneTitle:'تم التبديل', swapDoneBody:(n)=>`تبادلت ورقتك مع إحدى أوراق ${n} — كلاكما لم يرَ ورقة الآخر.`,
@@ -1504,6 +1526,7 @@ function confirmBurn(){
     if(ROOM && ROOM.players[myUid]){
       const success = ROOM.players[myUid].hand.length < handLenBefore;
       if(success) sfxSuccess(); else sfxFail();
+      if(success) matchStats.burnsSuccessful += 1; else matchStats.burnsFailed += 1;
       // Stage A: brief visual feedback — gold particles on success, a
       // gentle shake on a failed match. Purely local/visual, auto-clears.
       burnFx = success ? 'success' : 'fail';
@@ -1690,7 +1713,24 @@ function checkUrlForRoomCode(){
 /* ============================= IN-GAME ACTIONS ============================= */
 function actStartGame(){ updateRoom(room=>roomStartGame(room)); incrementGamesStarted('online'); }
 function actDraw(source){ updateRoom(room=>roomDraw(room, myUid, source)); }
-function actChooseSlot(slot){ updateRoom(room=>roomChooseSlot(room, myUid, slot)); }
+function actChooseSlot(slot){
+  // Stage D: measure this exchange's quality for the memory report, using
+  // the state as it stands right before the swap mutates it.
+  if(ROOM && ROOM.currentUid===myUid && ROOM.drawnCard && ROOM.players[myUid]){
+    const oldCard = ROOM.players[myUid].hand[slot];
+    const newCard = ROOM.drawnCard.card;
+    if(oldCard && newCard){
+      const oldV = cardValue(oldCard), newV = cardValue(newCard);
+      matchStats.exchanges += 1;
+      if(oldV - newV > 0){
+        matchStats.smartExchanges += 1;
+        matchStats.bestImprovement = Math.max(matchStats.bestImprovement, oldV - newV);
+        if(oldV >= 8) matchStats.highValueReplaced += 1;
+      }
+    }
+  }
+  updateRoom(room=>roomChooseSlot(room, myUid, slot));
+}
 function actDiscardDrawn(){ updateRoom(room=>roomDiscardDrawn(room, myUid)); }
 function actAnswerAbility(yes){ updateRoom(room=>roomAnswerAbility(room, myUid, yes)); }
 function actKingChoose(which){ updateRoom(room=>roomKingChoose(room, myUid, which)); }
@@ -2477,6 +2517,37 @@ function renderGameOver(){
   const donateBtn = DONATE_URL && !DONATE_URL.startsWith('PASTE_')
     ? `<a href="${DONATE_URL}" target="_blank" rel="noopener" class="support-link" style="display:block;margin-top:10px;padding:13px;text-align:center;border-radius:10px;">☕ ${t('supportBtn')}</a>`
     : '';
+
+  // Stage D: post-match results + memory report, local-match only. Built
+  // entirely from matchStats (tracked client-side this session) — never
+  // touches the multiplayer/Firebase path or the existing leaderboard call.
+  let statsBlockHtml = '';
+  if(LOCAL_MODE){
+    const bestRound = matchStats.roundScores.length ? Math.min(...matchStats.roundScores) : null;
+    const exchangeRate = matchStats.exchanges>0 ? Math.round((matchStats.smartExchanges/matchStats.exchanges)*100) : null;
+    let improvementNote = '';
+    if(window.ZhaimerProfile){
+      const prof = window.ZhaimerProfile.load();
+      if(prof.gamesPlayed>1 && prof.bestScore!==null && ROOM.players[myUid]){
+        const myScore = ROOM.players[myUid].total;
+        improvementNote = myScore <= prof.bestScore
+          ? t('newPersonalBest')
+          : t('vsBestScore', prof.bestScore);
+      }
+    }
+    statsBlockHtml = `
+      <div class="match-stats-panel">
+        <div class="match-stats-title">${t('matchSummaryTitle')}</div>
+        <div class="match-stats-grid">
+          ${bestRound!==null ? `<div class="match-stat"><div class="num">${bestRound}</div><div class="label">${t('bestRoundLabel')}</div></div>` : ''}
+          <div class="match-stat"><div class="num">${matchStats.burnsSuccessful}</div><div class="label">${t('burnsLabel')}</div></div>
+          ${exchangeRate!==null ? `<div class="match-stat"><div class="num">${exchangeRate}%</div><div class="label">${t('smartExchangeLabel')}</div></div>` : ''}
+          ${matchStats.highValueReplaced>0 ? `<div class="match-stat"><div class="num">${matchStats.highValueReplaced}</div><div class="label">${t('highValueReplacedLabel')}</div></div>` : ''}
+        </div>
+        ${improvementNote ? `<div class="match-stats-note">${improvementNote}</div>` : ''}
+      </div>`;
+  }
+
   return `<div class="table">
   ${screenHeader()}
   <div class="reveal-wrap">
@@ -2486,13 +2557,31 @@ function renderGameOver(){
       <div style="color:var(--muted);font-size:13px;">
         ${ROOM.turnOrder.map(uid=>`<div>${ROOM.players[uid].name}: ${ROOM.players[uid].total} ${t('pts')} ${ROOM.players[uid].eliminated?`(${t('eliminatedTag')})`:''}</div>`).join('')}
       </div>
+      ${statsBlockHtml}
     </div>
     <div class="reveal-footer" style="border-top:none;">
       <button class="primary-btn" style="width:100%" data-action="actLeaveToMenu">${t('playAgainBtn')}</button>
+      <button class="ghost-btn" style="width:100%;margin-top:8px;" data-action="actShareResult">📤 ${t('shareResultBtn')}</button>
       ${donateBtn}
     </div>
   </div>
   </div>`;
+}
+function actShareResult(){
+  if(!ROOM || !ROOM.players[myUid]) return;
+  const won = !ROOM.players[myUid].eliminated;
+  const score = ROOM.players[myUid].total;
+  const text = won
+    ? t('shareTextWin', score)
+    : t('shareTextLoss', score);
+  const url = 'https://zhaimer.com/game.html';
+  if(navigator.share){
+    navigator.share({ title:'Zhaimer', text, url }).catch(()=>{});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(`${text} ${url}`).then(()=>{
+      alert(t('shareCopied'));
+    }).catch(()=>{});
+  }
 }
 
 /* ============================= MAIN RENDER ============================= */
@@ -2525,13 +2614,32 @@ function render(){
   document.body.classList.remove('page-scroll');
   // in a room
   if(ROOM.phase==='lobby'){ app.innerHTML = renderLobby(); attach(); return; }
-  if(ROOM.phase==='roundEnd'){ app.innerHTML = renderReveal(); attach(); fitTableToScreen(); return; }
+  if(ROOM.phase==='roundEnd'){
+    if(LOCAL_MODE && ROOM.round!==lastRoundStatRecorded){
+      lastRoundStatRecorded = ROOM.round;
+      const mine = ROOM.roundResults && ROOM.roundResults.find(r=>r.uid===myUid);
+      if(mine) matchStats.roundScores.push(mine.roundScore);
+    }
+    app.innerHTML = renderReveal(); attach(); fitTableToScreen(); return;
+  }
   if(ROOM.phase==='gameOver'){
     if(!gameResultRecorded){
       gameResultRecorded = true;
       const won = ROOM.players[myUid] && !ROOM.players[myUid].eliminated;
       const myScore = ROOM.players[myUid] ? ROOM.players[myUid].total : null;
       recordGameResult(won, myScore, ROOM.turnOrder.length-1, LOCAL_MODE?'ai':'online');
+      // Stage D/E: also feed the achievements/profile system, additive to
+      // the legacy zhaimer_stats call above — leaderboard is untouched.
+      if(window.ZhaimerProfile && LOCAL_MODE){
+        window.ZhaimerProfile.recordGameResult({
+          won: !!won,
+          score: myScore,
+          difficulty: DIFFICULTY,
+          burnsSuccessful: matchStats.burnsSuccessful,
+          burnsFailed: matchStats.burnsFailed,
+          noIncorrectExchanges: matchStats.exchanges>0 && matchStats.smartExchanges===matchStats.exchanges,
+        });
+      }
       if(won) sfxWin(); else sfxFail();
     }
     app.innerHTML = renderGameOver(); attach(); fitTableToScreen(); return;
@@ -2736,6 +2844,7 @@ function attach(){
       case 'actFinishCheckAnswer': actFinishCheckAnswer(val==='yes'); break;
       case 'actNextRound': actNextRound(); break;
       case 'actLeaveToMenu': actLeaveToMenu(); break;
+      case 'actShareResult': actShareResult(); break;
       case 'actQuitToMenu': actQuitToMenu(); break;
     }
   };
