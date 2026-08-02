@@ -7,14 +7,19 @@
    size here would silently break that calculation.
    ============================================================================= */
 
-/* ---------- Felt table surface: dark green with subtle texture ---------- */
+/* ---------- Felt table surface, in the active theme's own palette ---------- */
+/* Uses --bg/--panel/--teal/--brass-soft, which every theme (Memory Lab,
+   Secret Agent, Holographic, Living Nature, and the default) already
+   defines at html[data-theme="..."] level. This is what makes the table
+   surface automatically match whichever theme is active, instead of one
+   fixed color for every theme. */
 .table{
   position:relative;
   background:
-    radial-gradient(ellipse at 50% 38%, rgba(63,199,182,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--teal) 6%, transparent) 0%, transparent 55%),
     repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 5px),
     repeating-linear-gradient(-45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 5px),
-    radial-gradient(ellipse at 50% 45%, #16281d 0%, #0d1712 60%, #0a120d 100%);
+    radial-gradient(ellipse at 50% 45%, var(--panel) 0%, var(--bg2) 60%, var(--bg) 100%);
 }
 
 /* ---------- Soft spotlight behind the draw/discard piles ---------- */
@@ -28,7 +33,7 @@
   width:min(320px, 80%);
   height:130%;
   transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse at center, rgba(233,198,92,0.10) 0%, rgba(233,198,92,0.03) 45%, transparent 75%);
+  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--brass-soft) 12%, transparent) 0%, color-mix(in srgb, var(--brass-soft) 4%, transparent) 45%, transparent 75%);
   pointer-events:none;
   z-index:0;
 }
@@ -41,7 +46,7 @@
   position:absolute;
   right:-11px; top:10%;
   width:1px; height:80%;
-  background:linear-gradient(to bottom, transparent, rgba(215,173,79,0.25), transparent);
+  background:linear-gradient(to bottom, transparent, color-mix(in srgb, var(--brass-soft) 30%, transparent), transparent);
 }
 .midrow .pile{ position:relative; }
 

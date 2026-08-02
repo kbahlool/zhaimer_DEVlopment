@@ -28,6 +28,36 @@ function shuffle(arr){
   }
   return arr;
 }
+// Stage E2: deterministic shuffle for the Daily Challenge — same seed
+// (derived from today's date) always produces the same card order, so
+// everyone who plays today's challenge gets an identical deal.
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seededShuffle(arr, seed){
+  const rnd = mulberry32(seed);
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(rnd()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function dailySeedFromDate(){
+  const d = new Date();
+  const key = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  let h = 0;
+  for(let i=0;i<key.length;i++){ h = (h*31 + key.charCodeAt(i)) | 0; }
+  return h;
+}
+function todayKey(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 function genRoomCode(){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
   let s = '';
@@ -108,7 +138,9 @@ function roomStartGame(room){
 }
 
 function dealNewRound(room){
-  room.deck = shuffle(newDeck());
+  room.deck = (typeof DAILY_MODE!=='undefined' && DAILY_MODE && room.round===1)
+    ? seededShuffle(newDeck(), dailySeedFromDate())
+    : shuffle(newDeck());
   room.discard = [];
   room.drawnCard = null;
   room.modal = null;
@@ -647,12 +679,71 @@ function sfxCard(){ playTone(340, 90, 'triangle'); }
 function sfxSuccess(){ playTone(660, 120, 'sine'); setTimeout(()=>playTone(880,150,'sine'), 90); }
 function sfxFail(){ playTone(180, 220, 'sawtooth'); }
 function sfxWin(){ [660,784,988,1318].forEach((f,i)=>setTimeout(()=>playTone(f,180,'sine'), i*110)); }
+// Stage E3 (#11): a few more distinct cues — dealing, flipping, and
+// special-card activation — so actions feel different from a plain click.
+function sfxDeal(){ [420,460,500,540].forEach((f,i)=>setTimeout(()=>playTone(f,60,'triangle'), i*35)); }
+function sfxFlip(){ playTone(760, 55, 'sine'); }
+function sfxAbility(){ playTone(500,80,'sine'); setTimeout(()=>playTone(700,110,'sine'), 70); }
+
+/* ---------- Background ambience (Stage E3): separate on/off from sfx ---------- */
+let musicOn = safeStorageGet('zhaimer_music') === 'on'; // opt-in by default —
+// browsers block autoplaying audio before a user gesture anyway, and the
+// spec asks us to never autoplay loud audio; a quiet pad still needs a tap.
+let ambienceNodes = null;
+function startAmbience(){
+  if(!musicOn || ambienceNodes) return;
+  const ctx = ensureAudioCtx();
+  if(!ctx) return;
+  try{
+    const master = ctx.createGain();
+    master.gain.value = 0.025; // deliberately very quiet — "quiet background ambience"
+    master.connect(ctx.destination);
+    const freqs = [110, 164.81, 220]; // soft open fifth + octave, low and unobtrusive
+    const oscs = freqs.map(f=>{
+      const o = ctx.createOscillator();
+      o.type = 'sine'; o.frequency.value = f;
+      const g = ctx.createGain(); g.gain.value = 1/freqs.length;
+      o.connect(g); g.connect(master); o.start();
+      return o;
+    });
+    ambienceNodes = { master, oscs };
+  }catch(e){}
+}
+function stopAmbience(){
+  if(!ambienceNodes) return;
+  try{
+    ambienceNodes.oscs.forEach(o=>o.stop());
+    ambienceNodes.master.disconnect();
+  }catch(e){}
+  ambienceNodes = null;
+}
+function toggleMusic(){
+  musicOn = !musicOn;
+  safeStorageSet('zhaimer_music', musicOn ? 'on' : 'off');
+  if(musicOn) startAmbience(); else stopAmbience();
+  render();
+}
 function toggleSound(){
   soundOn = !soundOn;
   safeStorageSet('zhaimer_sound', soundOn ? 'on' : 'off');
   if(soundOn) sfxClick();
   render();
 }
+
+// Stage E2 (Settings): manual "reduce motion" preference, independent of
+// the OS-level prefers-reduced-motion media query — some players want
+// calmer visuals without changing a system-wide accessibility setting.
+let motionReduced = safeStorageGet('zhaimer_motion_reduced') === '1';
+function applyMotionPref(){
+  document.documentElement.classList.toggle('reduce-motion-pref', motionReduced);
+}
+function toggleMotionReduced(){
+  motionReduced = !motionReduced;
+  safeStorageSet('zhaimer_motion_reduced', motionReduced ? '1' : '0');
+  applyMotionPref();
+  render();
+}
+applyMotionPref();
 
 /* ============================= LOCAL PLAYER STATS =============================
    Stored entirely in localStorage — no account or backend needed. Tracks
@@ -777,6 +868,13 @@ function updateRoom(mutatorFn){
 
 /* ============================= LOCAL "VS AI" MODE ============================= */
 let LOCAL_MODE = false;
+// Stage E2: Practice Mode and Daily Challenge. Both reuse the exact same
+// local-vs-AI engine as a normal game — only these flags change: (1)
+// whether results get recorded to stats/achievements, and (2) whether the
+// deck is dealt from today's deterministic seed instead of Math.random.
+let PRACTICE_MODE = false;
+let DAILY_MODE = false;
+let dailyResultRecorded = false;
 let DIFFICULTY = 'medium';
 let NUM_AI = 2;
 let processingLocalAI = false;
@@ -843,6 +941,8 @@ function startLocalGame(numAI, difficulty){
   DIFFICULTY = difficulty;
   resetMatchStats();
   lastRoundStatRecorded = -1;
+  gameResultRecorded = false;
+  dailyResultRecorded = false;
   const room = freshRoom(myUid, myName || 'You');
   const personas = aiPersonasFor(difficulty);
   for(let i=0;i<numAI;i++){
@@ -859,9 +959,51 @@ function startLocalGame(numAI, difficulty){
   VIEW = 'in-room';
   roomStartGame(room);
   afterDealLocalAI(room);
+  sfxDeal();
   incrementGamesStarted('ai');
   render();
   maybeRunLocalAI();
+}
+
+// Practice Mode: identical engine, just flagged so results never touch
+// stats/achievements/leaderboard, per the "no effect on real progress" rule.
+function startPracticeGame(numAI, difficulty){
+  PRACTICE_MODE = true;
+  DAILY_MODE = false;
+  startLocalGame(numAI, difficulty);
+}
+
+// Daily Challenge: one AI opponent, medium difficulty (kept fixed so the
+// challenge is genuinely "the same for everyone" — only the card order
+// varies by date, not the opponent). Ends after round 1 regardless of
+// in-round outcome; see the DAILY_MODE branch in render().
+function startDailyChallenge(){
+  DAILY_MODE = true;
+  PRACTICE_MODE = false;
+  startLocalGame(1, 'medium');
+}
+
+function recordDailyChallengeResult(score){
+  if(!window.ZhaimerProfile) return;
+  const p = window.ZhaimerProfile.load();
+  const today = todayKey();
+  const dc = p.dailyChallenge || { lastPlayedDate:null, bestScore:null, streak:0 };
+  if(dc.bestScore===null || score < dc.bestScore) dc.bestScore = score;
+  if(dc.lastPlayedDate !== today){
+    // First completion of today — update the streak. A gap of more than
+    // one calendar day resets it; playing yesterday or today continues it.
+    if(dc.lastPlayedDate){
+      const prev = new Date(dc.lastPlayedDate);
+      const diffDays = Math.round((new Date(today) - prev) / 86400000);
+      dc.streak = (diffDays===1) ? dc.streak+1 : 1;
+    } else {
+      dc.streak = 1;
+    }
+    dc.lastPlayedDate = today;
+  }
+  p.dailyChallenge = dc;
+  window.ZhaimerProfile.save(p);
+  return dc;
 }
 
 function afterDealLocalAI(room){
@@ -1058,6 +1200,18 @@ const I18N = {
     modeQuestion:'How do you want to play?', playAIBtn:'Play vs AI',
     opponentsLabel:'AI Opponents', difficultyLabel:'Difficulty',
     opponentsPreviewLabel:"Who You'll Face",
+    practiceModeBtn:'Practice Mode', practiceModeSub:'Play freely — nothing is recorded',
+    practiceModeNote:"Practice games don't affect your stats, achievements, or the leaderboard.",
+    dailyChallengeBtn:'Daily Challenge', dailyChallengeSub:'Same cards for everyone, once a day',
+    dailyPlayedTodaySub:(b,s)=>`Best: ${b} · Streak: ${s} 🔥`,
+    dailyNotPlayedTodaySub:(b,s)=>`Best: ${b} · Streak: ${s} — play today!`,
+    profileBtn:'Player Profile', settingsBtn:'Settings',
+    settingsSoundLabel:'Sound Effects', settingsSoundDesc:'Card sounds, burns, wins and losses',
+    settingsMusicLabel:'Background Music', settingsMusicDesc:'A quiet ambient loop while you play',
+    settingsMotionLabel:'Reduce Motion', settingsMotionDesc:'Turn off animations and transitions',
+    dailyResultHeading:'Daily Challenge Complete', dailyBestLabel:'Your Best', dailyStreakLabel:'Day Streak',
+    dailyRetryNote:'Your best score is saved. Retry as many times as you like — only today\'s streak counts once.',
+    dailyRetryBtn:'Try Again',
     diff_easy:'Easy', diff_medium:'Medium', diff_hard:'Hard', dealBtn:'Deal the cards',
     timeLeft:'Time left',
     howToPlayBtn:'How to Play', rulesTitle:'How to Play ZHAIMER',
@@ -1249,6 +1403,18 @@ const I18N = {
     modeQuestion:'كيف تحب تلعب؟', playAIBtn:'العب ضد الكمبيوتر',
     opponentsLabel:'عدد خصوم الكمبيوتر', difficultyLabel:'مستوى الصعوبة',
     opponentsPreviewLabel:'من ستواجه',
+    practiceModeBtn:'وضع التدريب', practiceModeSub:'العب بحرية — لا شيء يُسجَّل',
+    practiceModeNote:'مباريات التدريب لا تؤثر على إحصائياتك أو إنجازاتك أو لوحة المتصدرين.',
+    dailyChallengeBtn:'التحدي اليومي', dailyChallengeSub:'نفس الأوراق للجميع، مرة كل يوم',
+    dailyPlayedTodaySub:(b,s)=>`الأفضل: ${b} · سلسلة: ${s} 🔥`,
+    dailyNotPlayedTodaySub:(b,s)=>`الأفضل: ${b} · سلسلة: ${s} — العب اليوم!`,
+    profileBtn:'الملف الشخصي', settingsBtn:'الإعدادات',
+    settingsSoundLabel:'المؤثرات الصوتية', settingsSoundDesc:'أصوات الأوراق، الحرق، الفوز والخسارة',
+    settingsMusicLabel:'موسيقى الخلفية', settingsMusicDesc:'موسيقى هادئة أثناء اللعب',
+    settingsMotionLabel:'تقليل الحركة', settingsMotionDesc:'إيقاف الرسوم المتحركة والانتقالات',
+    dailyResultHeading:'اكتمل التحدي اليومي', dailyBestLabel:'أفضل نتيجة', dailyStreakLabel:'أيام متتالية',
+    dailyRetryNote:'أفضل نتيجة محفوظة. أعد المحاولة كما تشاء — سلسلة اليوم تُحتسب مرة واحدة فقط.',
+    dailyRetryBtn:'حاول مجددًا',
     diff_easy:'سهل', diff_medium:'متوسط', diff_hard:'صعب', dealBtn:'وزّع الأوراق',
     timeLeft:'الوقت المتبقي',
     howToPlayBtn:'كيف تلعب', rulesTitle:'كيف تلعب زهايمر',
@@ -1554,6 +1720,7 @@ function humanTogglePeek(idx){
   if(!ROOM || ROOM.phase!=='peek') return;
   if(peekSelected.includes(idx)){ peekSelected = peekSelected.filter(i=>i!==idx); render(); return; }
   if(peekSelected.length>=2) return;
+  sfxFlip();
   peekSelected.push(idx);
   render();
   if(peekSelected.length===2){
@@ -1570,7 +1737,56 @@ function humanTogglePeek(idx){
 /* ============================= LANDING / LOBBY ACTIONS ============================= */
 function goCreate(){ PENDING_MODE='create'; VIEW='nameEntry'; render(); }
 function goJoin(){ PENDING_MODE='join'; VIEW='nameEntry'; render(); }
-function goAISetup(){ VIEW='aiSetup'; render(); }
+let PENDING_PRACTICE = false;
+function dailyChallengeSubLabel(){
+  if(!window.ZhaimerProfile) return t('dailyChallengeSub');
+  const dc = window.ZhaimerProfile.load().dailyChallenge;
+  if(!dc || dc.bestScore===null) return t('dailyChallengeSub');
+  const playedToday = dc.lastPlayedDate === todayKey();
+  return playedToday
+    ? t('dailyPlayedTodaySub', dc.bestScore, dc.streak)
+    : t('dailyNotPlayedTodaySub', dc.bestScore, dc.streak);
+}
+
+function goSettings(){ VIEW='settings'; render(); }
+function renderSettings(){
+  return `${screenHeader()}
+  <div class="setup-card">
+    <h2>${t('settingsBtn')}</h2>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-label">${t('settingsSoundLabel')}</div>
+        <div class="settings-row-desc">${t('settingsSoundDesc')}</div>
+      </div>
+      <button class="settings-toggle ${soundOn?'on':''}" data-action="toggleSound" aria-pressed="${soundOn}" aria-label="${t('settingsSoundLabel')}">
+        <span class="settings-toggle-knob"></span>
+      </button>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-label">${t('settingsMusicLabel')}</div>
+        <div class="settings-row-desc">${t('settingsMusicDesc')}</div>
+      </div>
+      <button class="settings-toggle ${musicOn?'on':''}" data-action="toggleMusic" aria-pressed="${musicOn}" aria-label="${t('settingsMusicLabel')}">
+        <span class="settings-toggle-knob"></span>
+      </button>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-label">${t('settingsMotionLabel')}</div>
+        <div class="settings-row-desc">${t('settingsMotionDesc')}</div>
+      </div>
+      <button class="settings-toggle ${motionReduced?'on':''}" data-action="toggleMotionReduced" aria-pressed="${motionReduced}" aria-label="${t('settingsMotionLabel')}">
+        <span class="settings-toggle-knob"></span>
+      </button>
+    </div>
+    <div class="actions" style="margin-top:16px">
+      <button class="ghost-btn" style="width:100%" data-action="goBackToLanding">${t('backBtn')}</button>
+    </div>
+  </div>`;
+}
+function goPracticeSetup(){ VIEW='aiSetup'; PENDING_PRACTICE=true; render(); }
+function goAISetup(){ VIEW='aiSetup'; PENDING_PRACTICE=false; render(); }
 function preserveAINameField(){
   const el = document.getElementById('aiNameField');
   if(el && el.value!==undefined) myName = el.value;
@@ -1582,7 +1798,8 @@ function submitAISetup(){
   const name = (nameInput ? nameInput.value : myName).trim().slice(0,20) || 'Player';
   myName = name;
   safeStorageSet('zhaimer_name', name);
-  startLocalGame(NUM_AI, DIFFICULTY);
+  if(PENDING_PRACTICE){ PENDING_PRACTICE=false; startPracticeGame(NUM_AI, DIFFICULTY); }
+  else { startLocalGame(NUM_AI, DIFFICULTY); }
 }
 function goBackToLanding(){ VIEW='landing'; PENDING_MODE=null; joinError=null; render(); }
 function goRules(){ VIEW='rules'; render(); }
@@ -1733,18 +1950,19 @@ function actChooseSlot(slot){
 }
 function actDiscardDrawn(){ updateRoom(room=>roomDiscardDrawn(room, myUid)); }
 function actAnswerAbility(yes){ updateRoom(room=>roomAnswerAbility(room, myUid, yes)); }
-function actKingChoose(which){ updateRoom(room=>roomKingChoose(room, myUid, which)); }
+function actKingChoose(which){ sfxAbility(); updateRoom(room=>roomKingChoose(room, myUid, which)); }
 function actKingSlot(slot){ updateRoom(room=>roomKingSlot(room, myUid, slot)); }
 function actKingSlotBoth1(slot){ updateRoom(room=>roomKingSlotBoth1(room, myUid, slot)); }
 function actKingSlotBoth2(slot){ updateRoom(room=>roomKingSlotBoth2(room, myUid, slot)); }
 function actJackOwn(slot){ updateRoom(room=>roomJackOwn(room, myUid, slot)); }
 function actJackTarget(targetUid, slot){ updateRoom(room=>roomJackTarget(room, myUid, targetUid, slot)); }
-function actJackConfirmSwap(){ updateRoom(room=>roomJackConfirmSwap(room, myUid)); }
+function actJackConfirmSwap(){ sfxAbility(); updateRoom(room=>roomJackConfirmSwap(room, myUid)); }
 function actSwapDoneAck(){ updateRoom(room=>roomSwapDoneAck(room, myUid)); }
-function actQueenPeek(slot){ updateRoom(room=>roomQueenPeek(room, myUid, slot)); }
+function actQueenPeek(slot){ sfxAbility(); updateRoom(room=>roomQueenPeek(room, myUid, slot)); }
 function actQueenAck(){ updateRoom(room=>roomQueenAck(room, myUid)); }
 function actAttemptBurn(slot){ burnDeclared = false; burnSelected = []; updateRoom(room=>roomAttemptBurn(room, myUid, [slot])); }
 function actNextRound(){
+  sfxDeal();
   updateRoom(room=>{
     const result = roomNextRound(room);
     if(!result.error && LOCAL_MODE && room.phase==='peek'){
@@ -1998,6 +2216,36 @@ function renderLanding(){
       </span>
       <span class="dest-arrow">›</span>
     </button>
+    <button class="dest-row dest-teal" data-action="goPracticeSetup">
+      <span class="dest-icon">🎯</span>
+      <span class="dest-text">
+        <span class="dest-label">${t('practiceModeBtn')}</span>
+        <span class="dest-sub">${t('practiceModeSub')}</span>
+      </span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-gold" data-action="startDailyChallenge">
+      <span class="dest-icon">📅</span>
+      <span class="dest-text">
+        <span class="dest-label">${t('dailyChallengeBtn')}</span>
+        <span class="dest-sub">${dailyChallengeSubLabel()}</span>
+      </span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <a class="dest-row dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
+      <span class="dest-icon">👤</span>
+      <span class="dest-text">
+        <span class="dest-label">${t('profileBtn')}</span>
+      </span>
+      <span class="dest-arrow">›</span>
+    </a>
+    <button class="dest-row dest-purple" data-action="goSettings">
+      <span class="dest-icon">⚙️</span>
+      <span class="dest-text">
+        <span class="dest-label">${t('settingsBtn')}</span>
+      </span>
+      <span class="dest-arrow">›</span>
+    </button>
     <button class="dest-row dest-theme" data-action="goTheme">
       <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
       <span class="dest-text">
@@ -2094,7 +2342,8 @@ function renderRules(){
 function renderAISetup(){
   return `${screenHeader()}
   <div class="setup-card">
-    <h2>${t('playAIBtn')}</h2>
+    <h2>${PENDING_PRACTICE ? t('practiceModeBtn') : t('playAIBtn')}</h2>
+    ${PENDING_PRACTICE ? `<div class="setup-explainer" style="border-top:none;color:var(--teal);">${t('practiceModeNote')}</div>` : ''}
     <div class="setup-row">
       <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('yourNameLabel')}</label>
       <input id="aiNameField" class="field-input" maxlength="20" placeholder="${t('namePlaceholder')}" value="${(myName||'').replace(/"/g,'')}" />
@@ -2511,6 +2760,36 @@ function renderReveal(){
   </div>`;
 }
 
+function renderDailyResult(){
+  const mine = ROOM.roundResults && ROOM.roundResults.find(r=>r.uid===myUid);
+  const score = mine ? mine.score : null;
+  const prof = window.ZhaimerProfile ? window.ZhaimerProfile.load() : null;
+  const dc = prof ? prof.dailyChallenge : null;
+  const isNewBest = dc && dc.bestScore===score;
+  return `<div class="table">
+  ${screenHeader()}
+  <div class="reveal-wrap">
+    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+      <h2>${t('dailyResultHeading')}</h2>
+      <div style="font-family:Georgia,serif;font-size:36px;color:var(--brass-soft);margin:10px 0;">${score}</div>
+      <div style="color:var(--muted);font-size:13px;">${t('pts')}</div>
+      ${isNewBest ? `<div style="color:var(--teal);font-size:13px;margin-top:8px;">${t('newPersonalBest')}</div>` : ''}
+      ${dc ? `<div class="match-stats-panel">
+        <div class="match-stats-grid">
+          <div class="match-stat"><div class="num">${dc.bestScore!==null?dc.bestScore:'—'}</div><div class="label">${t('dailyBestLabel')}</div></div>
+          <div class="match-stat"><div class="num">${dc.streak}</div><div class="label">${t('dailyStreakLabel')}</div></div>
+        </div>
+      </div>` : ''}
+      <div style="color:var(--muted);font-size:11.5px;margin-top:10px;max-width:280px;">${t('dailyRetryNote')}</div>
+    </div>
+    <div class="reveal-footer" style="border-top:none;">
+      <button class="primary-btn" style="width:100%" data-action="startDailyChallenge">${t('dailyRetryBtn')}</button>
+      <button class="ghost-btn" style="width:100%;margin-top:8px;" data-action="actLeaveToMenu">${t('playAgainBtn')}</button>
+    </div>
+  </div>
+  </div>`;
+}
+
 function renderGameOver(){
   const winner = ROOM.turnOrder.map(u=>ROOM.players[u]).find(p=>!p.eliminated)
     || ROOM.turnOrder.map(u=>ROOM.players[u]).slice().sort((a,b)=>a.total-b.total)[0];
@@ -2602,6 +2881,7 @@ function render(){
     else if(VIEW==='joinCodeEntry') html = renderJoinCodeEntry();
     else if(VIEW==='aiSetup') html = renderAISetup();
     else if(VIEW==='rules') html = renderRules();
+    else if(VIEW==='settings') html = renderSettings();
     else if(VIEW==='theme') html = renderThemePicker();
     else if(VIEW==='privacy') html = renderPrivacy();
     else if(VIEW==='terms') html = renderTerms();
@@ -2620,6 +2900,14 @@ function render(){
       const mine = ROOM.roundResults && ROOM.roundResults.find(r=>r.uid===myUid);
       if(mine) matchStats.roundScores.push(mine.roundScore);
     }
+    if(DAILY_MODE){
+      if(!dailyResultRecorded){
+        dailyResultRecorded = true;
+        const mine = ROOM.roundResults && ROOM.roundResults.find(r=>r.uid===myUid);
+        if(mine) recordDailyChallengeResult(mine.score);
+      }
+      app.innerHTML = renderDailyResult(); attach(); fitTableToScreen(); return;
+    }
     app.innerHTML = renderReveal(); attach(); fitTableToScreen(); return;
   }
   if(ROOM.phase==='gameOver'){
@@ -2627,18 +2915,22 @@ function render(){
       gameResultRecorded = true;
       const won = ROOM.players[myUid] && !ROOM.players[myUid].eliminated;
       const myScore = ROOM.players[myUid] ? ROOM.players[myUid].total : null;
-      recordGameResult(won, myScore, ROOM.turnOrder.length-1, LOCAL_MODE?'ai':'online');
-      // Stage D/E: also feed the achievements/profile system, additive to
-      // the legacy zhaimer_stats call above — leaderboard is untouched.
-      if(window.ZhaimerProfile && LOCAL_MODE){
-        window.ZhaimerProfile.recordGameResult({
-          won: !!won,
-          score: myScore,
-          difficulty: DIFFICULTY,
-          burnsSuccessful: matchStats.burnsSuccessful,
-          burnsFailed: matchStats.burnsFailed,
-          noIncorrectExchanges: matchStats.exchanges>0 && matchStats.smartExchanges===matchStats.exchanges,
-        });
+      // Practice Mode: never touches stats, achievements, or the
+      // leaderboard — the entire point of the mode.
+      if(!PRACTICE_MODE){
+        recordGameResult(won, myScore, ROOM.turnOrder.length-1, LOCAL_MODE?'ai':'online');
+        // Stage D/E: also feed the achievements/profile system, additive to
+        // the legacy zhaimer_stats call above — leaderboard is untouched.
+        if(window.ZhaimerProfile && LOCAL_MODE){
+          window.ZhaimerProfile.recordGameResult({
+            won: !!won,
+            score: myScore,
+            difficulty: DIFFICULTY,
+            burnsSuccessful: matchStats.burnsSuccessful,
+            burnsFailed: matchStats.burnsFailed,
+            noIncorrectExchanges: matchStats.exchanges>0 && matchStats.smartExchanges===matchStats.exchanges,
+          });
+        }
       }
       if(won) sfxWin(); else sfxFail();
     }
@@ -2798,12 +3090,18 @@ function attach(){
     const slot = t2.dataset.slot!==undefined? parseInt(t2.dataset.slot):null;
     const player = t2.dataset.player!==undefined? t2.dataset.player:null;
     if(action!=='toggleSound') sfxClick();
+    if(musicOn && !ambienceNodes) startAmbience();
     switch(action){
       case 'setLang': setLang(val); break;
       case 'toggleSound': toggleSound(); break;
       case 'goCreate': goCreate(); break;
       case 'goJoin': goJoin(); break;
       case 'goAISetup': goAISetup(); break;
+      case 'goPracticeSetup': goPracticeSetup(); break;
+      case 'startDailyChallenge': startDailyChallenge(); break;
+      case 'goSettings': goSettings(); break;
+      case 'toggleMotionReduced': toggleMotionReduced(); break;
+      case 'toggleMusic': toggleMusic(); break;
     case 'startTutorial': if(window.ZhaimerTutorial) window.ZhaimerTutorial.start(); break;
       case 'goRules': goRules(); break;
       case 'goTheme': goTheme(); break;
