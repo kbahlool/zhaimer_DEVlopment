@@ -1,0 +1,130 @@
+<!doctype html>
+<!--
+  Zhaimer - The Ultimate Memory Card Game
+  © 2026 Khalid Bahlool. All rights reserved.
+  https://zhaimer.com/game.html
+  Contact: labgameskmb@gmail.com
+  Unauthorized copying, modification, or redistribution prohibited.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9984359434282636"
+     crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<title>Zhaimer - The Ultimate Memory Card Game</title>
+<meta name="description" content="A fun strategic card game where players test memory, skill and decision making. Play free online against AI or with friends." />
+<meta name="keywords" content="Zhaimer, memory card game, online card game, multiplayer card game, strategy game, free browser game" />
+<meta name="author" content="KMB" />
+<link rel="canonical" href="https://zhaimer.com/game.html" />
+
+<!-- Open Graph / social sharing -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Zhaimer - The Ultimate Memory Card Game" />
+<meta property="og:description" content="A fun strategic card game where players test memory, skill and decision making." />
+<meta property="og:image" content="https://zhaimer.com/assets/images/og-preview.png" />
+<meta property="og:url" content="https://zhaimer.com/game.html" />
+<meta property="og:site_name" content="Zhaimer" />
+
+<!-- Twitter/X card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Zhaimer - The Ultimate Memory Card Game" />
+<meta name="twitter:description" content="A fun strategic card game where players test memory, skill and decision making." />
+<meta name="twitter:image" content="https://zhaimer.com/assets/images/og-preview.png" />
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0b0f1a" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+
+<!-- Firebase (used for online multiplayer sync — see README.md for setup) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<!--
+  GOOGLE ANALYTICS PLACEHOLDER
+  Once you have a GA4 Measurement ID, paste the standard gtag.js snippet
+  here. See README.md "Add Google Analytics" section for the exact steps.
+-->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3S53Z9N918"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3S53Z9N918');
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Zhaimer",
+  "description": "Zhaimer is a strategic memory card game where players use observation, planning and special cards to finish with the lowest score.",
+  "genre": ["Card Game", "Strategy"],
+  "playMode": ["SinglePlayer", "MultiPlayer"],
+  "applicationCategory": "Game",
+  "operatingSystem": "Any (Web Browser)",
+  "url": "https://zhaimer.com/game.html",
+  "image": "https://zhaimer.com/assets/images/og-preview.png",
+  "author": { "@type": "Person", "name": "Khalid Bahlool" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+</head>
+<body>
+<a href="index.html" class="floating-home-btn" aria-label="Home" title="Home">🏠</a>
+
+<div class="wrap" id="app"></div>
+
+<section class="game-information" aria-labelledby="game-info-title">
+  <div class="game-information-inner">
+    <h1 id="game-info-title">About Zhaimer</h1>
+    <p>Zhaimer is a strategic memory card game in which the goal is to finish with the lowest hidden-card total. Remember your cards, replace high values and use special powers at the right moment.</p>
+    <div class="game-info-grid">
+      <article><h2>Getting Started</h2><p>No download, install, or account is required. The game loads directly in your browser above — choose "Play vs AI" to start immediately, or create a room to invite friends once online multiplayer is available.</p></article>
+      <article><h2>How to Play</h2><p>Each player starts with four hidden cards and briefly views two. Draw, exchange or discard cards while protecting the information stored in your memory.</p></article>
+      <article><h2>Card Values</h2><p>Number cards usually equal their printed value. Picture cards usually count as 10. The 10 of Hearts and 10 of Diamonds count as zero.</p></article>
+      <article><h2>Special Cards</h2><p>The King provides a draw-two ability, the Jack allows a swap, and the Queen allows a one-time reveal.</p></article>
+      <article><h2>Finish the Round</h2><p>Declare finished when you believe your total is the lowest. After the final turns, all cards are revealed and the lowest score wins.</p></article>
+      <article><h2>Game Modes</h2><p>Play solo against AI opponents with adjustable difficulty, ideal for learning the rules. Online multiplayer with friends via private room codes is currently under development.</p></article>
+      <article><h2>Supported Devices</h2><p>Zhaimer runs in any modern browser — Chrome, Safari, Edge, or Firefox — on desktop, tablet, and mobile. The interface automatically adapts to your screen size, and no app installation is needed.</p></article>
+      <article><h2>Troubleshooting</h2><p>If the game doesn't load, try refreshing the page or clearing your browser cache. Make sure JavaScript is enabled. If a problem persists, please <a href="contact.html">report it here</a> with your device and browser details.</p></article>
+    </div>
+    <p class="game-info-more"><a href="about.html">Read the complete rules and story of Zhaimer</a> · <a href="faq.html">Frequently Asked Questions</a></p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <span>·</span>
+    <a href="about.html">About</a>
+    <span>·</span>
+    <a href="how-to-play.html">How to Play</a>
+    <span>·</span>
+    <a href="faq.html">FAQ</a>
+    <span>·</span>
+    <a href="leaderboard.html">Leaderboard</a>
+  </div>
+  <span class="copyright">&copy; 2026 Khalid Bahlool. All rights reserved.</span>
+</footer>
+
+<script src="game.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("service-worker.js").catch(function(){});
+    });
+  }
+</script>
+</body>
+</html>

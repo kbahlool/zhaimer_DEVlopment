@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9984359434282636"
+     crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Leaderboard - Zhaimer</title>
+<meta name="description" content="Your Zhaimer game stats and history, saved on this device." />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+<link rel="stylesheet" href="style.css" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Leaderboard - Zhaimer" />
+<meta property="og:description" content="Your Zhaimer game stats and history, saved on this device." />
+<meta property="og:image" content="https://zhaimer.com/assets/images/og-preview.png" />
+<meta property="og:url" content="https://zhaimer.com/leaderboard.html" />
+<meta property="og:site_name" content="Zhaimer" />
+<meta property="og:locale" content="en_US" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Leaderboard - Zhaimer" />
+<meta name="twitter:description" content="Your Zhaimer game stats and history, saved on this device." />
+<meta name="twitter:image" content="https://zhaimer.com/assets/images/og-preview.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3S53Z9N918"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3S53Z9N918');
+</script>
+
+</head>
+<body>
+<a href="index.html" class="floating-home-btn" aria-label="Home" title="Home">🏠</a>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1 class="title" style="font-size:24px;letter-spacing:4px;margin:0;">ZHAIMER</h1>
+      <div class="tagline">Your stats on this device</div>
+    </div>
+  </div>
+
+  <div class="setup-card" id="statsCard">
+    <h2>Your Stats</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="num" id="statGames">0</div><div class="lbl">Games Played</div></div>
+      <div class="stat-box"><div class="num" id="statWins">0</div><div class="lbl">Wins</div></div>
+      <div class="stat-box"><div class="num" id="statBest">–</div><div class="lbl">Best Score</div></div>
+    </div>
+    <div class="small-note" style="text-align:center;">
+      Stats are saved only on this device/browser — there's no account system yet, so they won't follow you elsewhere.
+    </div>
+  </div>
+
+  <div class="setup-card">
+    <h2>Recent Games</h2>
+    <div id="historyList"></div>
+    <div class="small-note" id="emptyNote" style="display:none;text-align:center;">
+      No games recorded yet — go play a round!
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:16px;">
+    <a href="index.html" class="primary-btn" style="text-decoration:none;display:inline-block;">Back to Game</a>
+    <button class="ghost-btn" id="clearBtn" style="border-color:var(--crimson);color:var(--crimson)">Clear Stats</button>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <a href="index.html">Home</a>
+  <span>·</span>
+  <a href="game.html">Play</a>
+  <span>·</span>
+  <a href="about.html">About</a>
+  <span>·</span>
+  <a href="faq.html">FAQ</a>
+  <span>·</span>
+  <a href="news.html">News</a>
+</footer>
+
+<script>
+function safeGet(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+function safeSet(key, val){ try{ localStorage.setItem(key, val); }catch(e){} }
+function safeRemove(key){ try{ localStorage.removeItem(key); }catch(e){} }
+
+function loadStats(){
+  try{
+    const raw = safeGet('zhaimer_stats');
+    if(!raw) return { gamesPlayed:0, wins:0, bestScore:null, history:[] };
+    return JSON.parse(raw);
+  }catch(e){ return { gamesPlayed:0, wins:0, bestScore:null, history:[] }; }
+}
+
+function render(){
+  const stats = loadStats();
+  document.getElementById('statGames').textContent = stats.gamesPlayed || 0;
+  document.getElementById('statWins').textContent = stats.wins || 0;
+  document.getElementById('statBest').textContent = stats.bestScore===null||stats.bestScore===undefined ? '–' : stats.bestScore;
+
+  const list = document.getElementById('historyList');
+  const history = stats.history || [];
+  if(history.length===0){
+    list.innerHTML = '';
+    document.getElementById('emptyNote').style.display = 'block';
+    return;
+  }
+  document.getElementById('emptyNote').style.display = 'none';
+  list.innerHTML = history.slice(0,20).map(h=>{
+    const date = new Date(h.date);
+    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    return `<div class="history-row">
+      <span>${h.won?'🏆':'—'} <span class="${h.won?'win':'loss'}">${h.won?'Won':'Played'}</span> · ${h.mode==='ai'?'vs AI':'Online'} · ${h.opponents} opponent(s)</span>
+      <span>${h.score!==null?h.score+' pts':''} <span style="color:var(--muted);font-size:11px;">${dateStr}</span></span>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('Clear all local stats? This cannot be undone.')){
+    safeRemove('zhaimer_stats');
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>

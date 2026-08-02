@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9984359434282636"
+     crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stats - Zhaimer</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+<link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3S53Z9N918"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3S53Z9N918');
+</script>
+
+</head>
+<body>
+<a href="index.html" class="floating-home-btn" aria-label="Home" title="Home">🏠</a>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1 class="title" style="font-size:24px;letter-spacing:4px;margin:0;">ZHAIMER</h1>
+      <div class="tagline">Global play stats (not shown to regular players)</div>
+    </div>
+  </div>
+
+  <div class="setup-card" id="statsCard">
+    <h2>Total Games Started</h2>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-box">
+        <div class="num" id="totalGames" style="font-size:36px;">–</div>
+        <div class="lbl">Games Started</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="uniquePlayers" style="font-size:36px;">–</div>
+        <div class="lbl">Unique Players</div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="num" id="aiGames">–</div><div class="lbl">vs AI</div></div>
+      <div class="stat-box"><div class="num" id="onlineGames">–</div><div class="lbl">Online</div></div>
+    </div>
+    <div class="small-note" style="text-align:center;">
+      "Unique Players" counts distinct browsers (no accounts exist) — a good
+      approximation, not an exact headcount. Someone playing from two devices
+      counts twice; clearing browser data resets their count.
+    </div>
+    <div class="small-note" id="statusNote" style="text-align:center;">Loading…</div>
+  </div>
+
+  <div class="actions" style="margin-top:16px;">
+    <a href="index.html" class="ghost-btn" style="text-decoration:none;display:inline-block;">Back to Game</a>
+    <button class="ghost-btn" id="refreshBtn">Refresh</button>
+  </div>
+</div>
+
+<script>
+/* Paste the SAME firebaseConfig you used in game.js — this page needs its
+   own copy since it doesn't load game.js. */
+const firebaseConfig = {
+  apiKey: "AIzaSyA7PV0FBpvQUAHaqFCjmV20S8P2PG-bF_I",
+  authDomain: "myapp-80173.firebaseapp.com",
+  databaseURL: "https://myapp-80173.firebaseio.com",
+  projectId: "myapp-80173",
+  storageBucket: "myapp-80173.firebasestorage.app",
+  messagingSenderId: "829673467316",
+  appId: "1:829673467316:web:88c998e216cbaf437b56e1"
+};
+
+let db = null, ready = false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  ready = true;
+}catch(e){}
+
+function loadStats(){
+  const note = document.getElementById('statusNote');
+  if(!ready){
+    note.textContent = 'Firebase config missing or invalid.';
+    return;
+  }
+  note.textContent = 'Loading…';
+  db.ref('meta/gamesStarted').once('value')
+    .then(snap => { document.getElementById('totalGames').textContent = snap.val() || 0; })
+    .catch(e => { note.textContent = 'Could not read stats — check your Firebase rules allow reading "meta/". Error: '+e.message; });
+  db.ref('meta/gamesStartedByMode/ai').once('value')
+    .then(snap => { document.getElementById('aiGames').textContent = snap.val() || 0; });
+  db.ref('meta/gamesStartedByMode/online').once('value')
+    .then(snap => { document.getElementById('onlineGames').textContent = snap.val() || 0; });
+  db.ref('meta/uniquePlayers').once('value')
+    .then(snap => {
+      const val = snap.val();
+      document.getElementById('uniquePlayers').textContent = val ? Object.keys(val).length : 0;
+    })
+    .finally(() => { note.textContent = 'Updated ' + new Date().toLocaleTimeString(); });
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadStats);
+loadStats();
+</script>
+</body>
+</html>
