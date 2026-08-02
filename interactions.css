@@ -146,3 +146,59 @@
 .ai-persona-avatar{ font-size:22px; line-height:1; }
 .ai-persona-name{ font-size:12px; font-weight:700; color:var(--cream); }
 .ai-persona-desc{ font-size:10.5px; color:var(--muted); line-height:1.35; }
+
+/* ---------- Settings (Stage E2): manual reduce-motion toggle ---------- */
+/* Mirrors the various @media(prefers-reduced-motion) blocks above, but
+   triggered by a user preference stored in localStorage rather than the
+   OS setting — see toggleMotionReduced() in game.js. */
+html.reduce-motion-pref *,
+html.reduce-motion-pref *::before,
+html.reduce-motion-pref *::after{
+  animation-duration:0.001ms !important;
+  animation-iteration-count:1 !important;
+  transition-duration:0.001ms !important;
+}
+
+/* ---------- Settings screen toggle rows ---------- */
+.settings-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 4px; border-bottom:1px solid var(--line);
+}
+.settings-row:last-child{ border-bottom:none; }
+.settings-row-label{ font-size:14px; color:var(--cream); }
+.settings-row-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+.settings-toggle{
+  min-width:56px; min-height:32px; border-radius:16px; border:1px solid var(--line);
+  background:var(--panel2); position:relative; cursor:pointer; padding:0;
+}
+.settings-toggle.on{ background:linear-gradient(135deg,#3fc7b6,#1d7f73); border-color:transparent; }
+.settings-toggle-knob{
+  position:absolute; top:2px; left:2px; width:26px; height:26px; border-radius:50%;
+  background:#fff; transition:transform .18s ease;
+}
+.settings-toggle.on .settings-toggle-knob{ transform:translateX(24px); }
+html[dir="rtl"] .settings-toggle.on .settings-toggle-knob{ transform:translateX(-24px); }
+
+/* ---------- Menu reorganization (fix): compact 2-column grid for ---------- */
+/* secondary/utility menu items, so the main menu no longer needs scrolling
+   to reach the primary actions (Play vs AI, Learn to Play, Practice Mode,
+   Daily Challenge) above it. */
+.dest-grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:4px;
+}
+.dest-row-compact{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; text-align:center;
+  min-height:64px; padding:10px 6px;
+  border-radius:10px; border-style:solid; border-width:1px;
+  background:rgba(255,255,255,0.02);
+  cursor:pointer; text-decoration:none;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.dest-row-compact:hover{ transform:translateY(-2px); }
+.dest-row-compact .dest-icon{ font-size:19px; line-height:1; }
+.dest-row-compact .dest-label{ font-size:11.5px; font-weight:700; color:var(--cream); line-height:1.25; }
+.dest-row-compact[disabled]{ opacity:.45; pointer-events:none; }

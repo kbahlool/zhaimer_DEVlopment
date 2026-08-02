@@ -2182,30 +2182,10 @@ function renderLanding(){
   <div class="setup-card landing-card">
     <div class="dest-title">${t('modeQuestion')}</div>
     <button class="dest-row dest-gold" data-action="goAISetup">
+    <button class="dest-row dest-gold" data-action="goAISetup">
       <span class="dest-icon">🧠</span>
       <span class="dest-text">
         <span class="dest-label">${t('playAIBtn')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
-      <span class="dest-icon">👥</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('createRoomBtn')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
-      <span class="dest-icon">🔑</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('joinRoomBtn')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-purple" data-action="goRules">
-      <span class="dest-icon">📖</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('howToPlayBtn')}</span>
       </span>
       <span class="dest-arrow">›</span>
     </button>
@@ -2232,28 +2212,35 @@ function renderLanding(){
       </span>
       <span class="dest-arrow">›</span>
     </button>
-    <a class="dest-row dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
-      <span class="dest-icon">👤</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('profileBtn')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </a>
-    <button class="dest-row dest-purple" data-action="goSettings">
-      <span class="dest-icon">⚙️</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('settingsBtn')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-theme" data-action="goTheme">
-      <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
-      <span class="dest-text">
+
+    <!-- Secondary/utility items condensed into a 2-column grid so the
+         menu doesn't require scrolling to reach the primary actions above. -->
+    <div class="dest-grid-2">
+      <button class="dest-row-compact dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
+        <span class="dest-icon">👥</span>
+        <span class="dest-label">${t('createRoomBtn')}</span>
+      </button>
+      <button class="dest-row-compact dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
+        <span class="dest-icon">🔑</span>
+        <span class="dest-label">${t('joinRoomBtn')}</span>
+      </button>
+      <button class="dest-row-compact dest-purple" data-action="goRules">
+        <span class="dest-icon">📖</span>
+        <span class="dest-label">${t('howToPlayBtn')}</span>
+      </button>
+      <button class="dest-row-compact dest-theme" data-action="goTheme">
+        <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
         <span class="dest-label">${t('themeBtn')}</span>
-        <span class="dest-sub">${themePref==='random' ? t('themeRandomLabel') : (LANG==='ar'?THEME_DEFS[currentTheme].labelAr:THEME_DEFS[currentTheme].labelEn)}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
+      </button>
+      <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
+        <span class="dest-icon">👤</span>
+        <span class="dest-label">${t('profileBtn')}</span>
+      </a>
+      <button class="dest-row-compact dest-purple" data-action="goSettings">
+        <span class="dest-icon">⚙️</span>
+        <span class="dest-label">${t('settingsBtn')}</span>
+      </button>
+    </div>
     ${fbNote}
   </div>
   <div class="trailer-slot" id="trailerSlot">
@@ -2769,7 +2756,7 @@ function renderDailyResult(){
   return `<div class="table">
   ${screenHeader()}
   <div class="reveal-wrap">
-    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding-top:14px;">
       <h2>${t('dailyResultHeading')}</h2>
       <div style="font-family:Georgia,serif;font-size:36px;color:var(--brass-soft);margin:10px 0;">${score}</div>
       <div style="color:var(--muted);font-size:13px;">${t('pts')}</div>
@@ -2830,7 +2817,7 @@ function renderGameOver(){
   return `<div class="table">
   ${screenHeader()}
   <div class="reveal-wrap">
-    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+    <div class="reveal-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding-top:14px;">
       <h2>${t('gameOverHeading')}</h2>
       <div style="font-family:Georgia,serif;font-size:24px;color:var(--brass-soft);margin:12px 0;">${t('winsLabel', winner.name)}</div>
       <div style="color:var(--muted);font-size:13px;">
