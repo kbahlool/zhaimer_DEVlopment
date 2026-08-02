@@ -816,7 +816,8 @@ let gameResultRecorded = false;
 // screen and memory report. Never synced to Firebase, never touches the
 // existing zhaimer_stats/leaderboard system — purely additive.
 let matchStats = { exchanges:0, smartExchanges:0, bestImprovement:0, highValueReplaced:0, burnsSuccessful:0, burnsFailed:0, roundScores:[] };
-function resetMatchStats(){ matchStats = { exchanges:0, smartExchanges:0, bestImprovement:0, highValueReplaced:0, burnsSuccessful:0, burnsFailed:0, roundScores:[] }; }
+let newlyUnlockedAchievements = [];
+function resetMatchStats(){ matchStats = { exchanges:0, smartExchanges:0, bestImprovement:0, highValueReplaced:0, burnsSuccessful:0, burnsFailed:0, roundScores:[] }; newlyUnlockedAchievements = []; }
 let lastRoundStatRecorded = -1;
 let roomRef = null;
 let joinError = null;
@@ -1429,6 +1430,7 @@ const I18N = {
     shareTextWin:(s)=>`I just won a round of Zhaimer with ${s} points! 🏆`,
     shareTextLoss:(s)=>`I just played Zhaimer and finished with ${s} points.`,
     shareCopied:'Copied to clipboard!',
+    achievementUnlockedLabel:'🏆 Achievement Unlocked',
     slotVal:(i,rank,suit,val)=>`Slot ${i}: ${rank}${suit} — value ${val}`,
     aGlimpseTitle:'A Glimpse', queenGlimpseTitle:"Queen's Glimpse",
     swapDoneTitle:'Swap Complete', swapDoneBody:(n)=>`Your card and one of ${n}'s cards have switched places — neither of you saw the other's card.`,
@@ -1711,6 +1713,7 @@ const I18N = {
     shareTextWin:(s)=>`فزت للتو بجولة زهايمر بـ ${s} نقطة! 🏆`,
     shareTextLoss:(s)=>`لعبت زهايمر للتو وأنهيت بـ ${s} نقطة.`,
     shareCopied:'تم النسخ إلى الحافظة!',
+    achievementUnlockedLabel:'🏆 إنجاز مفتوح',
     slotVal:(i,rank,suit,val)=>`الخانة ${i}: ${rank}${suit} — القيمة ${val}`,
     aGlimpseTitle:'لمحة سريعة', queenGlimpseTitle:'لمحة الملكة',
     swapDoneTitle:'تم التبديل', swapDoneBody:(n)=>`تبادلت ورقتك مع إحدى أوراق ${n} — كلاكما لم يرَ ورقة الآخر.`,
@@ -2800,6 +2803,7 @@ function renderModal(){
   return '';
 }
 
+let revealFlipShownForRound = -1;
 function renderReveal(){
   const results = ROOM.roundResults.slice().sort((a,b)=>a.score-b.score);
   const minScore = Math.min(...results.map(r=>r.score));
@@ -2807,6 +2811,9 @@ function renderReveal(){
   const nextBtn = ROOM.hostUid===myUid
     ? `<button class="primary-btn" style="width:100%" data-action="actNextRound">${ROOM.turnOrder.filter(u=>!ROOM.players[u].eliminated).length<=1? t('seeResultBtn'):t('nextRoundBtn')}</button>`
     : `<div class="small-note" style="text-align:center;">${t('waitingForHost')}</div>`;
+  const shouldFlip = ROOM.round !== revealFlipShownForRound;
+  if(shouldFlip) revealFlipShownForRound = ROOM.round;
+  let cardDelay = 0;
 
   return `<div class="table">
   ${screenHeader(`${t('round')} ${ROOM.round}`, true, compact)}
@@ -2820,7 +2827,11 @@ function renderReveal(){
         <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);">
           <div style="display:flex;gap:6px;align-items:center;min-width:0;flex:1;">
             <b style="white-space:nowrap;font-size:13px;">${r.name}${ROOM.finishedBy===r.uid?' 🎯':''}${isRoundWinner?' 🏆':''}</b>
-            <div style="display:flex;gap:3px;flex-wrap:wrap;">${(r.hand||[]).map(c=>renderCardFace(c,'mini')).join('')}</div>
+            <div style="display:flex;gap:3px;flex-wrap:wrap;">${(r.hand||[]).map(c=>{
+              const delayMs = shouldFlip ? (cardDelay++ * 90) : 0;
+              const cls = shouldFlip ? 'card-flip-reveal' : '';
+              return renderCardFace(c, `mini ${cls}`).replace('<div class="card', `<div style="animation-delay:${delayMs}ms" class="card`);
+            }).join('')}</div>
           </div>
           <div style="text-align:right;flex-shrink:0;margin-left:8px;">
             <div style="font-size:11px;color:var(--muted)">${t('rawLabel')} ${r.score}</div>
@@ -2931,6 +2942,17 @@ function renderGameOver(){
         </div>`).join('')}
       </div>
       ${statsBlockHtml}
+      ${newlyUnlockedAchievements.length ? `
+      <div class="achv-toast-group">
+        ${newlyUnlockedAchievements.map((a,i)=>`
+          <div class="achv-toast" style="animation-delay:${i*150}ms">
+            <span class="achv-toast-icon">${a.icon}</span>
+            <div class="achv-toast-text">
+              <div class="achv-toast-title">${t('achievementUnlockedLabel')}</div>
+              <div class="achv-toast-name">${LANG==='ar'?a.ar:a.en}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
     </div>
     <div class="reveal-footer" style="border-top:none;">
       <button class="primary-btn" style="width:100%" data-action="actLeaveToMenu">${t('playAgainBtn')}</button>
@@ -3016,6 +3038,7 @@ function render(){
         // Stage D/E: also feed the achievements/profile system, additive to
         // the legacy zhaimer_stats call above — leaderboard is untouched.
         if(window.ZhaimerProfile && LOCAL_MODE){
+          const before = Object.keys(window.ZhaimerProfile.load().achievements);
           window.ZhaimerProfile.recordGameResult({
             won: !!won,
             score: myScore,
@@ -3024,6 +3047,10 @@ function render(){
             burnsFailed: matchStats.burnsFailed,
             noIncorrectExchanges: matchStats.exchanges>0 && matchStats.smartExchanges===matchStats.exchanges,
           });
+          const after = Object.keys(window.ZhaimerProfile.load().achievements);
+          newlyUnlockedAchievements = after.filter(id=>!before.includes(id))
+            .map(id=>window.ZhaimerProfile.ACHIEVEMENTS.find(a=>a.id===id))
+            .filter(Boolean);
         }
       }
       if(won) sfxWin(); else sfxFail();

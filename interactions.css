@@ -272,3 +272,41 @@ body:not(.page-scroll) .site-footer{
   color:var(--brass-soft); font-weight:700;
 }
 .eliminated-tag{ color:var(--crimson); font-size:11px; font-weight:400; }
+
+/* ---------- Card flip animation on round reveal ---------- */
+.card.card-flip-reveal{
+  animation: cardFlipReveal .5s ease both;
+  transform-style: preserve-3d;
+}
+@keyframes cardFlipReveal{
+  0%{ transform:rotateY(180deg) scale(0.92); opacity:.4; }
+  55%{ transform:rotateY(0deg) scale(1.04); opacity:1; }
+  100%{ transform:rotateY(0deg) scale(1); opacity:1; }
+}
+@media (prefers-reduced-motion: reduce){
+  .card.card-flip-reveal{ animation:none; }
+}
+html.reduce-motion-pref .card.card-flip-reveal{ animation:none; }
+
+/* ---------- Achievement unlock toast (shown on game-over screen) ---------- */
+.achv-toast-group{
+  width:100%; max-width:340px; margin:14px auto 0;
+  display:flex; flex-direction:column; gap:8px;
+}
+.achv-toast{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; border-radius:12px;
+  background:linear-gradient(135deg, color-mix(in srgb, var(--brass-soft) 18%, var(--panel2)), var(--panel2));
+  border:1px solid var(--brass-soft);
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+  animation:achvToastIn .4s ease both;
+}
+.achv-toast-icon{ font-size:24px; flex-shrink:0; }
+.achv-toast-title{ font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--brass-soft); font-weight:800; }
+.achv-toast-name{ font-size:13.5px; color:var(--cream); font-weight:700; margin-top:1px; }
+@keyframes achvToastIn{
+  0%{ opacity:0; transform:translateY(10px) scale(0.96); }
+  100%{ opacity:1; transform:translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce){ .achv-toast{ animation:none; } }
+html.reduce-motion-pref .achv-toast{ animation:none; }
