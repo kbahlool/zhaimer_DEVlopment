@@ -2257,41 +2257,20 @@ function screenHeader(subtitleOverride, showQuit, compact){
 function renderLandingHeader(){
   const igLabel = LANG==='ar' ? 'تابعوا Zhaimer Labs على إنستغرام' : 'Follow Zhaimer Labs on Instagram';
   const ytLabel = LANG==='ar' ? 'اشتركوا في قناة Zhaimer Labs على يوتيوب' : 'Subscribe to Zhaimer Labs on YouTube';
-  const igIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.06 2 .25 2.6.5.7.27 1.2.6 1.7 1.1.5.5.86 1 1.1 1.7.25.6.44 1.4.5 2.6.07 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.06 1.2-.25 2-.5 2.6-.27.7-.6 1.2-1.1 1.7-.5.5-1 .86-1.7 1.1-.6.25-1.4.44-2.6.5-1.3.07-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.06-2-.25-2.6-.5-.7-.27-1.2-.6-1.7-1.1-.5-.5-.86-1-1.1-1.7-.25-.6-.44-1.4-.5-2.6C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.06-1.2.25-2 .5-2.6.27-.7.6-1.2 1.1-1.7.5-.5 1-.86 1.7-1.1.6-.25 1.4-.44 2.6-.5C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.52 0-4.76.07-1 .05-1.5.2-1.86.34-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.14.36-.29.87-.34 1.86C3.2 8.4 3.2 8.76 3.2 12s0 3.52.07 4.76c.05 1 .2 1.5.34 1.86.18.47.4.8.75 1.15.35.35.68.57 1.15.75.36.14.87.29 1.86.34 1.24.07 1.6.07 4.76.07s3.52 0 4.76-.07c1-.05 1.5-.2 1.86-.34.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.14-.36.29-.87.34-1.86.07-1.24.07-1.6.07-4.76s0-3.52-.07-4.76c-.05-1-.2-1.5-.34-1.86-.18-.47-.4-.8-.75-1.15-.35-.35-.68-.57-1.15-.75-.36-.14-.87-.29-1.86-.34C15.52 4 15.15 4 12 4zm0 3.4a4.6 4.6 0 110 9.2 4.6 4.6 0 010-9.2zm0 1.8a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6zm4.8-2a1.08 1.08 0 110 2.15 1.08 1.08 0 010-2.15z"/></svg>`;
-  const ytIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.5 7.2s-.22-1.55-.9-2.23c-.85-.9-1.8-.9-2.24-.95C16.3 3.8 12 3.8 12 3.8h-.01s-4.3 0-7.35.22c-.44.05-1.39.05-2.24.95-.68.68-.9 2.23-.9 2.23S1.2 9.02 1.2 10.85v1.7c0 1.83.28 3.65.28 3.65s.22 1.55.9 2.23c.85.9 1.97.87 2.47.97 1.8.17 7.15.22 7.15.22s4.3-.01 7.35-.22c.44-.05 1.39-.06 2.24-.97.68-.68.9-2.23.9-2.23s.28-1.82.28-3.65v-1.7c0-1.83-.28-3.65-.28-3.65zM9.75 14.9V8.7l6.02 3.1-6.02 3.1z"/></svg>`;
-
-  return `<div class="corner-bar">
-    <div class="corner-bar-left">
+  return `<div class="header header-landing">
+    <div class="choice-group">
       <button class="quit-btn" data-action="toggleSound" title="${t('soundBtn')}">${soundOn?'🔊':'🔇'}</button>
       <button class="choice-btn ${LANG==='en'?'active':''}" data-action="setLang" data-val="en">EN</button>
       <button class="choice-btn ${LANG==='ar'?'active':''}" data-action="setLang" data-val="ar">ع</button>
     </div>
-    <button class="corner-menu-btn" data-action="toggleMobileMenu" aria-label="${t('menuBtnLabel')}" aria-expanded="${mobileMenuOpen}">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-  <div class="corner-menu-panel ${mobileMenuOpen?'open':''}" role="dialog" aria-modal="true" aria-label="${t('menuBtnLabel')}" aria-hidden="${!mobileMenuOpen}">
-    <button class="corner-menu-close" data-action="toggleMobileMenu" aria-label="${t('panelClose')}">✕</button>
-    <nav class="corner-menu-links">
-      <button data-action="goRules">${t('menuCompleteRules')}</button>
-      <a href="faq${LANG==='ar'?'-ar':''}.html">${t('menuFAQ')}</a>
-      <a href="contact${LANG==='ar'?'-ar':''}.html#troubleshooting">${t('menuTroubleshooting')}</a>
-      <a href="contact${LANG==='ar'?'-ar':''}.html">${t('menuReportProblem')}</a>
-    </nav>
-    <div class="corner-menu-divider"></div>
-    <nav class="corner-menu-links">
-      <button data-action="goPracticeSetup">🎯 ${t('practiceModeBtn')}</button>
-      <button data-action="startDailyChallenge">📅 ${t('dailyChallengeBtn')}</button>
-      <button data-action="goJoin" ${!fbReady?'disabled':''}>🔑 ${t('joinRoomBtn')}</button>
-      <button data-action="goTheme">${THEME_DEFS[currentTheme]?.icon || '🎨'} ${t('themeBtn')}</button>
-      <a href="${LANG==='ar'?'profile-ar.html':'profile.html'}">👤 ${t('profileBtn')}</a>
-      <button data-action="goSettings">⚙️ ${t('settingsBtn')}</button>
-    </nav>
-    <div class="corner-menu-social">
-      <a class="social-icon" href="https://www.instagram.com/zhaimerlabs/" target="_blank" rel="noopener noreferrer" aria-label="${igLabel}" title="${igLabel}">${igIcon}</a>
-      <a class="social-icon" href="https://www.youtube.com/@ZhaimerLabs" target="_blank" rel="noopener noreferrer" aria-label="${ytLabel}" title="${ytLabel}">${ytIcon}</a>
+    <div class="social-links">
+      <a class="social-icon" href="https://www.instagram.com/zhaimerlabs/" target="_blank" rel="noopener noreferrer" aria-label="${igLabel}" title="${igLabel}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.06 2 .25 2.6.5.7.27 1.2.6 1.7 1.1.5.5.86 1 1.1 1.7.25.6.44 1.4.5 2.6.07 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.06 1.2-.25 2-.5 2.6-.27.7-.6 1.2-1.1 1.7-.5.5-1 .86-1.7 1.1-.6.25-1.4.44-2.6.5-1.3.07-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.06-2-.25-2.6-.5-.7-.27-1.2-.6-1.7-1.1-.5-.5-.86-1-1.1-1.7-.25-.6-.44-1.4-.5-2.6C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.06-1.2.25-2 .5-2.6.27-.7.6-1.2 1.1-1.7.5-.5 1-.86 1.7-1.1.6-.25 1.4-.44 2.6-.5C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.52 0-4.76.07-1 .05-1.5.2-1.86.34-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.14.36-.29.87-.34 1.86C3.2 8.4 3.2 8.76 3.2 12s0 3.52.07 4.76c.05 1 .2 1.5.34 1.86.18.47.4.8.75 1.15.35.35.68.57 1.15.75.36.14.87.29 1.86.34 1.24.07 1.6.07 4.76.07s3.52 0 4.76-.07c1-.05 1.5-.2 1.86-.34.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.14-.36.29-.87.34-1.86.07-1.24.07-1.6.07-4.76s0-3.52-.07-4.76c-.05-1-.2-1.5-.34-1.86-.18-.47-.4-.8-.75-1.15-.35-.35-.68-.57-1.15-.75-.36-.14-.87-.29-1.86-.34C15.52 4 15.15 4 12 4zm0 3.4a4.6 4.6 0 110 9.2 4.6 4.6 0 010-9.2zm0 1.8a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6zm4.8-2a1.08 1.08 0 110 2.15 1.08 1.08 0 010-2.15z"/></svg>
+      </a>
+      <a class="social-icon" href="https://www.youtube.com/@ZhaimerLabs" target="_blank" rel="noopener noreferrer" aria-label="${ytLabel}" title="${ytLabel}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.5 7.2s-.22-1.55-.9-2.23c-.85-.9-1.8-.9-2.24-.95C16.3 3.8 12 3.8 12 3.8h-.01s-4.3 0-7.35.22c-.44.05-1.39.05-2.24.95-.68.68-.9 2.23-.9 2.23S1.2 9.02 1.2 10.85v1.7c0 1.83.28 3.65.28 3.65s.22 1.55.9 2.23c.85.9 1.97.87 2.47.97 1.8.17 7.15.22 7.15.22s4.3-.01 7.35-.22c.44-.05 1.39-.06 2.24-.97.68-.68.9-2.23.9-2.23s.28-1.82.28-3.65v-1.7c0-1.83-.28-3.65-.28-3.65zM9.75 14.9V8.7l6.02 3.1-6.02 3.1z"/></svg>
+      </a>
     </div>
-    <div class="corner-menu-copyright">© 2026 Khalid Bahlool. All rights reserved.</div>
   </div>`;
 }
 
@@ -2344,39 +2323,82 @@ function renderTopicPanel(id){
 }
 
 function renderLanding(){
-  const topics = [
-    { id:'tutorial', icon:'🎓', label:t('topicTutorialLabel') },
-    { id:'howto', icon:'📖', label:t('topicHowToPlayLabel') },
-    { id:'special', icon:'🃏', label:t('topicSpecialLabel') },
-    { id:'modes', icon:'🎮', label:t('topicModesLabel') },
-    { id:'about', icon:'ℹ️', label:t('topicAboutLabel') },
-    { id:'leaderboard', icon:'🏆', label:t('topicLeaderboardLabel') },
-  ];
+  let fbNote = '';
+  if(!fbReady){
+    fbNote = `<div class="setup-explainer" style="border-top:none;margin-top:14px;color:var(--crimson)">${t('firebaseMissing')}</div>`;
+  }
   return `${renderLandingHeader()}
-  <main class="radial-stage">
-    <div class="radial-wrap">
-      <div class="radial-connectors" aria-hidden="true">
-        ${topics.map((tp,i)=>`<div class="radial-connector" style="--angle:${i*60-90}deg"></div>`).join('')}
-      </div>
-      <div class="radial-center">
-        <img class="radial-logo" src="assets/images/logo-full.webp" alt="ZHAIMER" width="72" height="40" />
-        <div class="radial-title">ZHAIMER</div>
-        <div class="radial-tagline">${t('circleTagline')}</div>
-        <button class="radial-play-btn" data-action="goAISetup">${t('circlePlayNow')}</button>
-        <button class="radial-tutorial-btn" data-action="startTutorial">${t('circleStartTutorial')}</button>
-      </div>
-      ${topics.map((tp,i)=>`
-        <button class="radial-topic ${activeTopic===tp.id?'active':''}" style="--angle:${i*60-90}deg"
-          data-action="openTopic" data-val="${tp.id}" aria-pressed="${activeTopic===tp.id}">
-          <span class="radial-topic-inner">
-            <span class="radial-topic-icon">${tp.icon}</span>
-            <span class="radial-topic-label">${tp.label}</span>
-          </span>
-        </button>`).join('')}
+  <div class="landing-hero">
+    <img class="landing-hero-banner" src="assets/images/landing-hero.webp" alt="Zhaimer - The Game of Hidden Strategy" />
+  </div>
+  ${renderPublicPlayerCount()}
+  <div class="setup-card landing-card">
+    <div class="dest-title">${t('modeQuestion')}</div>
+    <button class="dest-row dest-gold" data-action="goAISetup">
+      <span class="dest-icon">🧠</span>
+      <span class="dest-text"><span class="dest-label">${t('playAIBtn')}</span></span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-learn" data-action="startTutorial">
+      <span class="dest-icon">🎓</span>
+      <span class="dest-text"><span class="dest-label">${LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play'}</span></span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-teal" data-action="goPracticeSetup">
+      <span class="dest-icon">🎯</span>
+      <span class="dest-text">
+        <span class="dest-label">${t('practiceModeBtn')}</span>
+        <span class="dest-sub">${t('practiceModeSub')}</span>
+      </span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-gold" data-action="startDailyChallenge">
+      <span class="dest-icon">📅</span>
+      <span class="dest-text">
+        <span class="dest-label">${t('dailyChallengeBtn')}</span>
+        <span class="dest-sub">${dailyChallengeSubLabel()}</span>
+      </span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
+      <span class="dest-icon">👥</span>
+      <span class="dest-text"><span class="dest-label">${t('createRoomBtn')}</span></span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
+      <span class="dest-icon">🔑</span>
+      <span class="dest-text"><span class="dest-label">${t('joinRoomBtn')}</span></span>
+      <span class="dest-arrow">›</span>
+    </button>
+    <button class="dest-row dest-purple" data-action="goRules">
+      <span class="dest-icon">📖</span>
+      <span class="dest-text"><span class="dest-label">${t('howToPlayBtn')}</span></span>
+      <span class="dest-arrow">›</span>
+    </button>
+
+    <!-- Compact 2-column grid for the remaining utility items, keeping
+         the menu short enough to avoid scrolling while still showing
+         every option directly — nothing hidden behind extra menus. -->
+    <div class="dest-grid-2">
+      <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
+        <span class="dest-icon">👤</span>
+        <span class="dest-label">${t('profileBtn')}</span>
+      </a>
+      <button class="dest-row-compact dest-purple" data-action="goSettings">
+        <span class="dest-icon">⚙️</span>
+        <span class="dest-label">${t('settingsBtn')}</span>
+      </button>
+      <button class="dest-row-compact dest-theme" data-action="goTheme">
+        <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
+        <span class="dest-label">${t('themeBtn')}</span>
+      </button>
+      <a class="dest-row-compact dest-gold" href="leaderboard.html">
+        <span class="dest-icon">🏆</span>
+        <span class="dest-label">${t('navLeaderboard')}</span>
+      </a>
     </div>
-    ${renderPublicPlayerCount()}
-  </main>
-  ${renderTopicPanel(activeTopic)}
+    ${fbNote}
+  </div>
   <div class="trailer-slot" id="trailerSlot">
     ${hasSeenTrailer() ? `
     <video id="zhaimerTrailer" class="trailer-video" src="assets/videos/zhaimer-trailer.mp4"
