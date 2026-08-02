@@ -36,6 +36,7 @@
 <meta name="twitter:description" content="Contact Zhaimer for support, feedback, partnerships, or general questions." />
 <meta name="twitter:image" content="https://zhaimer.com/assets/images/og-preview.png" />
 <link rel="stylesheet" href="social.css">
+<link rel="stylesheet" href="feedback.css">
 </head>
 
 <body>
@@ -98,6 +99,26 @@
         please use the same email address and include a clear subject line.
       </p>
 
+      <h2>Rate Your Experience</h2>
+      <p>How was your Zhaimer experience?</p>
+      <div class="feedback-rating" id="feedbackRating" role="group" aria-label="Rate your experience">
+        <button type="button" class="feedback-rating-btn" data-rating="excellent">🙂 Excellent</button>
+        <button type="button" class="feedback-rating-btn" data-rating="good">😐 Good</button>
+        <button type="button" class="feedback-rating-btn" data-rating="needs-improvement">🙁 Needs Improvement</button>
+      </div>
+      <p id="feedbackThanks" class="feedback-thanks" hidden>Thanks for letting us know — it genuinely helps shape what we work on next.</p>
+
+      <h2>Report a Problem</h2>
+      <p>Ran into a bug or something not working right? Fill this in and it'll open a pre-filled email for you to send.</p>
+      <form id="reportForm" class="report-form">
+        <label for="reportDesc">What happened?</label>
+        <textarea id="reportDesc" rows="4" placeholder="Describe the problem — what you were doing, and what went wrong"></textarea>
+        <div class="report-form-meta">
+          <span id="reportDevice"></span>
+        </div>
+        <button type="submit" class="primary-button">Send Report</button>
+      </form>
+
       <div class="hero-buttons">
         <a
           class="primary-button"
@@ -144,5 +165,6 @@
     </div>
   </footer>
 
+<script src="feedback.js"></script>
 </body>
 </html>

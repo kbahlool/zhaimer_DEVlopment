@@ -1,0 +1,51 @@
+/* ===========================================================================
+   ZHAIMER — Feedback widget (rating + report-a-problem)
+   Used on contact.html / contact-ar.html. No backend — ratings are stored
+   locally, and the report form opens a pre-filled mailto: link.
+   =========================================================================== */
+.feedback-rating{
+  display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 6px;
+}
+.feedback-rating-btn{
+  min-height:44px;
+  padding:10px 16px;
+  border-radius:8px;
+  border:1px solid rgba(215,173,79,0.4);
+  background:rgba(255,255,255,0.03);
+  color:#eee4d0;
+  font-size:14px;
+  cursor:pointer;
+  transition:background .15s ease, transform .1s ease, border-color .15s ease;
+}
+.feedback-rating-btn:hover{ background:rgba(255,255,255,0.08); }
+.feedback-rating-btn:active{ transform:scale(0.97); }
+.feedback-rating-btn.selected{
+  background:linear-gradient(135deg,#e1b85b,#a87321);
+  color:#0a0a07;
+  border-color:transparent;
+}
+.feedback-thanks{
+  color:#8fd6a8; font-size:13.5px; margin-top:4px;
+}
+
+.report-form{
+  display:flex; flex-direction:column; gap:10px; max-width:560px; margin-top:10px;
+}
+.report-form textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid rgba(215,173,79,0.3);
+  background:rgba(255,255,255,0.03);
+  color:#eee4d0;
+  font-size:14px;
+  font-family:inherit;
+  resize:vertical;
+}
+.report-form textarea:focus{ outline:2px solid #d7ad4f; outline-offset:1px; }
+.report-form-meta{
+  font-size:11.5px; color:#8a8f86;
+}
+
+html[lang="ar"] .feedback-rating,
+html[lang="ar"] .report-form{ direction:rtl; text-align:right; }

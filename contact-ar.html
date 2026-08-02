@@ -42,6 +42,7 @@
 <meta name="twitter:description" content="تواصل مع زهايمر للدعم أو الملاحظات أو الشراكات أو الاستفسارات العامة." />
 <meta name="twitter:image" content="https://zhaimer.com/assets/images/og-preview.png" />
 <link rel="stylesheet" href="social.css">
+<link rel="stylesheet" href="feedback.css">
 </head>
 
 <body>
@@ -105,6 +106,26 @@
         عنوان واضح للرسالة.
       </p>
 
+      <h2>قيّم تجربتك</h2>
+      <p>كيف كانت تجربتك مع زهايمر؟</p>
+      <div class="feedback-rating" id="feedbackRating" role="group" aria-label="قيّم تجربتك">
+        <button type="button" class="feedback-rating-btn" data-rating="excellent">🙂 ممتازة</button>
+        <button type="button" class="feedback-rating-btn" data-rating="good">😐 جيدة</button>
+        <button type="button" class="feedback-rating-btn" data-rating="needs-improvement">🙁 تحتاج تحسين</button>
+      </div>
+      <p id="feedbackThanks" class="feedback-thanks" hidden>شكرًا لإخبارنا — رأيك يساعد فعليًا في تحديد ما نعمل عليه لاحقًا.</p>
+
+      <h2>الإبلاغ عن مشكلة</h2>
+      <p>واجهت خطأ أو شيئًا لا يعمل بشكل صحيح؟ املأ هذا النموذج وسيفتح رسالة بريد إلكتروني جاهزة لإرسالها.</p>
+      <form id="reportForm" class="report-form">
+        <label for="reportDesc">ما الذي حدث؟</label>
+        <textarea id="reportDesc" rows="4" placeholder="صف المشكلة — ماذا كنت تفعل، وما الذي حدث خطأ"></textarea>
+        <div class="report-form-meta">
+          <span id="reportDevice"></span>
+        </div>
+        <button type="submit" class="primary-button">إرسال البلاغ</button>
+      </form>
+
       <div class="hero-buttons">
         <a
           class="primary-button"
@@ -151,5 +172,6 @@
     </div>
   </footer>
 
+<script src="feedback.js"></script>
 </body>
 </html>

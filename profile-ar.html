@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9984359434282636"
+     crossorigin="anonymous"></script>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<title>الملف الشخصي للاعب — زهايمر</title>
+<meta name="description" content="إحصائياتك في زهايمر: عدد المباريات، نسبة الفوز، أفضل نتيجة، السلاسل، والإنجازات المفتوحة." />
+<link rel="canonical" href="https://zhaimer.com/profile-ar.html" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="الملف الشخصي للاعب — زهايمر" />
+<meta property="og:description" content="إحصائياتك وإنجازاتك في زهايمر." />
+<meta property="og:image" content="https://zhaimer.com/assets/images/og-preview.png" />
+<meta property="og:url" content="https://zhaimer.com/profile-ar.html" />
+<meta property="og:site_name" content="Zhaimer" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3S53Z9N918"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3S53Z9N918');
+</script>
+
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="social.css">
+<style>
+  body{ font-family:"Tajawal",Arial,sans-serif; }
+  .profile-header{ display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+  .profile-avatar{
+    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:30px; background:linear-gradient(135deg,#1e3d2b,#0c1a11); border:1px solid rgba(215,173,79,0.4);
+  }
+  .profile-stats-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:12px; margin:18px 0 26px;
+  }
+  .profile-stat{
+    background:rgba(255,255,255,0.03); border:1px solid rgba(215,173,79,0.2); border-radius:10px;
+    padding:14px; text-align:center;
+  }
+  .profile-stat .num{ font-size:24px; font-weight:800; color:#e9c65c; }
+  .profile-stat .label{ font-size:11.5px; color:#a9aea8; margin-top:4px; letter-spacing:.4px; }
+  .achv-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+  .achv-card{
+    display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:10px;
+    border:1px solid rgba(215,173,79,0.2); background:rgba(255,255,255,0.02);
+  }
+  .achv-card.locked{ opacity:.4; filter:grayscale(1); }
+  .achv-icon{ font-size:26px; }
+  .achv-title{ font-weight:700; color:#eee4d0; font-size:14px; }
+  .achv-desc{ font-size:12.5px; color:#a9aea8; margin-top:3px; }
+  .profile-empty{
+    text-align:center; padding:40px 20px; border:1px dashed rgba(215,173,79,0.3); border-radius:12px; color:#a9aea8;
+  }
+</style>
+</head>
+<body class="page-scroll">
+<a href="index-ar.html" class="floating-home-btn" aria-label="الرئيسية" title="الرئيسية">🏠</a>
+
+<div class="wrap info-page">
+  <header class="header info-header">
+    <div>
+      <div class="title" style="font-size:24px;letter-spacing:4px;">ZHAIMER</div>
+      <div class="tagline">الملف الشخصي للاعب</div>
+    </div>
+    <a href="profile.html" class="info-language" hreflang="en">English</a>
+  </header>
+
+  <main>
+    <article class="setup-card rules-card info-card">
+      <div id="profileEmpty" class="profile-empty" hidden>
+        <p>لا توجد مباريات مسجّلة بعد. العب مباراة لتبدأ ببناء ملفك الشخصي.</p>
+        <a href="game.html" class="primary-btn" style="display:inline-block;margin-top:12px;">العب زهايمر</a>
+      </div>
+
+      <div id="profileContent">
+        <div class="profile-header">
+          <div class="profile-avatar" id="profileAvatar">🧠</div>
+          <div>
+            <h1 style="margin:0;" id="profileName">لاعب</h1>
+            <p style="margin:2px 0 0;color:#a9aea8;font-size:13px;" id="profileFavDifficulty"></p>
+          </div>
+        </div>
+
+        <div class="profile-stats-grid">
+          <div class="profile-stat"><div class="num" id="statGames">0</div><div class="label">مباريات لُعبت</div></div>
+          <div class="profile-stat"><div class="num" id="statWins">0</div><div class="label">انتصارات</div></div>
+          <div class="profile-stat"><div class="num" id="statWinPct">0%</div><div class="label">نسبة الفوز</div></div>
+          <div class="profile-stat"><div class="num" id="statBest">—</div><div class="label">أفضل نتيجة</div></div>
+          <div class="profile-stat"><div class="num" id="statStreak">0</div><div class="label">السلسلة الحالية</div></div>
+          <div class="profile-stat"><div class="num" id="statBestStreak">0</div><div class="label">أفضل سلسلة</div></div>
+        </div>
+
+        <h2>الإنجازات</h2>
+        <div class="achv-grid" id="achvGrid"></div>
+      </div>
+    </article>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index-ar.html">الرئيسية</a>
+    <span>·</span>
+    <a href="game.html">العب</a>
+    <span>·</span>
+    <a href="leaderboard.html">المتصدرون</a>
+    <span>·</span>
+    <a href="how-to-play-ar.html">طريقة اللعب</a>
+  </div>
+  <span class="copyright">&copy; 2026 Khalid Bahlool. جميع الحقوق محفوظة.</span>
+</footer>
+
+<script src="achievements.js"></script>
+<script>
+  (function(){
+    const p = window.ZhaimerProfile.load();
+    const hasData = p.gamesPlayed > 0 || Object.keys(p.achievements).length > 0;
+    document.getElementById('profileEmpty').hidden = hasData;
+    document.getElementById('profileContent').style.display = hasData ? '' : 'none';
+
+    const difficultyAr = { easy:'سهل', medium:'متوسط', hard:'صعب' };
+    if(hasData){
+      document.getElementById('profileAvatar').textContent = p.avatar || '🧠';
+      document.getElementById('profileName').textContent = p.displayName || 'لاعب';
+      const fav = window.ZhaimerProfile.favoriteDifficulty(p);
+      document.getElementById('profileFavDifficulty').textContent = fav ? ('الصعوبة المفضّلة: ' + (difficultyAr[fav] || fav)) : '';
+      document.getElementById('statGames').textContent = p.gamesPlayed;
+      document.getElementById('statWins').textContent = p.gamesWon;
+      document.getElementById('statWinPct').textContent = window.ZhaimerProfile.winPercent(p) + '%';
+      document.getElementById('statBest').textContent = (p.bestScore === null) ? '—' : p.bestScore;
+      document.getElementById('statStreak').textContent = p.currentStreak;
+      document.getElementById('statBestStreak').textContent = p.bestStreak;
+    }
+
+    const grid = document.getElementById('achvGrid');
+    window.ZhaimerProfile.ACHIEVEMENTS.forEach(function(a){
+      const unlocked = !!p.achievements[a.id];
+      const card = document.createElement('div');
+      card.className = 'achv-card' + (unlocked ? '' : ' locked');
+      card.innerHTML = '<div class="achv-icon">' + a.icon + '</div>' +
+        '<div><div class="achv-title">' + a.ar + '</div><div class="achv-desc">' + a.descAr + '</div></div>';
+      grid.appendChild(card);
+    });
+  })();
+</script>
+</body>
+</html>
