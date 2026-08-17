@@ -9,6 +9,7 @@ const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RED_SUITS = ['♥','♦'];
 
 function cardValue(c){
+  if(c.rank==='Z') return 10; // Ultimate ZHAIMER only — see ULTIMATE ZHAIMER Z card rules
   if(c.rank==='A') return 1;
   if(c.rank==='10') return RED_SUITS.includes(c.suit) ? 0 : 10;
   if(['J','Q','K'].includes(c.rank)) return 10;
@@ -16,9 +17,13 @@ function cardValue(c){
 }
 function isSpecial(c){ return ['J','Q','K'].includes(c.rank); }
 function isRedSuit(s){ return RED_SUITS.includes(s); }
-function newDeck(){
+// Z is Ultimate ZHAIMER's single unique card — never part of Classic.
+const Z_SUIT = '★';
+function isZCard(c){ return !!c && c.rank==='Z'; }
+function newDeck(mode){
   const d=[];
   for(const s of SUITS) for(const r of RANKS) d.push({rank:r, suit:s});
+  if(mode==='ultimate') d.push({ rank:'Z', suit:Z_SUIT }); // exactly ONE Z card, ever
   return d;
 }
 function shuffle(arr){
@@ -73,15 +78,17 @@ function genUid(){
    They contain zero I/O — this makes them easy to test and safe to run inside a
    Firebase transaction (which may retry the mutator on contention). */
 
-function freshRoom(hostUid, hostName){
+function freshRoom(hostUid, hostName, mode){
   return {
     hostUid,
+    gameMode: mode==='ultimate' ? 'ultimate' : 'classic', // classic | ultimate — see ULTIMATE ZHAIMER game mode
     phase: 'lobby', // lobby | peek | playing | reveal | roundEnd | gameOver
     round: 0,
     turnOrder: [hostUid],
     currentUid: null,
     deck: [],
     discard: [],
+    zCenter: null, // Ultimate only: {card} sitting face-up in the special Z area
     players: {
       [hostUid]: { name: hostName, hand: [], total: 0, eliminated: false }
     },
@@ -139,8 +146,8 @@ function roomStartGame(room){
 
 function dealNewRound(room){
   room.deck = (typeof DAILY_MODE!=='undefined' && DAILY_MODE && room.round===1)
-    ? seededShuffle(newDeck(), dailySeedFromDate())
-    : shuffle(newDeck());
+    ? seededShuffle(newDeck(room.gameMode), dailySeedFromDate())
+    : shuffle(newDeck(room.gameMode));
   room.discard = [];
   room.drawnCard = null;
   room.modal = null;
@@ -152,6 +159,7 @@ function dealNewRound(room){
   room.turnCount = 0;
   room.penaltyApplied = null;
   room.recentChange = null;
+  room.zCenter = null; // Ultimate: Z (if it was sitting in the center) resets each new round
   for(const uid of room.turnOrder){
     const p = room.players[uid];
     if(p.eliminated) continue;
@@ -228,6 +236,12 @@ function advanceTurn(room){
   room.currentUid = nextAliveUid(room, room.currentUid);
   room.timerUid = room.currentUid;
   room.turnStartedAt = Date.now();
+  // ULTIMATE ZHAIMER — Z POWER: Z IN THE CENTER. If Z is sitting face-up in
+  // the special center area, the player whose turn is just beginning gets
+  // first choice: TAKE Z (counts as their normal draw) or DRAW NORMALLY.
+  if(room.gameMode==='ultimate' && room.zCenter){
+    room.modal = { type:'zCenterChoice' };
+  }
 }
 
 /* ---- After a player finishes their normal turn action (swap/discard/ability
@@ -263,11 +277,19 @@ function offerAbilityOrBurn(room, uid, card){
   }
 }
 
+// ULTIMATE ZHAIMER — Z POWER 1: COPY AN ACTION. Only fires when Z was drawn
+// directly from the face-down Deck this turn (never from the center pickup,
+// per the "activation difference" rule) — checked once here, right where
+// the drawn card is about to be resolved into the hand or the discard pile.
+function zCopyShouldTrigger(room, drawn){
+  return room.gameMode==='ultimate' && drawn && isZCard(drawn.card) && drawn.source==='deck';
+}
 function roomChooseSlot(room, uid, slotIdx){
   if(room.phase!=='playing' || room.currentUid!==uid || !room.drawnCard) return { error:'invalid' };
   const p = room.players[uid];
+  const drawn = room.drawnCard;
   const old = p.hand[slotIdx];
-  p.hand[slotIdx] = room.drawnCard.card;
+  p.hand[slotIdx] = drawn.card;
   placeOnDiscard(room, old);
   roomPushLog(room, `swap:${uid}:${old.rank}${old.suit}`);
   // Position-only marker: lets everyone see WHICH slot just changed for
@@ -275,16 +297,96 @@ function roomChooseSlot(room, uid, slotIdx){
   // at the start of the next round.
   room.recentChange = { uid, slot: slotIdx, ts: Date.now() };
   room.drawnCard = null;
+  if(zCopyShouldTrigger(room, drawn)){
+    room.modal = { type:'zCopyChoose' };
+    return {};
+  }
   offerFinishCheck(room, uid);
   return {};
 }
 function roomDiscardDrawn(room, uid){
-  if(room.phase!=='playing' || room.currentUid!==uid || !room.drawnCard || room.drawnCard.source!=='deck') return { error:'invalid' };
-  const card = room.drawnCard.card;
+  if(room.phase!=='playing' || room.currentUid!==uid || !room.drawnCard) return { error:'invalid' };
+  const drawn = room.drawnCard;
+  if(drawn.source!=='deck' && drawn.source!=='zCenter') return { error:'invalid' };
+  const card = drawn.card;
   placeOnDiscard(room, card);
   roomPushLog(room, `discard:${uid}:${card.rank}${card.suit}`);
   room.drawnCard = null;
+  if(zCopyShouldTrigger(room, drawn)){
+    room.modal = { type:'zCopyChoose' };
+    return {};
+  }
   offerAbilityOrBurn(room, uid, card);
+  return {};
+}
+
+// ULTIMATE ZHAIMER — Z POWER 1 continued: the player picks exactly ONE of
+// J / Q / K to copy. We deliberately reuse the exact same modal shapes
+// ('jackOwn' / 'queenPick' / 'king') that the normal J/Q/K "use it?" flow
+// produces, so every existing button handler and render path (roomJackOwn,
+// roomQueenPeek, roomKingChoose, ...) works completely unmodified.
+function roomZCopyChoose(room, uid, choice){
+  if(!room.modal || room.modal.type!=='zCopyChoose' || room.currentUid!==uid) return { error:'invalid' };
+  roomPushLog(room, `zCopy:${uid}:${choice}`);
+  if(choice==='J'){
+    room.modal = { type:'jackOwn' };
+  } else if(choice==='Q'){
+    room.modal = { type:'queenPick' };
+  } else if(choice==='K'){
+    if(room.deck.length<2) reshuffleFromDiscard(room);
+    if(room.deck.length<2){ offerFinishCheck(room, uid); return {}; }
+    const c1 = room.deck.pop(), c2 = room.deck.pop();
+    room.modal = { type:'king', c1, c2 };
+  } else {
+    return { error:'invalid-choice' };
+  }
+  return {};
+}
+
+// ULTIMATE ZHAIMER — Z POWER 2: DEFENSE / BLOCK SWAP. Fired from inside the
+// Jack swap flow (see performJackSwap/roomJackConfirmSwap below) whenever
+// the swap's target currently owns Z.
+function roomZBlockAnswer(room, targetUid, useZ){
+  if(!room.modal || room.modal.type!=='zBlockOffer' || room.modal.targetUid!==targetUid) return { error:'invalid' };
+  const { ownSlot, targetSlot, swapperUid } = room.modal;
+  if(!useZ){
+    roomPushLog(room, `zBlockDeclined:${targetUid}`);
+    return performJackSwap(room, swapperUid, ownSlot, targetUid, targetSlot);
+  }
+  // YES — sacrifice Z to cancel the swap entirely. See rules 5–7.
+  const opp = room.players[targetUid];
+  const zIdx = opp.hand.findIndex(c=>isZCard(c));
+  if(zIdx===-1){
+    // Safety net: Z left the hand some other way between offer and answer.
+    return performJackSwap(room, swapperUid, ownSlot, targetUid, targetSlot);
+  }
+  const zCard = opp.hand[zIdx];
+  roomPushLog(room, `zBlock:${targetUid}`);
+  // STEP 1–4: cancel the swap, reveal + remove Z, place it face-up in center.
+  room.zCenter = { card: zCard };
+  // STEP 5–7: replacement card drawn face-down, unseen, no ability trigger.
+  const replacement = drawFreshCard(room);
+  opp.hand[zIdx] = replacement;
+  if(opp.mem) opp.mem[zIdx] = { known:false, rank:null, value:null, conf:0 };
+  room.recentChange = { uid: targetUid, slot: zIdx, ts: Date.now() };
+  room.modal = null;
+  offerFinishCheck(room, swapperUid);
+  return {};
+}
+
+// ULTIMATE ZHAIMER — taking Z from the center counts as this turn's normal
+// draw (rule 9). Declining leaves Z sitting in the center untouched (rule 10).
+function roomZCenterTake(room, uid, take){
+  if(!room.modal || room.modal.type!=='zCenterChoice' || room.currentUid!==uid) return { error:'invalid' };
+  if(!take){
+    room.modal = null;
+    return {};
+  }
+  const card = room.zCenter.card;
+  room.zCenter = null;
+  room.drawnCard = { uid, card, source:'zCenter' };
+  room.modal = null;
+  roomPushLog(room, `zTaken:${uid}`);
   return {};
 }
 
@@ -392,6 +494,18 @@ function roomJackTarget(room, uid, targetUid, targetSlot){
 function roomJackConfirmSwap(room, uid){
   if(!room.modal || room.modal.type!=='jackPreview' || room.currentUid!==uid) return { error:'invalid' };
   const { ownSlot, targetUid, targetSlot } = room.modal;
+  // ULTIMATE ZHAIMER — Z POWER 2: if the swap's target currently owns Z,
+  // give them the block choice before the swap actually happens.
+  if(room.gameMode==='ultimate'){
+    const opp = room.players[targetUid];
+    if(opp.hand.some(c=>isZCard(c))){
+      room.modal = { type:'zBlockOffer', ownSlot, targetUid, targetSlot, swapperUid: uid };
+      return {};
+    }
+  }
+  return performJackSwap(room, uid, ownSlot, targetUid, targetSlot);
+}
+function performJackSwap(room, uid, ownSlot, targetUid, targetSlot){
   const p = room.players[uid];
   const opp = room.players[targetUid];
   const tmp = p.hand[ownSlot];
@@ -487,7 +601,37 @@ function revealAndScore(room){
   room.turnStartedAt = null;
   room.phase = 'reveal';
   const aliveUids = room.turnOrder.filter(u=>!room.players[u].eliminated);
-  const scores = aliveUids.map(uid=>({ uid, score: room.players[uid].hand.reduce((s,c)=>s+cardValue(c),0) }));
+  const scores = aliveUids.map(uid=>{
+    const hand = room.players[uid].hand;
+    let score = hand.reduce((s,c)=>s+cardValue(c),0);
+    let zCombo = false, zProtection = null;
+    // ULTIMATE ZHAIMER — FINAL SCORING PRIORITY (rule 23):
+    // 1) ZHAIMER COMBO (J+Q+K+Z all still owned) => score 0, stop.
+    // 2) else Z SCORE PROTECTION => cancel one other card's value.
+    // 3) else normal scoring.
+    if(room.gameMode==='ultimate'){
+      const ranks = hand.map(c=>c.rank);
+      if(['J','Q','K','Z'].every(r=>ranks.includes(r))){
+        zCombo = true;
+        score = 0;
+      } else if(ranks.includes('Z')){
+        // Z can't cancel itself — pick the highest-value OTHER card. (No
+        // interactive UI for this pick yet — see README notes — so the
+        // engine auto-selects the best legal choice for the player.)
+        let bestIdx = -1, bestVal = -1;
+        hand.forEach((c,i)=>{
+          if(isZCard(c)) return;
+          const v = cardValue(c);
+          if(v>bestVal){ bestVal=v; bestIdx=i; }
+        });
+        if(bestIdx>=0){
+          zProtection = { idx:bestIdx, rank:hand[bestIdx].rank, suit:hand[bestIdx].suit, value:bestVal };
+          score -= bestVal;
+        }
+      }
+    }
+    return { uid, score, zCombo, zProtection };
+  });
   let penaltyApplied = null;
   for(const s of scores){
     let roundScore = s.score;
@@ -878,6 +1022,10 @@ let DAILY_MODE = false;
 let dailyResultRecorded = false;
 let DIFFICULTY = 'medium';
 let NUM_AI = 2;
+// ULTIMATE ZHAIMER — 'classic' (original game, unchanged) or 'ultimate'
+// (adds the Z card). Chosen on the game-mode / AI-setup screen.
+let GAME_MODE = 'classic';
+function setGameModeVal(mode){ preserveAINameField(); GAME_MODE = (mode==='ultimate') ? 'ultimate' : 'classic'; render(); }
 let processingLocalAI = false;
 
 // Stage C: AI personalities. Purely presentational layer (name, avatar,
@@ -944,7 +1092,7 @@ function startLocalGame(numAI, difficulty){
   lastRoundStatRecorded = -1;
   gameResultRecorded = false;
   dailyResultRecorded = false;
-  const room = freshRoom(myUid, myName || 'You');
+  const room = freshRoom(myUid, myName || 'You', GAME_MODE);
   const personas = aiPersonasFor(difficulty);
   for(let i=0;i<numAI;i++){
     const aiUid = 'ai'+i;
@@ -1022,11 +1170,28 @@ function afterDealLocalAI(room){
 function maybeRunLocalAI(){
   if(!LOCAL_MODE || processingLocalAI) return;
   if(!ROOM || ROOM.phase!=='playing') return;
+  // ULTIMATE ZHAIMER — Z block offer targets a specific player, who is NOT
+  // necessarily ROOM.currentUid (the swapper is). Handle this independently.
+  if(ROOM.modal && ROOM.modal.type==='zBlockOffer' && ROOM.players[ROOM.modal.targetUid] && ROOM.players[ROOM.modal.targetUid].isAI){
+    processingLocalAI = true;
+    setTimeout(()=>{ aiAnswerZBlock(ROOM.modal.targetUid); processingLocalAI=false; maybeRunLocalAI(); }, 500);
+    return;
+  }
   const uid = ROOM.currentUid;
   if(!uid || !ROOM.players[uid] || !ROOM.players[uid].isAI) return;
   if(ROOM.modal && ROOM.modal.type==='finishCheck'){
     processingLocalAI = true;
     setTimeout(()=>{ aiAnswerFinishCheck(uid); processingLocalAI=false; maybeRunLocalAI(); }, 500);
+    return;
+  }
+  if(ROOM.modal && ROOM.modal.type==='zCenterChoice'){
+    processingLocalAI = true;
+    setTimeout(()=>{ aiAnswerZCenter(uid).then(()=>{ processingLocalAI=false; maybeRunLocalAI(); }); }, 500);
+    return;
+  }
+  if(ROOM.modal && ROOM.modal.type==='zCopyChoose'){
+    processingLocalAI = true;
+    setTimeout(()=>{ aiAnswerZCopy(uid).then(()=>{ processingLocalAI=false; maybeRunLocalAI(); }); }, 500);
     return;
   }
   if(ROOM.modal){
@@ -1036,6 +1201,41 @@ function maybeRunLocalAI(){
   }
   processingLocalAI = true;
   setTimeout(()=>{ aiTakeTurnLocal(uid).then(()=>{ processingLocalAI=false; maybeRunLocalAI(); }); }, 650);
+}
+
+// ULTIMATE ZHAIMER — basic AI heuristics for the Z card. Kept simple and
+// self-contained; they reuse the existing helpers (worstSlotFor, delay,
+// aiHandleDrawnLocal, aiResolveAbilityDetailLocal) wherever possible.
+async function aiAnswerZCopy(uid){
+  const room = ROOM;
+  const p = room.players[uid];
+  const {val:worstVal} = worstSlotFor(p);
+  let choice = 'Q';
+  if(worstVal>=7) choice = 'J';
+  else if(room.deck.length>=2) choice = 'K';
+  roomZCopyChoose(room, uid, choice);
+  render();
+  await delay(400);
+  await aiResolveAbilityDetailLocal(uid);
+}
+async function aiAnswerZCenter(uid){
+  const room = ROOM;
+  const p = room.players[uid];
+  const {val:worstVal} = worstSlotFor(p);
+  const take = worstVal>=6 || Math.random()<0.35;
+  roomZCenterTake(room, uid, take);
+  render();
+  if(take && room.drawnCard){
+    await delay(500);
+    await aiHandleDrawnLocal(uid);
+  }
+}
+function aiAnswerZBlock(targetUid){
+  const room = ROOM;
+  const blockChance = DIFFICULTY==='hard'?0.6 : DIFFICULTY==='medium'?0.4 : 0.2;
+  const useZ = Math.random()<blockChance;
+  roomZBlockAnswer(room, targetUid, useZ);
+  render();
 }
 
 function aiAnswerFinishCheck(uid){
@@ -1406,7 +1606,23 @@ const I18N = {
     keepBothBtn:'Keep Both',
     kingSlotBoth1Body:'Click a card below to swap in the first one.',
     kingSlotBoth2Body:'Now click a different card to swap in the second one.',
+    gameModeLabel:'Game Mode', classicModeName:'Classic ZHAIMER', ultimateModeName:'Ultimate ZHAIMER',
+    ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
+    zRulesTitle:'Master the Z (Ultimate ZHAIMER only)',
+    zRulesIntro:'Ultimate ZHAIMER uses every Classic rule, plus one extra card: Z (worth 10 points). It never appears in Classic games.',
+    zRuleCopyTitle:'⚡ Copy', zRuleCopyBody:'Draw Z directly from the Deck and choose ONE ability to copy: J (Swap), Q (Reveal), or K (Draw Two).',
+    zRuleDefendTitle:'🛡️ Defend', zRuleDefendBody:'If a Jack Swap targets you and you hold Z, you may sacrifice it to cancel the swap. You get an unknown replacement card so your hand stays at 4.',
+    zRuleProtectTitle:'🎯 Protect Your Score', zRuleProtectBody:'Finish the round still holding Z and cancel the value of one other card in your hand (Z itself always counts 10 and can\'t cancel itself).',
+    zRuleComboTitle:'🔥 ZHAIMER Combo', zRuleComboBody:'Finish the round holding J + Q + K + Z all at once and your entire round score becomes 0.',
     jackOwnTitle:'Jack — Blind Swap', jackOwnBody:"Click one of your own cards to offer up (you won't see either card).",
+    zCopyTitle:'Z Power — Copy an Action', zCopyBody:'You drew Z from the deck! Choose ONE ability to copy:',
+    zCopyJBtn:'J — Swap Cards', zCopyQBtn:'Q — Reveal One Card', zCopyKBtn:'K — Draw Two',
+    zBlockTitle:'Use Z to Block the Swap?', zBlockBody:'Another player is swapping one of your cards. Sacrifice Z to cancel the swap completely — you\'ll get an unknown replacement card and stay at 4 cards.',
+    zBlockYesBtn:'Yes — Block with Z', zBlockNoBtn:'No — Allow Swap',
+    zBlockWaitingTitle:'Z Defense in progress', zBlockWaitingBody:(n)=>`${n} is deciding whether to block your swap with Z...`,
+    zCenterTitle:'Z is on the Table', zCenterBody:'Z is sitting face-up in the center. Take it as your draw this turn, or draw normally.',
+    zCenterTakeBtn:'Take Z', zCenterDrawBtn:'Draw Normally',
+    zComboTitle:'🔥 ZHAIMER COMBO 🔥', zComboBody:'J + Q + K + Z — Ultimate Combo Activated! Round score: 0.',
     jackTargetTitle:'Jack — Choose a Target', jackTargetBody:"Click an opponent's card to complete the blind swap.",
     jackPreviewTitle:'Jack — Peek', jackPreviewBody:"You get a quick look at this card before it swaps into your hand. Only you can see it — it'll flip face-down again automatically.",
     jackPreviewContinueBtn:'Continue',
@@ -1689,7 +1905,23 @@ const I18N = {
     keepBothBtn:'احتفظ بالاثنتين',
     kingSlotBoth1Body:'انقر على ورقة أدناه لتبديل الورقة الأولى فيها.',
     kingSlotBoth2Body:'دحين انقر على ورقة مختلفة لتبديل الورقة الثانية فيها.',
+    gameModeLabel:'نمط اللعب', classicModeName:'ZHAIMER الكلاسيكية', ultimateModeName:'ZHAIMER المطلقة',
+    ultimateModeNote:'تضيف بطاقة Z الغامضة — انسخ J/Q/K، دافع بالتضحية، احمِ نتيجتك، أو أكمل كومبو ZHAIMER.',
+    zRulesTitle:'إتقان بطاقة Z (فقط في ZHAIMER المطلقة)',
+    zRulesIntro:'تستخدم ZHAIMER المطلقة كل قواعد النسخة الكلاسيكية، بالإضافة إلى بطاقة واحدة إضافية: Z (بقيمة 10 نقاط). لا تظهر أبدًا في النسخة الكلاسيكية.',
+    zRuleCopyTitle:'⚡ نسخ', zRuleCopyBody:'اسحب Z مباشرة من الحزمة واختر قوة واحدة لنسخها: J (تبديل)، Q (كشف)، أو K (سحب ورقتين).',
+    zRuleDefendTitle:'🛡️ دفاع', zRuleDefendBody:'إذا استهدفك تبديل بالورقة J وكنت تملك Z، يمكنك التضحية بها لإلغاء التبديل. ستحصل على ورقة بديلة مجهولة لتبقى بأربع أوراق.',
+    zRuleProtectTitle:'🎯 احمِ نتيجتك', zRuleProtectBody:'أنهِ الجولة وأنت تملك Z لإلغاء قيمة ورقة أخرى في يدك (تبقى قيمة Z نفسها 10 ولا يمكنها إلغاء نفسها).',
+    zRuleComboTitle:'🔥 كومبو ZHAIMER', zRuleComboBody:'أنهِ الجولة وأنت تملك J + Q + K + Z معًا فتصبح نتيجة جولتك بالكامل صفرًا.',
     jackOwnTitle:'الولد — تبديل أعمى', jackOwnBody:'انقر على إحدى أوراقك لتقديمها (لن ترى أيًا من الورقتين).',
+    zCopyTitle:'قوة Z — نسخ حركة', zCopyBody:'لقد سحبت Z من الحزمة! اختر قوة واحدة لنسخها:',
+    zCopyJBtn:'J — تبديل الأوراق', zCopyQBtn:'Q — كشف ورقة واحدة', zCopyKBtn:'K — سحب ورقتين',
+    zBlockTitle:'استخدم Z لصد التبديل؟', zBlockBody:'لاعب آخر يبدل إحدى أوراقك. ضحّ بورقة Z لإلغاء التبديل تمامًا — ستحصل على ورقة بديلة مجهولة وتبقى بأربع أوراق.',
+    zBlockYesBtn:'نعم — صد بـ Z', zBlockNoBtn:'لا — اسمح بالتبديل',
+    zBlockWaitingTitle:'دفاع Z قيد التنفيذ', zBlockWaitingBody:(n)=>`${n} يقرر ما إذا كان سيصد تبديلك باستخدام Z...`,
+    zCenterTitle:'Z على الطاولة', zCenterBody:'بطاقة Z موضوعة مكشوفة في المنتصف. خذها كسحبك لهذا الدور، أو اسحب بشكل طبيعي.',
+    zCenterTakeBtn:'خذ Z', zCenterDrawBtn:'اسحب بشكل طبيعي',
+    zComboTitle:'🔥 كومبو ZHAIMER 🔥', zComboBody:'J + Q + K + Z — تم تفعيل الكومبو المطلق! نتيجة الجولة: 0.',
     jackTargetTitle:'الولد — اختر هدفًا', jackTargetBody:'انقر على ورقة أحد الخصوم لإتمام التبديل الأعمى.',
     jackPreviewTitle:'الولد — نظرة سريعة', jackPreviewBody:'ستحصل على نظرة سريعة على هذه الورقة قبل أن تنتقل إلى يدك. أنت وحدك من يراها — وستنقلب لأسفل تلقائيًا بعد ذلك.',
     jackPreviewContinueBtn:'متابعة',
@@ -1737,6 +1969,18 @@ function setLang(l){
 
 /* ============================= CARD RENDER HELPERS ============================= */
 function renderCardFace(card, extraClass){
+  if(isZCard(card)){
+    // ULTIMATE ZHAIMER — Z's unique premium/mysterious front face. The
+    // back stays the normal renderCardBack() — Z is indistinguishable
+    // from any other card while face-down (see Z CARD DESIGN rules).
+    return `<div class="card faceUp zcard ${extraClass||''}">
+      <div class="zcard-glow"></div>
+      <div class="zcard-brand">ZHAIMER</div>
+      <div class="zcard-rank">Z</div>
+      <div class="zcard-spark">✦</div>
+      <div class="valchip">${t('valLabel')} ${cardValue(card)}</div>
+    </div>`;
+  }
   const red = isRedSuit(card.suit);
   return `<div class="card faceUp ${red?'red':''} ${extraClass||''}">
     <div class="rank">${card.rank}</div>
@@ -1977,7 +2221,7 @@ function submitNameEntry(){
 function doCreateRoom(){
   if(!fbReady){ render(); return; }
   const code = genRoomCode();
-  const room = freshRoom(myUid, myName);
+  const room = freshRoom(myUid, myName, GAME_MODE);
   db.ref('rooms/'+code).set(room).then(()=>{
     subscribeRoom(code);
     VIEW = 'in-room';
@@ -2056,6 +2300,10 @@ function actSwapDoneAck(){ updateRoom(room=>roomSwapDoneAck(room, myUid)); }
 function actQueenPeek(slot){ sfxAbility(); updateRoom(room=>roomQueenPeek(room, myUid, slot)); }
 function actQueenAck(){ updateRoom(room=>roomQueenAck(room, myUid)); }
 function actAttemptBurn(slot){ burnDeclared = false; burnSelected = []; updateRoom(room=>roomAttemptBurn(room, myUid, [slot])); }
+// ULTIMATE ZHAIMER — Z action handlers
+function actZCopyChoose(choice){ sfxAbility(); updateRoom(room=>roomZCopyChoose(room, myUid, choice)); }
+function actZBlockAnswer(useZ){ sfxAbility(); updateRoom(room=>roomZBlockAnswer(room, myUid, useZ)); }
+function actZCenterChoice(take){ sfxAbility(); updateRoom(room=>roomZCenterTake(room, myUid, take)); }
 function actNextRound(){
   sfxDeal();
   updateRoom(room=>{
@@ -2419,6 +2667,16 @@ function renderRules(){
   <div class="setup-card rules-card">
     <h2>${t('rulesTitle')}</h2>
     <div class="rules-body">${t('rulesBody')}</div>
+    <div class="rules-body zrules-section">
+      <h3 style="color:#e6d2ff;">🃏 ${t('zRulesTitle')}</h3>
+      <p style="color:var(--muted);font-size:13px;">${t('zRulesIntro')}</p>
+      <div class="zrules-grid">
+        <div class="zrules-card"><div class="zrules-icon">⚡</div><b>${t('zRuleCopyTitle')}</b><p>${t('zRuleCopyBody')}</p></div>
+        <div class="zrules-card"><div class="zrules-icon">🛡️</div><b>${t('zRuleDefendTitle')}</b><p>${t('zRuleDefendBody')}</p></div>
+        <div class="zrules-card"><div class="zrules-icon">🎯</div><b>${t('zRuleProtectTitle')}</b><p>${t('zRuleProtectBody')}</p></div>
+        <div class="zrules-card"><div class="zrules-icon">🔥</div><b>${t('zRuleComboTitle')}</b><p>${t('zRuleComboBody')}</p></div>
+      </div>
+    </div>
     <div class="actions" style="margin-top:18px">
       <button class="primary-btn" data-action="goBackToLanding">${t('backBtn')}</button>
     </div>
@@ -2429,6 +2687,18 @@ function renderAISetup(){
   <div class="setup-card">
     <h2>${PENDING_PRACTICE ? t('practiceModeBtn') : t('playAIBtn')}</h2>
     ${PENDING_PRACTICE ? `<div class="setup-explainer" style="border-top:none;color:var(--teal);">${t('practiceModeNote')}</div>` : ''}
+    <div class="setup-row">
+      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('gameModeLabel')}</label>
+      <div class="game-mode-toggle">
+        <button class="mode-toggle-btn classic ${GAME_MODE==='classic'?'active':''}" data-action="setGameMode" data-val="classic">
+          <span class="mode-toggle-icon">🧠</span><span>${t('classicModeName')}</span>
+        </button>
+        <button class="mode-toggle-btn ultimate ${GAME_MODE==='ultimate'?'active':''}" data-action="setGameMode" data-val="ultimate">
+          <span class="mode-toggle-icon">⚡</span><span>${t('ultimateModeName')}</span>
+        </button>
+      </div>
+      ${GAME_MODE==='ultimate' ? `<div class="small-note" style="margin-top:6px;color:var(--brass-soft);">${t('ultimateModeNote')}</div>` : ''}
+    </div>
     <div class="setup-row">
       <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('yourNameLabel')}</label>
       <input id="aiNameField" class="field-input" maxlength="20" placeholder="${t('namePlaceholder')}" value="${(myName||'').replace(/"/g,'')}" />
@@ -2732,6 +3002,20 @@ function renderActionsInner(){
 function renderModal(){
   const isMyTurn = ROOM.currentUid===myUid;
   if(!ROOM.modal) return '';
+  // ULTIMATE ZHAIMER — Z POWER 2: the block offer goes to the swap's
+  // TARGET, who is generally not ROOM.currentUid, so this has to be
+  // checked before the normal isMyTurn gate below.
+  if(ROOM.modal.type==='zBlockOffer'){
+    if(ROOM.modal.targetUid===myUid){
+      return modalWrap(`<h3>🛡️ ${t('zBlockTitle')}</h3>
+        <p>${t('zBlockBody')}</p>
+        <div class="modal-actions">
+          <button class="primary-btn" data-action="actZBlockAnswer" data-val="yes">${t('zBlockYesBtn')}</button>
+          <button class="ghost-btn" data-action="actZBlockAnswer" data-val="no">${t('zBlockNoBtn')}</button>
+        </div>`);
+    }
+    return bannerWrap(t('zBlockWaitingTitle'), t('zBlockWaitingBody', ROOM.players[ROOM.modal.targetUid].name));
+  }
   if(!isMyTurn){
     // Special case: if this swapDone modal targeted ME specifically, I get
     // a clear notice that a swap happened and which of my slots changed —
@@ -2744,6 +3028,23 @@ function renderModal(){
   }
   const m = ROOM.modal;
   if(m.type==='finishCheck') return '';
+  if(m.type==='zCopyChoose'){
+    return modalWrap(`<h3>⚡ ${t('zCopyTitle')}</h3>
+      <p>${t('zCopyBody')}</p>
+      <div class="modal-actions" style="flex-wrap:wrap;">
+        <button class="primary-btn" data-action="actZCopyChoose" data-val="J">${t('zCopyJBtn')}</button>
+        <button class="primary-btn" data-action="actZCopyChoose" data-val="Q">${t('zCopyQBtn')}</button>
+        <button class="primary-btn" data-action="actZCopyChoose" data-val="K">${t('zCopyKBtn')}</button>
+      </div>`);
+  }
+  if(m.type==='zCenterChoice'){
+    return modalWrap(`<h3>🃏 ${t('zCenterTitle')}</h3>
+      <p>${t('zCenterBody')}</p>
+      <div class="modal-actions">
+        <button class="primary-btn" data-action="actZCenterChoice" data-val="yes">${t('zCenterTakeBtn')}</button>
+        <button class="ghost-btn" data-action="actZCenterChoice" data-val="no">${t('zCenterDrawBtn')}</button>
+      </div>`);
+  }
   if(m.type==='askAbility'){
     return modalWrap(`<h3>${t('abilityTitle', m.card.rank)}</h3>
       <p>${t('abilityBody', m.card.rank, m.card.rank+m.card.suit)}</p>
@@ -2827,17 +3128,19 @@ function renderReveal(){
         <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);">
           <div style="display:flex;gap:6px;align-items:center;min-width:0;flex:1;">
             <b style="white-space:nowrap;font-size:13px;">${r.name}${ROOM.finishedBy===r.uid?' 🎯':''}${isRoundWinner?' 🏆':''}</b>
-            <div style="display:flex;gap:3px;flex-wrap:wrap;">${(r.hand||[]).map(c=>{
+            <div style="display:flex;gap:3px;flex-wrap:wrap;">${(r.hand||[]).map((c,ci)=>{
               const delayMs = shouldFlip ? (cardDelay++ * 90) : 0;
               const cls = shouldFlip ? 'card-flip-reveal' : '';
-              return renderCardFace(c, `mini ${cls}`).replace('<div class="card', `<div style="animation-delay:${delayMs}ms" class="card`);
+              const cancelled = r.zProtection && r.zProtection.idx===ci;
+              return renderCardFace(c, `mini ${cls} ${cancelled?'zcancelled':''}`).replace('<div class="card', `<div style="animation-delay:${delayMs}ms" class="card`);
             }).join('')}</div>
           </div>
           <div style="text-align:right;flex-shrink:0;margin-left:8px;">
             <div style="font-size:11px;color:var(--muted)">${t('rawLabel')} ${r.score}</div>
             <div style="font-weight:700;font-size:13px;color:${scoreColor}">+${r.roundScore}${r.roundScore>r.score?' '+t('penaltyTag'):''}${isRoundWinner&&r.score>0?' '+t('roundWinTag'):''}</div>
           </div>
-        </div>`;}).join('')}
+        </div>
+        ${r.zCombo ? `<div class="zcombo-banner">${t('zComboTitle')}<br><span style="font-size:11px;font-weight:400;">${t('zComboBody')}</span></div>` : ''}`;}).join('')}
       ${ROOM.roundWinnerName? `<p style="color:var(--teal);margin:6px 0 0;font-size:12px;">${t('roundWinnerMsg', ROOM.roundWinnerName)}</p>`:''}
       ${ROOM.penaltyApplied? `<p style="color:var(--crimson);margin:4px 0 0;font-size:12px;">${t('penaltyMsg', ROOM.penaltyApplied)}</p>` : (ROOM.finishedBy!==null&&ROOM.players[ROOM.finishedBy]? `<p style="color:var(--brass-soft);margin:4px 0 0;font-size:12px;">${t('successMsg', ROOM.players[ROOM.finishedBy].name)}</p>`:'')}
       <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line);">
@@ -3258,6 +3561,10 @@ function attach(){
       case 'actQueenPeek': actQueenPeek(slot); break;
       case 'actQueenAck': actQueenAck(); break;
       case 'actAttemptBurn': actAttemptBurn(slot); break;
+      case 'actZCopyChoose': actZCopyChoose(val); break;
+      case 'actZBlockAnswer': actZBlockAnswer(val==='yes'); break;
+      case 'actZCenterChoice': actZCenterChoice(val==='yes'); break;
+      case 'setGameMode': setGameModeVal(val); break;
       case 'toggleBurnSlot': toggleBurnSlot(slot); break;
       case 'confirmBurn': confirmBurn(); break;
       case 'declareBurnAttempt': declareBurnAttempt(); break;
