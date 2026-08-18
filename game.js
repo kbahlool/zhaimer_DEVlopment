@@ -1607,6 +1607,7 @@ const I18N = {
     kingSlotBoth1Body:'Click a card below to swap in the first one.',
     kingSlotBoth2Body:'Now click a different card to swap in the second one.',
     gameModeLabel:'Game Mode', classicModeName:'Classic ZHAIMER', ultimateModeName:'Ultimate ZHAIMER',
+    classicModeTagline:'The Original Memory Battle', ultimateModeTagline:'Master the Z. Risk Everything.', newBadge:'NEW',
     ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
     zRulesTitle:'Master the Z (Ultimate ZHAIMER only)',
     zRulesIntro:'Ultimate ZHAIMER uses every Classic rule, plus one extra card: Z (worth 10 points). It never appears in Classic games.',
@@ -1906,6 +1907,7 @@ const I18N = {
     kingSlotBoth1Body:'انقر على ورقة أدناه لتبديل الورقة الأولى فيها.',
     kingSlotBoth2Body:'دحين انقر على ورقة مختلفة لتبديل الورقة الثانية فيها.',
     gameModeLabel:'نمط اللعب', classicModeName:'ZHAIMER الكلاسيكية', ultimateModeName:'ZHAIMER المطلقة',
+    classicModeTagline:'معركة الذاكرة الأصلية', ultimateModeTagline:'أتقن Z. جازف بكل شيء.', newBadge:'جديد',
     ultimateModeNote:'تضيف بطاقة Z الغامضة — انسخ J/Q/K، دافع بالتضحية، احمِ نتيجتك، أو أكمل كومبو ZHAIMER.',
     zRulesTitle:'إتقان بطاقة Z (فقط في ZHAIMER المطلقة)',
     zRulesIntro:'تستخدم ZHAIMER المطلقة كل قواعد النسخة الكلاسيكية، بالإضافة إلى بطاقة واحدة إضافية: Z (بقيمة 10 نقاط). لا تظهر أبدًا في النسخة الكلاسيكية.',
@@ -2690,11 +2692,19 @@ function renderAISetup(){
     <div class="setup-row">
       <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('gameModeLabel')}</label>
       <div class="game-mode-toggle">
-        <button class="mode-toggle-btn classic ${GAME_MODE==='classic'?'active':''}" data-action="setGameMode" data-val="classic">
-          <span class="mode-toggle-icon">🧠</span><span>${t('classicModeName')}</span>
+        <button class="mode-card classic ${GAME_MODE==='classic'?'active':''}" data-action="setGameMode" data-val="classic">
+          <div class="mode-card-icon">🧠</div>
+          <div class="mode-card-name">${t('classicModeName')}</div>
+          <div class="mode-card-tagline">${t('classicModeTagline')}</div>
+          <div class="mode-card-check">✓</div>
         </button>
-        <button class="mode-toggle-btn ultimate ${GAME_MODE==='ultimate'?'active':''}" data-action="setGameMode" data-val="ultimate">
-          <span class="mode-toggle-icon">⚡</span><span>${t('ultimateModeName')}</span>
+        <button class="mode-card ultimate ${GAME_MODE==='ultimate'?'active':''}" data-action="setGameMode" data-val="ultimate">
+          <div class="mode-card-shine"></div>
+          <div class="mode-card-badge">${t('newBadge')}</div>
+          <div class="mode-card-icon">⚡</div>
+          <div class="mode-card-name">${t('ultimateModeName')}</div>
+          <div class="mode-card-tagline">${t('ultimateModeTagline')}</div>
+          <div class="mode-card-check">✓</div>
         </button>
       </div>
       ${GAME_MODE==='ultimate' ? `<div class="small-note" style="margin-top:6px;color:var(--brass-soft);">${t('ultimateModeNote')}</div>` : ''}

@@ -5,16 +5,15 @@
 // development, so a network-first strategy for it avoids serving stale
 // game logic to players.
 //
-// v2 fix: HTML pages and images now use network-first (falling back to
-// cache only when offline) instead of cache-first. Previously, an old or
-// broken cached copy of a page — e.g. a version of index.html captured
-// before an asset path was fixed — could get stuck being served forever
-// on every in-app navigation (clicking the ZHAIMER logo, etc.), only
-// clearing on a manual hard reload. Network-first means players always get
-// the current version when they're online, and offline support is kept as
-// a fallback rather than the default.
+// v3 fix: CSS files (style.css, etc.) now use network-first too — they were
+// previously cache-first, meaning a player who had ever loaded the site
+// would keep seeing an old stylesheet forever after a style update, even
+// after a manual hard refresh (hard refresh clears the browser HTTP cache,
+// but never touches the Service Worker's own Cache Storage). CACHE_NAME is
+// also bumped so every existing installed copy is forced to drop its old
+// cached style.css immediately instead of waiting for it to expire.
 
-const CACHE_NAME = 'zhaimer-v2';
+const CACHE_NAME = 'zhaimer-v4';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -56,12 +55,13 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // Network-first for page navigations (HTML documents), game.js, and
+  // Network-first for page navigations (HTML documents), game.js, CSS, and
   // images — players should always see the current content when online.
   // Falls back to the last cached copy only if the network is unavailable.
   const isNavigation = req.mode === 'navigate';
   const isImage = req.destination === 'image';
-  if (isNavigation || isImage || req.url.includes('game.js')) {
+  const isCSS = req.destination === 'style' || req.url.endsWith('.css');
+  if (isNavigation || isImage || isCSS || req.url.includes('game.js')) {
     event.respondWith(networkFirst(req));
     return;
   }
