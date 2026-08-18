@@ -54,6 +54,7 @@
       </nav>
 
       <div class="rules-body info-content">
+        <div class="mode-section-label mode-label-classic">🧠 CLASSIC ZHAIMER</div>
         <section id="setup" class="guide-section">
           <h2>1. Game Setup</h2>
           <ol>
@@ -99,18 +100,21 @@
         <section class="guide-section">
           <h2>5. Matching and Burning</h2>
           <p>Two identical numbers may be discarded when a matching attempt is allowed. A successful match reduces the number of cards in play.</p>
-          <div class="match-grid"><div><strong>5 + 5</strong><span>Can be burned</span></div><div><strong>10♥ + 10♦</strong><span>Can be burned</span></div><div><strong>10♠ + 10♣</strong><span>Cannot be burned</span></div></div>
+          <div class="match-grid"><div><strong>5 + 5</strong><span>Can be burned</span></div><div><strong>10♥ + 10♦</strong><span>Can be burned</span></div><div><strong>10♠ + 10♣</strong><span>Can be burned</span></div><div><strong>10♥ + 10♠</strong><span>Cannot be burned</span></div></div>
+          <p class="guide-tip"><strong>Rule:</strong> for Ace–9, same number burns regardless of suit or color. For 10, the color group must match — red 10s (♥♦) burn each other, black 10s (♠♣) burn each other, but red can never burn black.</p>
           <p>If the attempted cards do not match, they are returned and the player draws two penalty cards. Avoid guessing unless you have a strong memory of both positions.</p>
         </section>
 
+        <div class="mode-section-label mode-label-ultimate">⚡ ULTIMATE ZHAIMER — All Classic rules + the Z Card</div>
         <section id="zcard" class="guide-section zcard-guide-section">
           <h2>4.5. ⚡ Ultimate ZHAIMER — The Z Card</h2>
           <p><strong>Ultimate ZHAIMER</strong> is a separate game mode you can pick before you start (Play vs AI → Game Mode). It uses every Classic ZHAIMER rule above, plus one extra card: <strong>Z</strong>. There is only ONE Z in the entire deck, it's worth <strong>10 points</strong>, and it looks like every other card while face-down — its front design only shows once you draw or reveal it. Z never appears in Classic ZHAIMER.</p>
           <div class="special-grid zcard-grid">
             <div class="special-box zcard-box"><div class="special-symbol">⚡</div><h3>Copy an Action</h3><p>Draw Z directly from the face-down Deck and choose ONE ability to copy: <b>J</b> (Swap), <b>Q</b> (Reveal), or <b>K</b> (Draw Two).</p></div>
-            <div class="special-box zcard-box"><div class="special-symbol">🛡️</div><h3>Defend / Block a Swap</h3><p>If another player's Jack targets you and you're holding Z, you may sacrifice it to cancel the swap completely. You immediately receive one unknown replacement card so your hand stays at 4 — you never see what it is.</p></div>
+            <div class="special-box zcard-box"><div class="special-symbol">🛡️</div><h3>Normal Z Defense</h3><p>If another player's Jack targets you and you're holding Z, you may sacrifice it to cancel the swap completely. Z moves face-up to the center and you immediately receive one unknown replacement card so your hand stays at 4 — you never see what it is.</p></div>
             <div class="special-box zcard-box"><div class="special-symbol">🎯</div><h3>Protect Your Score</h3><p>Finish the round still holding Z and you may cancel the value of ONE other card in your final hand. Z always still counts as 10 points itself and can't cancel its own value.</p></div>
-            <div class="special-box zcard-box"><div class="special-symbol">🔥</div><h3>ZHAIMER Combo</h3><p>Finish the round holding <b>J + Q + K + Z</b> all at once and your entire round score becomes <b>0</b> — the rarest and most powerful result in the game.</p></div>
+            <div class="special-box zcard-box"><div class="special-symbol">🔥</div><h3>ZHAIMER Combo</h3><p>Finish the round holding <b>J + Q + K + Z</b> all at once. That round's points are NOT added — instead your cumulative score from before the round is cut in <b>half</b> (e.g. 70 → 35). The rarest and most powerful result in the game.</p></div>
+            <div class="special-box zcard-box"><div class="special-symbol">🏁</div><h3>Final Z Defense</h3><p>After you declare Finish, if you still hold Z it can block the <b>first</b> incoming Jack swap during the remaining final turns for free — Z stays in your hand, no replacement is drawn. It only works once; a second swap goes through normally.</p></div>
           </div>
           <div class="guide-tip"><strong>Z in the center:</strong> once Z is used to block a swap, it sits face-up on the table. The next player to take their turn chooses to <b>Take Z</b> (counts as their normal draw, but does not trigger the Copy ability) or draw normally and leave it for later.</div>
         </section>

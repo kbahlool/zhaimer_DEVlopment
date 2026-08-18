@@ -3702,4 +3702,14 @@ window.addEventListener('resize', ()=>{ updateCardSize(); });
 })();
 const urlCode = checkUrlForRoomCode();
 if(urlCode){ VIEW = myName ? 'joinCodeEntry' : 'nameEntry'; PENDING_MODE = 'join'; }
+/* ?mode=classic|ultimate from the homepage's mode cards — jump straight
+   into the AI setup screen with that mode preselected. */
+(function applyUrlGameMode(){
+  const params = new URLSearchParams(window.location.search);
+  const m = params.get('mode');
+  if(m==='ultimate' || m==='classic'){
+    GAME_MODE = m;
+    if(!urlCode){ VIEW = 'aiSetup'; PENDING_PRACTICE = false; }
+  }
+})();
 render();

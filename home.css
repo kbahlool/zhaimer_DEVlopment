@@ -216,3 +216,72 @@ html[lang="ar"] .footer-brand {
   transition:transform .2s ease, background .2s ease;
 }
 .floating-home-btn:hover{ transform:scale(1.08); background:rgba(215,173,79,0.15); }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — homepage mode selection & Z card promo
+   ============================================================ */
+.stat-value .stat-plus{ font-size:12px; vertical-align:super; color:#b98cff; margin-inline-start:1px; }
+.stat-label small{ display:block; font-size:9px; letter-spacing:.5px; color:#8b8578; text-transform:none; margin-top:2px; }
+.modes-section{ padding-top:60px; padding-bottom:60px; background:#07100b; }
+.modes-grid{ display:grid; grid-template-columns:1fr 1.15fr; gap:22px; }
+@media(max-width:900px){ .modes-grid{ grid-template-columns:1fr; } }
+.mode-promo-card{
+  position:relative; overflow:hidden; border-radius:16px; padding:34px 30px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+  transition:transform .2s ease;
+}
+.mode-promo-card:hover{ transform:translateY(-4px); }
+.mode-promo-icon{ font-size:34px; margin-bottom:8px; }
+.mode-promo-card h3{ font-family:Georgia,"Times New Roman",serif; font-size:1.7rem; }
+.mode-promo-tagline{ font-size:.95rem; font-weight:600; opacity:.9; }
+.mode-promo-desc{ font-size:.88rem; margin-top:4px; opacity:.75; max-width:36ch; }
+.mode-promo-card .primary-button, .mode-promo-card .secondary-button{ min-width:0; padding:12px 20px; font-size:.9rem; }
+.mode-promo-buttons{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+.mode-promo-classic{
+  border:1px solid rgba(215,173,79,.35);
+  background:linear-gradient(150deg, rgba(30,20,5,.6), rgba(7,16,11,.9));
+  color:#f4ead6;
+}
+.mode-promo-classic h3{ color:#e1b85b; }
+.mode-promo-classic .primary-button{ margin-top:16px; }
+.mode-promo-ultimate{
+  border:1px solid rgba(185,140,255,.4);
+  background:
+    radial-gradient(circle at 90% -10%, rgba(140,80,230,.35), transparent 55%),
+    linear-gradient(150deg, rgba(40,15,65,.75), rgba(7,16,11,.92));
+  color:#f1e8ff;
+  box-shadow:0 20px 50px rgba(120,60,220,.15);
+}
+.mode-promo-ultimate h3{
+  background:linear-gradient(180deg, #f1e8ff, #c9a2ff);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.mode-promo-shine{
+  position:absolute; inset:-40% -20%; pointer-events:none; z-index:0;
+  background:conic-gradient(from 0deg, rgba(180,120,255,.16), rgba(70,220,220,.12), rgba(180,120,255,.16));
+  animation:modePromoSpin 9s linear infinite; opacity:.6;
+}
+.mode-promo-ultimate > *{ position:relative; z-index:1; }
+@keyframes modePromoSpin{ to{ transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce){ .mode-promo-shine{ animation:none; } }
+.mode-promo-pills{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.mode-promo-pills span{
+  font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  padding:5px 11px; border-radius:20px; color:#1a0f2e;
+  background:linear-gradient(90deg, #7be0e0, #b98cff);
+}
+.game-card-z{
+  position:relative; overflow:hidden;
+  background:linear-gradient(150deg, #1c1030, #0a0713) !important;
+  border:1px solid rgba(185,140,255,.55) !important;
+}
+.game-card-z .card-symbol{ color:#c9a2ff !important; text-shadow:0 0 18px rgba(180,120,255,.6); }
+.game-card-z h3{ color:#e6d2ff !important; }
+.game-card-z p{ color:#b9a8d8 !important; }
+.game-card-badge{
+  position:absolute; top:10px; right:10px; font-size:9px; font-weight:800; letter-spacing:1px;
+  padding:3px 8px; border-radius:20px; color:#1a0f2e;
+  background:linear-gradient(90deg, #7be0e0, #b98cff);
+}
+html[lang="ar"] .game-card-badge{ right:auto; left:10px; }
+html[lang="ar"] .mode-promo-card{ align-items:flex-end; text-align:right; }
