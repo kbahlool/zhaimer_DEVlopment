@@ -9,7 +9,7 @@ const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RED_SUITS = ['♥','♦'];
 
 function cardValue(c){
-  if(c.rank==='Z') return 10; // Ultimate ZHAIMER only — see ULTIMATE ZHAIMER Z card rules
+  if(c.rank==='Z') return 5; // Ultimate ZHAIMER only — see ULTIMATE ZHAIMER Z card rules
   if(c.rank==='A') return 1;
   if(c.rank==='10') return RED_SUITS.includes(c.suit) ? 0 : 10;
   if(['J','Q','K'].includes(c.rank)) return 10;
@@ -1680,10 +1680,10 @@ const I18N = {
     classicModeTagline:'The Original Memory Battle', ultimateModeTagline:'Master the Z. Risk Everything.', newBadge:'NEW',
     ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
     zRulesTitle:'Master the Z (Ultimate ZHAIMER only)',
-    zRulesIntro:'Ultimate ZHAIMER uses every Classic rule, plus one extra card: Z (worth 10 points). It never appears in Classic games.',
+    zRulesIntro:'Ultimate ZHAIMER uses every Classic rule, plus one extra card: Z (worth 5 points). It never appears in Classic games.',
     zRuleCopyTitle:'⚡ Copy', zRuleCopyBody:'Draw Z directly from the Deck and choose ONE ability to copy: J (Swap), Q (Reveal), or K (Draw Two) — or skip and just keep Z.',
     zRuleDefendTitle:'🛡️ Defend', zRuleDefendBody:'If a Jack Swap targets you and you hold Z, you may sacrifice it to cancel the swap. You get an unknown replacement card so your hand stays at 4.',
-    zRuleProtectTitle:'🎯 Protect Your Score', zRuleProtectBody:'Finish the round still holding Z and cancel the value of one other card in your hand (Z itself always counts 10 and can\'t cancel itself).',
+    zRuleProtectTitle:'🎯 Protect Your Score', zRuleProtectBody:'Finish the round still holding Z and cancel the value of one other card in your hand (Z itself always counts 5 and can\'t cancel itself).',
     zRuleComboTitle:'🔥 ZHAIMER Combo', zRuleComboBody:'Finish the round holding J + Q + K + Z all at once and your entire round score becomes 0.',
     jackOwnTitle:'Jack — Blind Swap', jackOwnBody:"Click one of your own cards to offer up (you won't see either card).",
     zCopyTitle:'Z Power — Copy an Action', zCopyBody:'You drew Z from the deck! Choose ONE ability to copy, or skip and keep Z as-is:',
@@ -1983,10 +1983,10 @@ const I18N = {
     classicModeTagline:'معركة الذاكرة الأصلية', ultimateModeTagline:'أتقن Z. جازف بكل شيء.', newBadge:'جديد',
     ultimateModeNote:'تضيف بطاقة Z الغامضة — انسخ J/Q/K، دافع بالتضحية، احمِ نتيجتك، أو أكمل كومبو ZHAIMER.',
     zRulesTitle:'إتقان بطاقة Z (فقط في ZHAIMER المطلقة)',
-    zRulesIntro:'تستخدم ZHAIMER المطلقة كل قواعد النسخة الكلاسيكية، بالإضافة إلى بطاقة واحدة إضافية: Z (بقيمة 10 نقاط). لا تظهر أبدًا في النسخة الكلاسيكية.',
+    zRulesIntro:'تستخدم ZHAIMER المطلقة كل قواعد النسخة الكلاسيكية، بالإضافة إلى بطاقة واحدة إضافية: Z (بقيمة 5 نقاط). لا تظهر أبدًا في النسخة الكلاسيكية.',
     zRuleCopyTitle:'⚡ نسخ', zRuleCopyBody:'اسحب Z مباشرة من الحزمة واختر قوة واحدة لنسخها: J (تبديل)، Q (كشف)، أو K (سحب ورقتين) — أو تخطَّ ذلك واحتفظ بـ Z كما هي.',
     zRuleDefendTitle:'🛡️ دفاع', zRuleDefendBody:'إذا استهدفك تبديل بالورقة J وكنت تملك Z، يمكنك التضحية بها لإلغاء التبديل. ستحصل على ورقة بديلة مجهولة لتبقى بأربع أوراق.',
-    zRuleProtectTitle:'🎯 احمِ نتيجتك', zRuleProtectBody:'أنهِ الجولة وأنت تملك Z لإلغاء قيمة ورقة أخرى في يدك (تبقى قيمة Z نفسها 10 ولا يمكنها إلغاء نفسها).',
+    zRuleProtectTitle:'🎯 احمِ نتيجتك', zRuleProtectBody:'أنهِ الجولة وأنت تملك Z لإلغاء قيمة ورقة أخرى في يدك (تبقى قيمة Z نفسها 5 ولا يمكنها إلغاء نفسها).',
     zRuleComboTitle:'🔥 كومبو ZHAIMER', zRuleComboBody:'أنهِ الجولة وأنت تملك J + Q + K + Z معًا فتصبح نتيجة جولتك بالكامل صفرًا.',
     jackOwnTitle:'الولد — تبديل أعمى', jackOwnBody:'انقر على إحدى أوراقك لتقديمها (لن ترى أيًا من الورقتين).',
     zCopyTitle:'قوة Z — نسخ حركة', zCopyBody:'لقد سحبت Z من الحزمة! اختر قوة واحدة لنسخها، أو تخطَّ واحتفظ بـ Z كما هي:',
