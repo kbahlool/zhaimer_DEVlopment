@@ -13,7 +13,7 @@
 // also bumped so every existing installed copy is forced to drop its old
 // cached style.css immediately instead of waiting for it to expire.
 
-const CACHE_NAME = 'zhaimer-v6';
+const CACHE_NAME = 'zhaimer-v7';
 const CORE_ASSETS = [
   './',
   './index.html',

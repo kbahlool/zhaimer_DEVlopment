@@ -346,6 +346,10 @@ function roomZCopyChoose(room, uid, choice){
     if(room.deck.length<2){ offerFinishCheck(room, uid); return {}; }
     const c1 = room.deck.pop(), c2 = room.deck.pop();
     room.modal = { type:'king', c1, c2 };
+  } else if(choice==='skip'){
+    // Keep Z without copying any ability — just continue the turn.
+    room.modal = null;
+    offerFinishCheck(room, uid);
   } else {
     return { error:'invalid-choice' };
   }
@@ -1260,6 +1264,13 @@ async function aiAnswerZCopy(uid){
   const room = ROOM;
   const p = room.players[uid];
   const {val:worstVal} = worstSlotFor(p);
+  // Mostly copy an ability, but sometimes keep Z untouched for its defense/
+  // protection/combo value instead — mirrors the human "Skip" option.
+  if(worstVal<4 && Math.random()<0.35){
+    roomZCopyChoose(room, uid, 'skip');
+    render();
+    return;
+  }
   let choice = 'Q';
   if(worstVal>=7) choice = 'J';
   else if(room.deck.length>=2) choice = 'K';
@@ -1670,13 +1681,14 @@ const I18N = {
     ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
     zRulesTitle:'Master the Z (Ultimate ZHAIMER only)',
     zRulesIntro:'Ultimate ZHAIMER uses every Classic rule, plus one extra card: Z (worth 10 points). It never appears in Classic games.',
-    zRuleCopyTitle:'⚡ Copy', zRuleCopyBody:'Draw Z directly from the Deck and choose ONE ability to copy: J (Swap), Q (Reveal), or K (Draw Two).',
+    zRuleCopyTitle:'⚡ Copy', zRuleCopyBody:'Draw Z directly from the Deck and choose ONE ability to copy: J (Swap), Q (Reveal), or K (Draw Two) — or skip and just keep Z.',
     zRuleDefendTitle:'🛡️ Defend', zRuleDefendBody:'If a Jack Swap targets you and you hold Z, you may sacrifice it to cancel the swap. You get an unknown replacement card so your hand stays at 4.',
     zRuleProtectTitle:'🎯 Protect Your Score', zRuleProtectBody:'Finish the round still holding Z and cancel the value of one other card in your hand (Z itself always counts 10 and can\'t cancel itself).',
     zRuleComboTitle:'🔥 ZHAIMER Combo', zRuleComboBody:'Finish the round holding J + Q + K + Z all at once and your entire round score becomes 0.',
     jackOwnTitle:'Jack — Blind Swap', jackOwnBody:"Click one of your own cards to offer up (you won't see either card).",
-    zCopyTitle:'Z Power — Copy an Action', zCopyBody:'You drew Z from the deck! Choose ONE ability to copy:',
+    zCopyTitle:'Z Power — Copy an Action', zCopyBody:'You drew Z from the deck! Choose ONE ability to copy, or skip and keep Z as-is:',
     zCopyJBtn:'J — Swap Cards', zCopyQBtn:'Q — Reveal One Card', zCopyKBtn:'K — Draw Two',
+    zCopySkipBtn:'Skip — Just Keep Z',
     zBlockTitle:'Use Z to Block the Swap?', zBlockBody:'Another player is swapping one of your cards. Sacrifice Z to cancel the swap completely — you\'ll get an unknown replacement card and stay at 4 cards.',
     zBlockYesBtn:'Yes — Block with Z', zBlockNoBtn:'No — Allow Swap',
     zFinalBlockTitle:'Use Z to Block? (Final Defense)', zFinalBlockBody:'You already declared Finish. Z can block this one incoming swap for free — it stays in your hand and can only do this once per round.',
@@ -1972,13 +1984,14 @@ const I18N = {
     ultimateModeNote:'تضيف بطاقة Z الغامضة — انسخ J/Q/K، دافع بالتضحية، احمِ نتيجتك، أو أكمل كومبو ZHAIMER.',
     zRulesTitle:'إتقان بطاقة Z (فقط في ZHAIMER المطلقة)',
     zRulesIntro:'تستخدم ZHAIMER المطلقة كل قواعد النسخة الكلاسيكية، بالإضافة إلى بطاقة واحدة إضافية: Z (بقيمة 10 نقاط). لا تظهر أبدًا في النسخة الكلاسيكية.',
-    zRuleCopyTitle:'⚡ نسخ', zRuleCopyBody:'اسحب Z مباشرة من الحزمة واختر قوة واحدة لنسخها: J (تبديل)، Q (كشف)، أو K (سحب ورقتين).',
+    zRuleCopyTitle:'⚡ نسخ', zRuleCopyBody:'اسحب Z مباشرة من الحزمة واختر قوة واحدة لنسخها: J (تبديل)، Q (كشف)، أو K (سحب ورقتين) — أو تخطَّ ذلك واحتفظ بـ Z كما هي.',
     zRuleDefendTitle:'🛡️ دفاع', zRuleDefendBody:'إذا استهدفك تبديل بالورقة J وكنت تملك Z، يمكنك التضحية بها لإلغاء التبديل. ستحصل على ورقة بديلة مجهولة لتبقى بأربع أوراق.',
     zRuleProtectTitle:'🎯 احمِ نتيجتك', zRuleProtectBody:'أنهِ الجولة وأنت تملك Z لإلغاء قيمة ورقة أخرى في يدك (تبقى قيمة Z نفسها 10 ولا يمكنها إلغاء نفسها).',
     zRuleComboTitle:'🔥 كومبو ZHAIMER', zRuleComboBody:'أنهِ الجولة وأنت تملك J + Q + K + Z معًا فتصبح نتيجة جولتك بالكامل صفرًا.',
     jackOwnTitle:'الولد — تبديل أعمى', jackOwnBody:'انقر على إحدى أوراقك لتقديمها (لن ترى أيًا من الورقتين).',
-    zCopyTitle:'قوة Z — نسخ حركة', zCopyBody:'لقد سحبت Z من الحزمة! اختر قوة واحدة لنسخها:',
+    zCopyTitle:'قوة Z — نسخ حركة', zCopyBody:'لقد سحبت Z من الحزمة! اختر قوة واحدة لنسخها، أو تخطَّ واحتفظ بـ Z كما هي:',
     zCopyJBtn:'J — تبديل الأوراق', zCopyQBtn:'Q — كشف ورقة واحدة', zCopyKBtn:'K — سحب ورقتين',
+    zCopySkipBtn:'تخطي — احتفظ بـ Z فقط',
     zBlockTitle:'استخدم Z لصد التبديل؟', zBlockBody:'لاعب آخر يبدل إحدى أوراقك. ضحّ بورقة Z لإلغاء التبديل تمامًا — ستحصل على ورقة بديلة مجهولة وتبقى بأربع أوراق.',
     zBlockYesBtn:'نعم — صد بـ Z', zBlockNoBtn:'لا — اسمح بالتبديل',
     zFinalBlockTitle:'استخدم Z للصد؟ (دفاع نهائي)', zFinalBlockBody:'لقد أعلنت الإنهاء بالفعل. يمكن لـ Z صد هذا التبديل الوارد مجانًا — تبقى في يدك ولا يمكن استخدامها إلا مرة واحدة في الجولة.',
@@ -3110,6 +3123,7 @@ function renderModal(){
         <button class="primary-btn" data-action="actZCopyChoose" data-val="J">${t('zCopyJBtn')}</button>
         <button class="primary-btn" data-action="actZCopyChoose" data-val="Q">${t('zCopyQBtn')}</button>
         <button class="primary-btn" data-action="actZCopyChoose" data-val="K">${t('zCopyKBtn')}</button>
+        <button class="ghost-btn" data-action="actZCopyChoose" data-val="skip">${t('zCopySkipBtn')}</button>
       </div>`);
   }
   if(m.type==='zCenterChoice'){
