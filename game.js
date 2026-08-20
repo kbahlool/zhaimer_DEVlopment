@@ -3721,9 +3721,12 @@ if(urlCode){ VIEW = myName ? 'joinCodeEntry' : 'nameEntry'; PENDING_MODE = 'join
 (function applyUrlGameMode(){
   const params = new URLSearchParams(window.location.search);
   const m = params.get('mode');
+  const action = params.get('action');
   if(m==='ultimate' || m==='classic'){
     GAME_MODE = m;
     if(!urlCode){ VIEW = 'aiSetup'; PENDING_PRACTICE = false; }
   }
+  if(!urlCode && action==='create'){ goCreate(); }
+  else if(!urlCode && action==='join'){ goJoin(); }
 })();
 render();

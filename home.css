@@ -285,3 +285,91 @@ html[lang="ar"] .footer-brand {
 }
 html[lang="ar"] .game-card-badge{ right:auto; left:10px; }
 html[lang="ar"] .mode-promo-card{ align-items:flex-end; text-align:right; }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — premium redesign additions (v2)
+   ============================================================ */
+:root{
+  --z-charcoal:#07100b;
+  --z-gold:#d7ad4f;
+  --z-gold-soft:#e7bd60;
+  --z-ivory:#f4ead6;
+  --z-purple:#8c50e6;
+  --z-purple-soft:#c9a2ff;
+}
+.nav-ultimate-link{ color:var(--z-purple-soft) !important; }
+.nav-lang{ font-size:.82rem; letter-spacing:1px; opacity:.85; }
+.site-header.scrolled{ background:rgba(3,10,7,.72); box-shadow:0 8px 30px rgba(0,0,0,.35); }
+
+/* ---- Meet the Z ---- */
+.meetz-section{ background:radial-gradient(circle at 50% 0%, rgba(140,80,230,.08), transparent 55%), #050b08; }
+.meetz-layout{ display:grid; grid-template-columns:.9fr 1.4fr; align-items:center; gap:50px; margin-top:20px; }
+.meetz-card-visual{ position:relative; margin:0 auto; width:min(260px,80%); aspect-ratio:2.5/3.6; border-radius:18px;
+  background:linear-gradient(160deg, #1c1030, #06040d); border:1px solid rgba(185,140,255,.55);
+  display:grid; place-items:center; box-shadow:0 20px 60px rgba(120,60,220,.25); }
+.meetz-card-glow{ position:absolute; inset:-30%; border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(180,120,255,.25), rgba(70,220,220,.15), rgba(180,120,255,.25));
+  animation:meetzSpin 9s linear infinite; opacity:.55; z-index:0; }
+@keyframes meetzSpin{ to{ transform:rotate(360deg); } }
+.meetz-card-face{ position:relative; z-index:1; font-family:Georgia,serif; font-size:6rem; font-weight:900;
+  background:linear-gradient(180deg,#f1e8ff,#c9a2ff); -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 30px rgba(180,120,255,.6); }
+.meetz-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.meetz-ability{ padding:22px; border-radius:12px; background:rgba(20,15,35,.55); border:1px solid rgba(185,140,255,.25); }
+.meetz-ability-icon{ font-size:1.6rem; margin-bottom:8px; }
+.meetz-ability h3{ color:#e6d2ff; margin-bottom:6px; }
+.meetz-ability p{ color:#b9a8d8; font-size:.92rem; }
+.meetz-combo-badge{ display:inline-block; margin-top:10px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800;
+  letter-spacing:1px; color:#1a0f2e; background:linear-gradient(90deg,#7be0e0,#b98cff); }
+@media(prefers-reduced-motion:reduce){ .meetz-card-glow{ animation:none; } }
+@media(max-width:900px){ .meetz-layout{ grid-template-columns:1fr; } .meetz-grid{ grid-template-columns:1fr 1fr; } }
+@media(max-width:520px){ .meetz-grid{ grid-template-columns:1fr; } }
+
+/* ---- Play Online ---- */
+.online-section{ background:#050b08; }
+.online-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:10px; }
+.online-card{ padding:30px 24px; text-align:center; border-radius:12px; border:1px solid rgba(217,174,77,.22);
+  background:linear-gradient(150deg,rgba(20,40,29,.7),rgba(7,14,10,.9)); display:flex; flex-direction:column; align-items:center; gap:8px; }
+.online-card-icon{ font-size:1.8rem; }
+.online-card h3{ color:#f0d995; }
+.online-card p{ color:#a9aea8; font-size:.92rem; margin-bottom:6px; }
+.online-card .secondary-button{ min-width:0; padding:10px 20px; font-size:.85rem; }
+@media(max-width:900px){ .online-grid{ grid-template-columns:1fr; } }
+
+/* ---- How To Play preview ---- */
+.htp-preview-section{ background:#07100b; }
+.htp-steps{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:10px; }
+.htp-step{ text-align:center; padding:20px 12px; border-radius:10px; border:1px solid rgba(217,174,77,.18); }
+.htp-step-num{ width:34px; height:34px; margin:0 auto 10px; border-radius:50%; display:grid; place-items:center;
+  font-weight:800; color:#0a0a07; background:linear-gradient(135deg,#e7bd60,#a66d1c); }
+.htp-step h3{ color:#f0d995; font-size:1rem; margin-bottom:4px; }
+.htp-step p{ color:#a9aea8; font-size:.85rem; }
+@media(max-width:900px){ .htp-steps{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:520px){ .htp-steps{ grid-template-columns:1fr; } }
+
+/* ---- Physical Edition ---- */
+.physical-section{ background:linear-gradient(rgba(3,15,10,.9),rgba(3,15,10,.95)), radial-gradient(circle at 20% 30%, rgba(215,173,79,.08), transparent 50%); }
+.physical-layout{ display:grid; grid-template-columns:.8fr 1.2fr; align-items:center; gap:50px; }
+.physical-visual{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.physical-box-concept{ position:relative; width:min(220px,80%); aspect-ratio:1/1.1; border-radius:14px;
+  background:linear-gradient(160deg,#141814,#050705); border:1px solid rgba(215,173,79,.4);
+  display:grid; place-items:center; box-shadow:0 25px 60px rgba(0,0,0,.5); }
+.physical-box-glow{ position:absolute; inset:-20%; border-radius:50%; background:radial-gradient(circle, rgba(215,173,79,.25), transparent 60%); }
+.physical-box-logo{ position:relative; z-index:1; font-family:Georgia,serif; font-size:3rem; font-weight:900; color:#d7ad4f; }
+.physical-concept-tag{ font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#a9a294; border:1px solid rgba(217,174,77,.3); padding:4px 12px; border-radius:20px; }
+@media(max-width:900px){ .physical-layout{ grid-template-columns:1fr; text-align:center; } .physical-text .section-heading, .physical-text .modes-cta{ text-align:center !important; justify-content:center !important; } }
+
+/* ---- Footer tagline ---- */
+.footer-tagline{ margin-top:10px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--z-gold); opacity:.8; }
+
+/* ---- RTL adjustments for new sections ---- */
+html[lang="ar"] .meetz-layout,
+html[lang="ar"] .physical-layout{ direction:rtl; }
+html[lang="ar"] .physical-text{ text-align:right; }
+html[lang="ar"] .physical-text .section-heading{ text-align:right !important; }
+html[lang="ar"] .modes-cta{ direction:rtl; }
+
+/* ---- Reduced motion ---- */
+@media(prefers-reduced-motion:reduce){
+  .mode-promo-shine, .hero-particle, .hero-float-card{ animation:none !important; }
+}
