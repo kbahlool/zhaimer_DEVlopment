@@ -498,3 +498,63 @@ html[lang="ar"] .modes-cta{ direction:rtl; }
   .hcard{ width:120px; }
   .hcard-z{ width:170px; }
 }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — Physical Edition teaser v2
+   ============================================================ */
+.physical-section{ background:radial-gradient(circle at 75% 40%, rgba(215,173,79,.08), transparent 55%), #050705; padding-top:70px; padding-bottom:70px; }
+.physical-grid{ display:grid; grid-template-columns:.7fr 1fr; gap:50px; align-items:center; }
+.physical-status{ display:inline-block; color:#c9a2ff; font-size:.85rem; letter-spacing:3px; text-transform:uppercase; font-weight:800; margin:8px 0 16px; }
+.physical-headline{ font-family:Georgia,serif; font-size:1.5rem; color:var(--z-gold); line-height:1.35; margin-bottom:10px; }
+.physical-features{ list-style:none; margin:20px 0 22px; padding:0; display:flex; flex-direction:column; gap:10px; }
+.physical-features li{ display:flex; align-items:center; gap:10px; color:#cfd3ce; font-size:.9rem; }
+.physical-feature-icon{ font-size:1.1rem; }
+.physical-disclaimer{ margin-top:14px; font-size:10.5px; letter-spacing:.5px; color:#7c7a72; opacity:.8; }
+
+.physical-art{ position:relative; min-height:380px; display:flex; align-items:center; justify-content:center; }
+.physical-art-glow{ position:absolute; inset:0; background:radial-gradient(ellipse at 55% 35%, rgba(215,173,79,.35), transparent 60%); filter:blur(4px); }
+.physical-art-smoke{ position:absolute; width:220px; height:220px; border-radius:50%; filter:blur(30px); opacity:.35; }
+.physical-art-smoke-l{ background:rgba(215,173,79,.25); left:0; top:10%; }
+.physical-art-smoke-r{ background:rgba(140,80,230,.2); right:0; bottom:5%; }
+
+.physical-box3d{ position:relative; z-index:2; width:230px; height:230px; transform:rotateY(-18deg) rotateX(4deg); transform-style:preserve-3d;
+  filter:drop-shadow(0 30px 40px rgba(0,0,0,.6)); }
+.physical-box3d-front{ position:absolute; inset:0; border-radius:6px; background:linear-gradient(160deg,#181410,#050403);
+  border:1px solid rgba(215,173,79,.55); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.physical-box3d-frame{ position:absolute; inset:10px; border:1px solid rgba(215,173,79,.35); border-radius:3px; }
+.physical-box3d-emblem{ font-family:Georgia,serif; font-weight:800; font-size:2.6rem;
+  background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.physical-box3d-word{ font-family:Georgia,serif; letter-spacing:3px; font-size:1rem; color:var(--z-gold); }
+.physical-box3d-tag{ font-size:8px; letter-spacing:2px; color:#a9a294; text-transform:uppercase; }
+.physical-box3d-spine{ position:absolute; top:0; right:-26px; width:26px; height:100%; transform:rotateY(90deg); transform-origin:left center;
+  background:linear-gradient(160deg,#110d0a,#030201); border-top:1px solid rgba(215,173,79,.4); border-bottom:1px solid rgba(215,173,79,.4);
+  writing-mode:vertical-rl; text-align:center; color:var(--z-gold); font-size:9px; letter-spacing:3px; display:flex; align-items:center; justify-content:center; }
+
+.physical-fan{ position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); width:100%; height:170px; z-index:1; }
+.physical-fan .hcard{ width:110px; }
+.physical-fan .hcard-back{ background:linear-gradient(160deg,#141210,#050403); border-color:rgba(215,173,79,.45); }
+.pf-j{ position:absolute; bottom:0; left:6%; transform:rotate(-18deg); z-index:1; }
+.pf-q{ position:absolute; bottom:6px; left:24%; transform:rotate(-8deg); z-index:2; }
+.pf-z{ position:absolute; top:auto; bottom:14px; left:50%; transform:translateX(-50%) rotate(-2deg); width:120px; z-index:4; }
+.pf-k{ position:absolute; bottom:6px; right:24%; transform:rotate(8deg); z-index:2; }
+.pf-ten{ position:absolute; bottom:0; right:6%; transform:rotate(18deg); z-index:1; }
+.pf-ten .hcard-suit{ color:#c23b3b; }
+
+@media(max-width:1000px){
+  .physical-grid{ grid-template-columns:1fr; text-align:center; gap:36px; }
+  .physical-text .section-kicker{ text-align:center !important; }
+  .physical-features{ align-items:center; }
+  .physical-text .modes-cta{ justify-content:center !important; }
+  .physical-art{ min-height:320px; }
+}
+@media(max-width:560px){
+  .physical-box3d{ width:180px; height:180px; transform:rotateY(-14deg); }
+  .physical-fan .hcard{ width:80px; }
+  .pf-z{ width:92px; }
+  .physical-art{ min-height:260px; }
+}
+@media(prefers-reduced-motion:reduce){ .physical-art-smoke{ opacity:.25; } }
+
+html[lang="ar"] .physical-grid{ direction:rtl; }
+html[lang="ar"] .physical-features li{ flex-direction:row-reverse; justify-content:flex-end; }
+html[lang="ar"] .physical-box3d-spine{ right:auto; left:-26px; transform:rotateY(-90deg); transform-origin:right center; }
