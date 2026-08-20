@@ -373,3 +373,128 @@ html[lang="ar"] .modes-cta{ direction:rtl; }
 @media(prefers-reduced-motion:reduce){
   .mode-promo-shine, .hero-particle, .hero-float-card{ animation:none !important; }
 }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — homepage rebuild v3 (reference-image match)
+   ============================================================ */
+.site-header{ padding:0; }
+.navigation{ width:min(1560px,94%); }
+.brand-block{ display:flex; flex-direction:column; line-height:1.1; }
+.brand-sub{ font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#8b8578; margin-top:2px; }
+.nav-active{ color:var(--z-gold) !important; border-bottom:2px solid var(--z-gold); padding-bottom:4px; }
+.nav-right{ display:flex; align-items:center; gap:18px; }
+.nav-lang{ font-size:.85rem; letter-spacing:1px; opacity:.85; }
+.section-container{ width:min(1560px,94%); }
+.section-kicker{ text-align:center; color:var(--z-gold); font-size:.8rem; letter-spacing:4px; text-transform:uppercase; margin-bottom:8px; }
+
+/* ---- Hero rebuild ---- */
+.hero{ min-height:auto; padding:150px 3% 90px; }
+.hero-container{ grid-template-columns:1fr 1.15fr; gap:40px; width:min(1560px,96%); }
+.hero-sub{ margin-top:16px; color:#cbbb8a; }
+.hero h2{ color:#f4ead6; }
+.secondary-button-purple{ border-color:rgba(185,140,255,.7); color:#e6d2ff; }
+.secondary-button-purple:hover{ background:rgba(140,80,230,.12); }
+.primary-button-purple{ background:linear-gradient(135deg,#a682e8,#6d2fc4); color:#f7f2ff; }
+
+.hero-cards{ position:relative; height:460px; }
+.hero-cards img{ display:none; }
+.hcard{ position:absolute; width:150px; aspect-ratio:2.4/3.4; border-radius:12px;
+  background:linear-gradient(160deg,#141210,#050403); border:1px solid rgba(215,173,79,.55);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  box-shadow:0 20px 40px rgba(0,0,0,.5); color:var(--z-gold); font-family:Georgia,serif; }
+.hcard-rank{ font-size:2rem; font-weight:800; }
+.hcard-suit{ font-size:1.1rem; }
+.hcard-k{ top:0; left:6%; transform:rotate(-14deg); z-index:1; }
+.hcard-q{ top:22%; left:0; transform:rotate(-8deg); z-index:2; }
+.hcard-j{ top:4%; right:2%; transform:rotate(10deg); z-index:1; }
+.hcard-ten{ top:34%; right:6%; transform:rotate(14deg); z-index:1; }
+.hcard-ten .hcard-suit{ color:#c23b3b; }
+.hcard-z{ position:absolute; top:6%; left:50%; transform:translateX(-50%) rotate(-2deg); width:210px;
+  z-index:3; border-color:var(--z-gold); box-shadow:0 0 50px rgba(215,173,79,.35), 0 25px 55px rgba(0,0,0,.6); }
+.hcard-z-rank{ font-size:5rem; background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.hcard-z-brand{ font-size:9px; letter-spacing:3px; color:var(--z-gold); opacity:.8; }
+.hcard-z-glow{ position:absolute; inset:-25%; border-radius:50%; background:radial-gradient(circle, rgba(215,173,79,.3), transparent 65%); z-index:-1;
+  animation:meetzSpin 8s linear infinite; }
+.hero-ground-glow{ position:absolute; bottom:0; left:50%; width:70%; height:60px; transform:translateX(-50%);
+  background:radial-gradient(ellipse at center, rgba(215,173,79,.45), transparent 70%); filter:blur(6px); }
+@media(prefers-reduced-motion:reduce){ .hcard-z-glow{ animation:none; } }
+
+/* ---- Choose Your Game card art ---- */
+.mode-promo-cardart{ position:relative; height:120px; margin-bottom:14px; }
+.mp-card{ position:absolute; width:70px; aspect-ratio:2.4/3.4; border-radius:8px; top:0; }
+.mp-card-back{ background:linear-gradient(160deg,#151310,#050403); border:1px solid rgba(215,173,79,.45);
+  display:grid; place-items:center; }
+.mp1{ left:0; transform:rotate(-10deg); }
+.mp2{ left:20px; transform:rotate(-2deg); }
+.mp3{ left:40px; transform:rotate(8deg); display:grid; place-items:center; }
+.mp-z-mini{ font-family:Georgia,serif; font-weight:800; font-size:1.4rem; color:var(--z-gold); }
+.mp-z-purple{ color:#c9a2ff; }
+.mp-card-u{ background:linear-gradient(160deg,#1c1030,#06040d); border:1px solid rgba(185,140,255,.5);
+  display:grid; place-items:center; color:#c9a2ff; font-family:Georgia,serif; font-weight:800; font-size:1.2rem; }
+.mpu1{ left:0; transform:rotate(-10deg); }
+.mpu2{ right:0; left:auto; transform:rotate(10deg); }
+.mpu3{ left:50%; transform:translateX(-50%); z-index:2; box-shadow:0 0 25px rgba(140,80,230,.4); }
+.mode-promo-classic h3, .mode-promo-ultimate h3{ font-family:Georgia,serif; font-size:1.9rem; line-height:1.15; }
+
+/* ---- Meet the Z: horizontal row ---- */
+.meetz-row{ display:flex; align-items:center; justify-content:center; gap:0; margin-top:30px; }
+.meetz-power{ flex:1; max-width:230px; text-align:center; padding:0 14px; }
+.meetz-power h3{ color:#f0d995; margin:10px 0 6px; font-size:1.05rem; }
+.meetz-power p{ color:#a9aea8; font-size:.85rem; }
+.meetz-power-visual{ height:56px; display:flex; align-items:center; justify-content:center; gap:4px; font-size:1.8rem; }
+.mini-card{ display:inline-flex; align-items:center; justify-content:center; width:34px; height:46px; border-radius:5px;
+  background:linear-gradient(160deg,#151310,#050403); border:1px solid rgba(215,173,79,.4); color:var(--z-gold);
+  font-family:Georgia,serif; font-weight:800; font-size:.95rem; }
+.mini-card-purple{ border-color:rgba(185,140,255,.5); color:#c9a2ff; }
+.meetz-center{ position:relative; width:150px; aspect-ratio:2.4/3.4; flex-shrink:0; margin:0 10px; border-radius:14px;
+  background:linear-gradient(160deg,#141210,#050403); border:1px solid var(--z-gold);
+  display:grid; place-items:center; box-shadow:0 0 40px rgba(215,173,79,.3); }
+.meetz-center .meetz-card-glow{ position:absolute; inset:-30%; border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(215,173,79,.25), rgba(140,80,230,.15), rgba(215,173,79,.25));
+  animation:meetzSpin 9s linear infinite; opacity:.6; z-index:0; }
+.meetz-center .meetz-card-face{ position:relative; z-index:1; font-family:Georgia,serif; font-weight:800; font-size:3.4rem;
+  background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.meetz-combo-formula{ color:#c9a2ff !important; font-weight:800; font-family:Georgia,serif; margin:4px 0; }
+.meetz-combo-badge{ display:inline-block; margin-top:6px; padding:6px 12px; border-radius:10px; font-size:10.5px; font-weight:700;
+  line-height:1.4; text-align:center; color:#e6d2ff; border:1px solid rgba(185,140,255,.5); background:rgba(140,80,230,.12); }
+@media(max-width:1100px){ .meetz-row{ flex-wrap:wrap; } .meetz-center{ order:-1; margin:0 auto 20px; } .meetz-power{ max-width:45%; } }
+@media(max-width:600px){ .meetz-power{ max-width:100%; flex:1 1 100%; margin-bottom:20px; } }
+
+/* ---- Physical Edition + How to Play (bottom duo) ---- */
+.bottom-duo-grid{ display:grid; grid-template-columns:.85fr 1.15fr; gap:24px; align-items:stretch; }
+.physical-panel, .htp-panel{ border:1px solid rgba(215,173,79,.28); border-radius:14px; padding:34px; background:linear-gradient(155deg,rgba(20,16,10,.6),rgba(5,7,5,.85)); }
+.physical-panel h2{ font-family:Georgia,serif; color:var(--z-gold); font-size:1.7rem; }
+.physical-status{ color:#c9a2ff; font-size:.85rem; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin:6px 0 12px; }
+.physical-box-concept{ position:relative; width:150px; aspect-ratio:1/1.15; margin:20px 0 8px; border-radius:12px;
+  background:linear-gradient(160deg,#141814,#050705); border:1px solid rgba(215,173,79,.4); display:grid; place-items:center; }
+.physical-box-glow{ position:absolute; inset:-25%; border-radius:50%; background:radial-gradient(circle, rgba(215,173,79,.25), transparent 60%); }
+.physical-box-logo{ position:relative; z-index:1; font-family:Georgia,serif; font-size:2.4rem; font-weight:900; color:#d7ad4f; }
+.physical-box-brand{ position:absolute; bottom:14px; z-index:1; font-size:8px; letter-spacing:2px; color:var(--z-gold); opacity:.8; }
+.physical-concept-tag{ display:inline-block; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#a9a294;
+  border:1px solid rgba(217,174,77,.3); padding:3px 10px; border-radius:20px; }
+.htp-steps-row{ display:flex; gap:16px; margin-top:20px; }
+.htp-steps-row .htp-step{ flex:1; text-align:center; padding:0; border:none; }
+.htp-step-icon{ font-size:1.6rem; margin-bottom:8px; }
+.htp-panel .htp-step h4{ color:#f0d995; font-size:.85rem; margin-bottom:4px; }
+.htp-panel .htp-step p{ color:#a9aea8; font-size:.78rem; }
+@media(max-width:1000px){ .bottom-duo-grid{ grid-template-columns:1fr; } .htp-steps-row{ flex-wrap:wrap; } .htp-steps-row .htp-step{ flex:1 1 40%; } }
+
+/* ---- Footer 3-col ---- */
+.footer-container-3col{ display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.footer-logo{ font-size:1.5rem; }
+.footer-links-center{ gap:26px; }
+@media(max-width:900px){ .footer-container-3col{ flex-direction:column; text-align:center; } }
+
+/* ---- Mobile hero + nav-right ---- */
+@media(max-width:900px){
+  .hero-cards{ height:340px; transform:scale(.82); margin:0 auto; }
+  .nav-right{ gap:10px; }
+  .nav-lang{ display:none; }
+  .navigation-play{ padding:9px 14px; font-size:.8rem; }
+}
+@media(max-width:600px){
+  .hero{ padding-top:110px; }
+  .hero-cards{ height:280px; transform:scale(.68); }
+  .hcard{ width:120px; }
+  .hcard-z{ width:170px; }
+}
