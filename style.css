@@ -1,29 +1,43 @@
 :root{
-    --bg:#0b0f1a;
-    --bg2:#0f1524;
-    --panel:#141a2b;
-    --panel2:#1a2238;
-    --line:#2a3352;
+    --bg:#07080d;
+    --bg2:#0a0c14;
+    --panel:#0f0d1a;
+    --panel2:#161329;
+    --line:#2a2440;
     --brass:#c9a227;
     --brass-soft:#e9c65c;
     --teal:#3fc7b6;
+    --purple:#8c50e6;
+    --purple-soft:#c9a2ff;
     --crimson:#c1495a;
     --cream:#f3ead9;
     --ink:#0d1220;
     --red:#d3596a;
     --muted:#8892b0;
-    --shadow: 0 10px 30px rgba(0,0,0,0.45);
+    --shadow: 0 10px 30px rgba(0,0,0,0.55);
   }
+  /* ULTIMATE ZHAIMER — Ultimate mode swaps the generic teal accent (used
+     for "declared", log highlights, etc.) for the brand's purple, while
+     leaving Classic's gold/teal identity untouched. Toggled by render()
+     via document.documentElement.classList. */
+  html.mode-ultimate{ --teal:var(--purple); }
+  html.mode-ultimate .log .me{ color:var(--purple-soft); }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0; height:100dvh; max-height:100dvh; overflow-y:auto; -webkit-overflow-scrolling:touch; width:100%; }
   body{
     background:
-      radial-gradient(circle at 20% -10%, #1b2440 0%, transparent 45%),
-      radial-gradient(circle at 90% 110%, #1c1430 0%, transparent 45%),
+      radial-gradient(circle at 20% -10%, #17101f 0%, transparent 45%),
+      radial-gradient(circle at 90% 110%, #140d1c 0%, transparent 45%),
       var(--bg);
     color:var(--cream);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     min-height:100dvh;
+  }
+  html.mode-ultimate body{
+    background:
+      radial-gradient(circle at 20% -10%, rgba(140,80,230,0.16) 0%, transparent 45%),
+      radial-gradient(circle at 90% 110%, rgba(140,80,230,0.12) 0%, transparent 45%),
+      var(--bg);
   }
   /* Landing/setup pages can still scroll on small screens, but spacing below
      is kept tight so most phones/desktops see the whole page with no scroll */
@@ -477,6 +491,13 @@
   }
   .human-hand > div{ width:var(--card-w,60px); flex-shrink:0; }
   .human-hand .card{ aspect-ratio:2/3; width:100%; }
+  .human-hand .card.faceDown{
+    box-shadow:
+      inset 0 0 0 1px rgba(215,173,79,0.14),
+      inset 0 0 14px rgba(0,0,0,0.55),
+      0 0 12px color-mix(in srgb, var(--pc, var(--brass)) 35%, transparent),
+      0 3px 10px rgba(0,0,0,0.45);
+  }
 
   .actions{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px; flex-shrink:0;}
 

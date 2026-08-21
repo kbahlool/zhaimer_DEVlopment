@@ -37,6 +37,26 @@
   pointer-events:none;
   z-index:0;
 }
+/* ---------- Faint circular "memory arena" motif behind the piles ----------
+   Concentric rings + a soft cross-glow reminiscent of a brain/neural core,
+   built entirely from gradients (no image asset, no dimension impact). */
+.midrow::after{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:min(560px, 130%); height:min(560px, 260%);
+  transform:translate(-50%,-50%);
+  background:
+    repeating-radial-gradient(circle at center,
+      transparent 0, transparent 38px,
+      color-mix(in srgb, var(--teal) 5%, transparent) 39px, transparent 41px,
+      transparent 78px, color-mix(in srgb, var(--brass-soft) 5%, transparent) 79px, transparent 81px);
+  opacity:.5;
+  pointer-events:none;
+  z-index:0;
+  border-radius:50%;
+}
+@media (prefers-reduced-motion: reduce){ .midrow::after{ opacity:.3; } }
 .midrow > *{ position:relative; z-index:1; }
 
 /* ---------- Clearer separation between draw and discard piles ---------- */

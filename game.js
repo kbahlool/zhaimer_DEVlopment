@@ -3374,6 +3374,11 @@ function actShareResult(){
 /* ============================= MAIN RENDER ============================= */
 function render(){
   applyTheme();
+  // ULTIMATE ZHAIMER — purely cosmetic: swap the shared accent color to
+  // purple when playing Ultimate, so gameplay UI (Finish badge, log
+  // highlights, etc.) picks up the brand's Ultimate identity via CSS vars.
+  // Never affects game state or logic.
+  document.documentElement.classList.toggle('mode-ultimate', !!(ROOM && ROOM.gameMode==='ultimate'));
   const app = document.getElementById('app');
   let html = '';
   if(!(ROOM && ROOM.phase==='playing' && ROOM.currentUid===myUid && !ROOM.drawnCard && !ROOM.modal)){ burnDeclared = false; burnSelected = []; declareConfirmUntil = null; }
