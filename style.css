@@ -1177,3 +1177,57 @@ html[data-theme="living"] .avatar{ border-radius:40% 60% 55% 45%; }
   .arena-setup-grid{ grid-template-columns:1fr; }
   .arena-stats-row{ gap:12px; font-size:10px; }
 }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — gameplay UI redesign v2 (arena reference match)
+   ============================================================ */
+.player-role{ display:block; font-size:9.5px; color:var(--muted); letter-spacing:.3px; margin:1px 0; }
+
+/* ---- Game Log side panel ---- */
+.side-panel{
+  position:fixed; top:50%; transform:translateY(-50%); left:14px;
+  width:220px; max-height:46vh; padding:12px 14px; border-radius:12px; z-index:5;
+  background:linear-gradient(160deg, rgba(15,13,26,.92), rgba(7,8,13,.92));
+  border:1px solid rgba(201,162,39,.28); box-shadow:0 16px 34px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+html.mode-ultimate .side-panel{ border-color:rgba(140,80,230,.4); box-shadow:0 16px 34px rgba(0,0,0,.5), 0 0 24px rgba(140,80,230,.12); }
+.side-panel-title{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--brass-soft); font-weight:700; margin-bottom:8px; }
+html.mode-ultimate .side-panel-title{ color:var(--purple-soft); }
+.game-log-list{ display:flex; flex-direction:column; gap:9px; max-height:38vh; overflow-y:auto; }
+.game-log-entry{ font-size:11.5px; color:var(--cream); line-height:1.4; display:flex; gap:7px; align-items:flex-start; }
+.game-log-icon{
+  flex-shrink:0; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; color:var(--brass-soft); border:1px solid rgba(201,162,39,.4); margin-top:1px;
+}
+html.mode-ultimate .game-log-icon{ color:var(--purple-soft); border-color:rgba(140,80,230,.45); }
+
+@media(max-width:1240px){ .side-panel{ display:none; } }
+@media(prefers-reduced-motion:reduce){ .side-panel{ transition:none; } }
+
+/* ---- Z Power side panel (desktop): the zCopyChoose modal restyled ---- */
+@media(min-width:1000px){
+  .overlay-side{ background:transparent; align-items:center; justify-content:flex-end; pointer-events:none; padding-right:14px; }
+  .overlay-side .side-panel-modal{
+    pointer-events:auto; margin:0; width:230px; text-align:left;
+    background:linear-gradient(160deg, rgba(20,10,35,.95), rgba(7,8,13,.95));
+    border:1px solid rgba(140,80,230,.5); box-shadow:0 16px 34px rgba(0,0,0,.5), 0 0 26px rgba(140,80,230,.18);
+  }
+  .overlay-side .side-panel-modal h3{ color:#e6d2ff; font-size:14px; text-align:center; }
+  .overlay-side .side-panel-modal p{ font-size:11.5px; color:var(--muted); text-align:center; }
+}
+.modal-actions-col{ flex-direction:column; align-items:stretch; }
+.zpower-btn{ display:flex; align-items:center; gap:10px; text-align:left; justify-content:flex-start; }
+.zpower-key{
+  display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px;
+  background:rgba(140,80,230,.18); border:1px solid rgba(140,80,230,.5); color:#c9a2ff; font-weight:800; font-size:12px; flex-shrink:0;
+}
+
+/* ---- RTL mirroring for the fixed side panels ---- */
+html[dir="rtl"] .side-panel{ left:auto; right:14px; }
+html[dir="rtl"] .side-panel-title, html[dir="rtl"] .game-log-entry{ text-align:right; }
+@media(min-width:1000px){
+  html[dir="rtl"] .overlay-side{ justify-content:flex-start; padding-right:0; padding-left:14px; }
+  html[dir="rtl"] .overlay-side .side-panel-modal{ text-align:right; }
+}
+html[dir="rtl"] .zpower-btn{ text-align:right; justify-content:flex-start; flex-direction:row-reverse; }

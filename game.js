@@ -8,6 +8,12 @@ const SUITS = ['♠','♥','♦','♣'];
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RED_SUITS = ['♥','♦'];
 
+// ULTIMATE ZHAIMER UI redesign — small Roman numerals for hand slot labels
+// (I, II, III, IV, V) to match the premium arena reference. Purely
+// cosmetic: the underlying data-slot index used by every action handler
+// is completely unchanged.
+const ROMAN_SLOT = ['I','II','III','IV','V','VI'];
+function slotLabel(i){ return ROMAN_SLOT[i] || String(i+1); }
 function cardValue(c){
   if(c.rank==='Z') return 5; // Ultimate ZHAIMER only — see ULTIMATE ZHAIMER Z card rules
   if(c.rank==='A') return 1;
@@ -228,6 +234,7 @@ function roomDraw(room, uid, source){
     card = room.discard.pop();
   }
   room.drawnCard = { uid, card, source };
+  roomPushLog(room, `draw:${uid}:${source}`);
   return {};
 }
 
@@ -1678,6 +1685,16 @@ const I18N = {
     kingSlotBoth2Body:'Now click a different card to swap in the second one.',
     gameModeLabel:'Game Mode', classicModeName:'Classic ZHAIMER', ultimateModeName:'Ultimate ZHAIMER',
     classicModeTagline:'The Original Memory Battle', ultimateModeTagline:'Master the Z. Risk Everything.', newBadge:'NEW',
+    gameLogTitle:'Game Log',
+    logRoundStarted:(n)=>`Round ${n} started`, logDrew:(n)=>`${n} drew a card`,
+    logSwappedSlot:(n)=>`${n} swapped a card`, logDiscarded:(n)=>`${n} discarded a card`,
+    logZCopy:(n,c)=>`${n} used Z — Copy ${c}`, logZDefendedYou:'You defended with Z', logZDefended:(n)=>`${n} defended with Z`,
+    logZFinalDefendedYou:'You blocked a swap with Final Z Defense', logZFinalDefended:(n)=>`${n} used Final Z Defense`,
+    logZDeclined:(n)=>`${n} declined to block with Z`, logZTaken:(n)=>`${n} took Z from the center`,
+    logKingUsed:(n)=>`${n} used K — Draw Two`, logKingSkipped:(n)=>`${n} skipped K's power`,
+    logJackUsed:(n,t2)=>`${n} used J — Swap with ${t2}`, logQueenUsed:(n)=>`${n} used Q — Reveal`,
+    logBurnSuccess:(n)=>`${n} burned a card`, logBurnFail:(n)=>`${n} misfired a Burn (+2)`,
+    logDeclared:(n)=>`${n} declared Finish`, logScored:(n)=>`Round ${n} scored`,
     ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
     welcomeArena:'Welcome to the Memory Arena', chooseBattle1:'Choose', chooseBattle2:'Your', chooseBattle3:'Battle',
     chooseBattleSub:'Every battle is a test of memory. Every victory is earned.',
@@ -1991,6 +2008,16 @@ const I18N = {
     kingSlotBoth1Body:'انقر على ورقة أدناه لتبديل الورقة الأولى فيها.',
     kingSlotBoth2Body:'دحين انقر على ورقة مختلفة لتبديل الورقة الثانية فيها.',
     gameModeLabel:'نمط اللعب', classicModeName:'ZHAIMER الكلاسيكية', ultimateModeName:'ZHAIMER المطلقة',
+    gameLogTitle:'سجل اللعبة',
+    logRoundStarted:(n)=>`بدأت الجولة ${n}`, logDrew:(n)=>`${n} سحب بطاقة`,
+    logSwappedSlot:(n)=>`${n} بدّل بطاقة`, logDiscarded:(n)=>`${n} رمى بطاقة`,
+    logZCopy:(n,c)=>`${n} استخدم Z — نسخ ${c}`, logZDefendedYou:'دافعت بـ Z', logZDefended:(n)=>`${n} دافع بـ Z`,
+    logZFinalDefendedYou:'صددت تبديلاً بدفاع Z النهائي', logZFinalDefended:(n)=>`${n} استخدم دفاع Z النهائي`,
+    logZDeclined:(n)=>`${n} رفض الصد بـ Z`, logZTaken:(n)=>`${n} أخذ Z من المنتصف`,
+    logKingUsed:(n)=>`${n} استخدم K — سحب ورقتين`, logKingSkipped:(n)=>`${n} تخطّى قوة K`,
+    logJackUsed:(n,t2)=>`${n} استخدم J — تبديل مع ${t2}`, logQueenUsed:(n)=>`${n} استخدم Q — كشف`,
+    logBurnSuccess:(n)=>`${n} حرق بطاقة`, logBurnFail:(n)=>`${n} أخطأ في الحرق (+٢)`,
+    logDeclared:(n)=>`${n} أعلن الإنهاء`, logScored:(n)=>`تم احتساب الجولة ${n}`,
     classicModeTagline:'معركة الذاكرة الأصلية', ultimateModeTagline:'أتقن Z. جازف بكل شيء.', newBadge:'جديد',
     ultimateModeNote:'تضيف بطاقة Z الغامضة — انسخ J/Q/K، دافع بالتضحية، احمِ نتيجتك، أو أكمل كومبو ZHAIMER.',
     welcomeArena:'مرحبًا بك في ساحة الذاكرة', chooseBattle1:'اختر', chooseBattle2:'', chooseBattle3:'معركتك',
@@ -2092,6 +2119,11 @@ function renderCardBack(extraClass, burnt){
   return `<div class="card faceDown ${extraClass||''} ${burnt?'burnt':''}"></div>`;
 }
 function modalWrap(inner){ return `<div class="overlay"><div class="modal">${inner}</div></div>`; }
+// ULTIMATE ZHAIMER UI redesign — the Z Copy choice reuses the exact same
+// buttons/data-actions as a normal modal, just presented as a persistent
+// side panel (like "Z POWER AVAILABLE" in the reference) on desktop, and
+// falls back to a normal centered modal on narrow screens.
+function sidePanelModalWrap(inner){ return `<div class="overlay overlay-side"><div class="modal side-panel-modal">${inner}</div></div>`; }
 function bannerWrap(title, text){ return `<div class="hint-banner"><h3>${title}</h3><p>${text}</p></div>`; }
 
 /* ============================= LOCAL PEEK TIMER (client-side only) ============================= */
@@ -2981,6 +3013,71 @@ function colorStyleVars(col){
   return `--pc:${col.pc}; --pc-soft:${col.pcSoft}; --pc-rgb:${col.rgb};`;
 }
 
+// ULTIMATE ZHAIMER UI redesign — Game Log panel. Purely a presentation
+// layer over the log entries roomPushLog() already records; nothing here
+// creates new game state or new hidden information (every card mentioned
+// below — a discarded/burned card, a swap's own outgoing card — was
+// already face-up/public the moment the event happened).
+function logIcon(code){
+  if(code==='logDealt') return '🔄';
+  if(code==='draw') return '🂠';
+  if(code==='swap') return '🔁';
+  if(code==='discard') return '🗑️';
+  if(code==='zCopy') return 'Z';
+  if(code==='zBlock' || code==='zFinalBlock' || code==='zBlockDeclined') return '🛡️';
+  if(code==='zTaken') return '🃏';
+  if(code==='kingSlot' || code==='kingSlotBoth' || code==='kingNone') return 'K';
+  if(code==='jackSwap') return 'J';
+  if(code==='queenPeek') return 'Q';
+  if(code==='burnSuccess') return '🔥';
+  if(code==='burnFail') return '⚠️';
+  if(code==='declare') return '🏁';
+  if(code==='scored') return '🏆';
+  return '◈';
+}
+function formatLogEntry(entry){
+  const parts = entry.msg.split(':');
+  const code = parts[0];
+  const uid = parts[1];
+  const p = uid ? ROOM.players[uid] : null;
+  const name = p ? (uid===myUid ? t('you') : p.name) : '';
+  const icon = logIcon(code);
+  let txt = '';
+  switch(code){
+    case 'logDealt': txt = t('logRoundStarted', parts[1]); break;
+    case 'draw': txt = t('logDrew', name); break;
+    case 'swap': txt = t('logSwappedSlot', name); break;
+    case 'discard': txt = t('logDiscarded', name); break;
+    case 'zCopy': txt = t('logZCopy', name, parts[2]); break;
+    case 'zBlock': txt = uid===myUid ? t('logZDefendedYou') : t('logZDefended', name); break;
+    case 'zFinalBlock': txt = uid===myUid ? t('logZFinalDefendedYou') : t('logZFinalDefended', name); break;
+    case 'zBlockDeclined': txt = t('logZDeclined', name); break;
+    case 'zTaken': txt = t('logZTaken', name); break;
+    case 'kingSlot': case 'kingSlotBoth': txt = t('logKingUsed', name); break;
+    case 'kingNone': txt = t('logKingSkipped', name); break;
+    case 'jackSwap': { const p2 = ROOM.players[parts[2]]; txt = t('logJackUsed', name, p2?(parts[2]===myUid?t('you'):p2.name):'?'); break; }
+    case 'queenPeek': txt = t('logQueenUsed', name); break;
+    case 'burnSuccess': txt = t('logBurnSuccess', name); break;
+    case 'burnFail': txt = t('logBurnFail', name); break;
+    case 'declare': txt = t('logDeclared', name); break;
+    case 'scored': txt = t('logScored', parts[1]); break;
+    default: return '';
+  }
+  if(!txt) return '';
+  return `<span class="game-log-icon">${icon}</span>${txt}`;
+}
+function renderGameLogPanel(){
+  if(!ROOM || !ROOM.log || !ROOM.log.length) return '';
+  const entries = ROOM.log.slice(0, 8).map(formatLogEntry).filter(Boolean);
+  if(!entries.length) return '';
+  return `<div class="side-panel game-log-panel">
+    <div class="side-panel-title">${t('gameLogTitle')}</div>
+    <div class="game-log-list">
+      ${entries.map(txt=>`<div class="game-log-entry">${txt}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
 function renderPlayerBlock(uid){
   const p = ROOM.players[uid];
   const col = playerColor(uid);
@@ -3000,9 +3097,9 @@ function renderPlayerBlock(uid){
     const cls = targetable? 'clickable opp-slot-target':'';
     const justChanged = rc && rc.uid===uid && rc.slot===i;
     if(isPreviewedBySelf && jp.targetSlot===i){
-      cardsHtml += `<div style="position:relative">${renderCardFace(jp.card, 'jack-preview-face')}</div>`;
+      cardsHtml += `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">${renderCardFace(jp.card, 'jack-preview-face')}<span class="slot-label">${slotLabel(i)}</span></div>`;
     } else {
-      cardsHtml += `<div style="position:relative">${renderCardBack(cls + (justChanged?' just-changed':''))}${targetable?`<div style="position:absolute;inset:0" data-action="actJackTarget" data-player="${uid}" data-slot="${i}"></div>`:''}</div>`;
+      cardsHtml += `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">${renderCardBack(cls + (justChanged?' just-changed':''))}${targetable?`<div style="position:absolute;inset:0" data-action="actJackTarget" data-player="${uid}" data-slot="${i}"></div>`:''}<span class="slot-label">${slotLabel(i)}</span></div>`;
     }
   }
   return `<div class="player-block ${activeNow?'active-turn':''} ${declared?'declared':''}" style="${colorStyleVars(col)} ${p.eliminated?'opacity:.4':''}">
@@ -3014,6 +3111,7 @@ function renderPlayerBlock(uid){
           <span class="nm">${p.name}${uid===myUid?` (${t('you')})`:''}${p.isAI?' 🤖':''}</span>
           ${declared ? `<span class="declare-badge">🏁 ${t('declaredTag')}</span>` : ''}
         </div>
+        ${p.isAI && (p.aiDescEn||p.aiDescAr) ? `<span class="player-role">${(LANG==='ar'?p.aiDescAr:p.aiDescEn)||''}</span>` : ''}
         <span class="badge total">${p.total} ${t('pts')}</span>
       </div>
     </div>
@@ -3063,7 +3161,7 @@ function renderMyHand(){
       const justChangedMine = rc && rc.uid===myUid && rc.slot===i;
       inner = renderCardBack(justChangedMine ? 'just-changed' : '');
     }
-    html += `<div ${action} style="display:flex;flex-direction:column;align-items:center;">${inner}<span class="slot-label">${i+1}</span></div>`;
+    html += `<div ${action} style="display:flex;flex-direction:column;align-items:center;">${inner}<span class="slot-label">${slotLabel(i)}</span></div>`;
   }
   return html;
 }
@@ -3195,12 +3293,12 @@ function renderModal(){
   const m = ROOM.modal;
   if(m.type==='finishCheck') return '';
   if(m.type==='zCopyChoose'){
-    return modalWrap(`<h3>⚡ ${t('zCopyTitle')}</h3>
+    return sidePanelModalWrap(`<h3>⚡ ${t('zCopyTitle')}</h3>
       <p>${t('zCopyBody')}</p>
-      <div class="modal-actions" style="flex-wrap:wrap;">
-        <button class="primary-btn" data-action="actZCopyChoose" data-val="J">${t('zCopyJBtn')}</button>
-        <button class="primary-btn" data-action="actZCopyChoose" data-val="Q">${t('zCopyQBtn')}</button>
-        <button class="primary-btn" data-action="actZCopyChoose" data-val="K">${t('zCopyKBtn')}</button>
+      <div class="modal-actions modal-actions-col">
+        <button class="primary-btn zpower-btn" data-action="actZCopyChoose" data-val="J"><span class="zpower-key">J</span> ${t('zCopyJBtn')}</button>
+        <button class="primary-btn zpower-btn" data-action="actZCopyChoose" data-val="Q"><span class="zpower-key">Q</span> ${t('zCopyQBtn')}</button>
+        <button class="primary-btn zpower-btn" data-action="actZCopyChoose" data-val="K"><span class="zpower-key">K</span> ${t('zCopyKBtn')}</button>
         <button class="ghost-btn" data-action="actZCopyChoose" data-val="skip">${t('zCopySkipBtn')}</button>
       </div>`);
   }
@@ -3558,6 +3656,7 @@ function render(){
       : `<div class="human-hand">${renderMyHand()}</div>${renderActions()}`}
   </div>`;
   html += `</div>`;
+  html += renderGameLogPanel();
   html += renderModal();
   app.innerHTML = html;
   attach();
