@@ -1071,3 +1071,109 @@ html[data-theme="living"] .avatar{ border-radius:40% 60% 55% 45%; }
 }
 .mode-label-classic{ background:rgba(201,162,39,0.12); color:var(--brass-soft); border:1px solid rgba(201,162,39,0.4); }
 .mode-label-ultimate{ background:rgba(180,120,255,0.14); color:#e6d2ff; border:1px solid rgba(180,120,255,0.45); }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — pre-game "Choose Your Battle" arena screen
+   ============================================================ */
+.arena-header{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px; }
+.arena-brand{ text-decoration:none; cursor:pointer; }
+.arena-kicker{ text-align:center; color:var(--brass); font-size:11px; letter-spacing:4px; text-transform:uppercase; margin:6px 0 2px; }
+.arena-heading{ text-align:center; font-family:Georgia,serif; font-size:clamp(24px,4vw,40px); letter-spacing:1px; margin:2px 0 4px; }
+.arena-h-gold{ background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.arena-h-white{ color:var(--cream); }
+.arena-subheading{ text-align:center; color:var(--muted); font-size:13px; margin:0 0 18px; }
+
+.battle-panels{ display:grid; grid-template-columns:1fr auto 1fr; align-items:stretch; gap:14px; max-width:1180px; margin:0 auto 8px; }
+.battle-panel{
+  position:relative; text-align:left; cursor:pointer; border-radius:14px; padding:20px;
+  display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.02);
+  -webkit-appearance:none; appearance:none; font-family:inherit; box-sizing:border-box; outline:none;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+[dir="rtl"] .battle-panel{ text-align:right; }
+.battle-panel:hover{ transform:translateY(-2px); }
+.battle-panel-classic{ border:1.5px solid rgba(201,162,39,.4); background:linear-gradient(150deg,rgba(30,20,5,.5),rgba(10,8,4,.7)); }
+.battle-panel-classic.active{ border-color:var(--brass); box-shadow:0 0 0 1px var(--brass), 0 18px 40px rgba(201,162,39,.18); }
+.battle-panel-ultimate{ border:1.5px solid rgba(140,80,230,.4); background:linear-gradient(150deg,rgba(35,15,60,.55),rgba(10,7,15,.75)); flex-direction:row-reverse; }
+[dir="rtl"] .battle-panel-ultimate{ flex-direction:row; }
+.battle-panel-ultimate.active{ border-color:#8c50e6; box-shadow:0 0 0 1px #8c50e6, 0 18px 40px rgba(140,80,230,.3); }
+.battle-panel-text h2{ font-family:Georgia,serif; font-size:1.5rem; margin:0 0 4px; color:var(--brass-soft); }
+.battle-panel-ultimate .battle-panel-text h2{ color:#e6d2ff; }
+.battle-panel-tagline{ color:var(--muted); font-size:.85rem; margin-bottom:8px; }
+.battle-panel-tagline-purple{ color:#c9a2ff; }
+.battle-bullets{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:.85rem; color:var(--cream); }
+.battle-panel-check{ position:absolute; top:12px; right:12px; width:22px; height:22px; border-radius:50%; display:none;
+  align-items:center; justify-content:center; font-size:12px; font-weight:900; color:var(--ink); background:var(--brass); }
+[dir="rtl"] .battle-panel-check{ right:auto; left:12px; }
+.battle-panel-ultimate .battle-panel-check{ background:#8c50e6; color:#fff; }
+.battle-panel.active .battle-panel-check{ display:flex; }
+.battle-cardart{ position:relative; width:110px; height:120px; flex-shrink:0; }
+.battle-cardart-ultimate{ direction:ltr; }
+.battle-divider{ display:flex; align-items:center; justify-content:center; }
+.battle-divider-card{ width:64px; aspect-ratio:2.4/3.4; border-radius:8px; background:linear-gradient(160deg,#141210,#050403);
+  border:1px solid var(--brass); display:grid; place-items:center; box-shadow:0 0 24px rgba(140,80,230,.35), 0 0 14px rgba(201,162,39,.3); }
+.battle-divider-card .mp-z-mini{ font-size:1.6rem; }
+.arena-select-note{ text-align:center; color:var(--brass-soft); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin:14px 0 18px; }
+
+.arena-setup-card{ max-width:1180px; margin:0 auto; }
+.arena-setup-grid{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+.arena-setup-label{ display:block; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.arena-ai-chip{ display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--line); border-radius:10px;
+  background:var(--panel2); font-size:1.3rem; }
+.arena-ai-chip b{ font-size:.9rem; color:var(--cream); }
+.arena-ai-chip small{ color:var(--muted); font-size:.72rem; }
+.choice-btn.diff-easy.active{ border-color:#3fc78f; background:#3fc78f; color:var(--ink); }
+.choice-btn.diff-hard.active{ background:var(--purple, #8c50e6); border-color:var(--purple, #8c50e6); color:#fff; }
+.arena-start-btn{
+  display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:20px;
+  padding:16px; border-radius:12px; border:1px solid var(--brass); cursor:pointer;
+  background:linear-gradient(180deg, var(--brass-soft), var(--brass)); color:var(--ink);
+  font-weight:800; font-size:1.05rem; letter-spacing:2px; text-transform:uppercase; font-family:inherit;
+  box-shadow:0 10px 26px rgba(201,162,39,.25);
+}
+.arena-start-btn:hover{ transform:translateY(-1px); }
+.arena-start-arrow{ font-size:1.2rem; }
+
+.arena-bottom-row{ display:flex; justify-content:space-between; gap:14px; max-width:1180px; margin:22px auto 0; }
+.arena-link-card{
+  display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:10px; border:1px solid var(--line);
+  background:var(--panel2); color:var(--cream); cursor:pointer; font-family:inherit; text-align:left;
+}
+[dir="rtl"] .arena-link-card{ text-align:right; }
+.arena-link-card:hover{ border-color:var(--brass); }
+.arena-link-icon{ font-size:1.2rem; }
+.arena-link-card small{ color:var(--muted); font-size:.72rem; }
+
+.arena-stats-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:22px; margin:22px auto 8px; color:var(--muted);
+  font-size:11px; letter-spacing:.5px; max-width:1180px; }
+
+/* reuse homepage-style mini card art in-game */
+.mp-card{ position:absolute; width:60px; aspect-ratio:2.4/3.4; border-radius:8px; top:0; }
+.mp-card-back{ background:linear-gradient(160deg,#151310,#050403); border:1px solid rgba(215,173,79,.45); display:grid; place-items:center; }
+.mp1{ left:0; transform:rotate(-10deg); }
+.mp2{ left:18px; transform:rotate(-2deg); }
+.mp3{ left:36px; transform:rotate(8deg); }
+.mp-z-mini{ font-family:Georgia,serif; font-weight:800; font-size:1.3rem; color:var(--brass-soft); }
+.mp-z-purple{ color:#c9a2ff; }
+.mp-card-u{ background:linear-gradient(160deg,#1c1030,#06040d); border:1px solid rgba(185,140,255,.5); display:grid; place-items:center;
+  color:#c9a2ff; font-family:Georgia,serif; font-weight:800; font-size:1.05rem; }
+.mpu1{ left:0; transform:rotate(-10deg); }
+.mpu2{ right:0; left:auto; transform:rotate(10deg); }
+.mpu3{ left:50%; transform:translateX(-50%); z-index:2; box-shadow:0 0 22px rgba(140,80,230,.4); }
+.mini-card{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:32px; border-radius:4px;
+  background:linear-gradient(160deg,#151310,#050403); border:1px solid rgba(215,173,79,.4); color:var(--brass-soft);
+  font-family:Georgia,serif; font-weight:800; font-size:.75rem; vertical-align:middle; margin-inline-end:4px; }
+.mini-card-purple{ border-color:rgba(185,140,255,.5); color:#c9a2ff; }
+
+@media(max-width:900px){
+  .battle-panels{ grid-template-columns:1fr; }
+  .battle-divider{ display:none; }
+  .battle-panel, .battle-panel-ultimate{ flex-direction:column; text-align:center; }
+  .battle-panel-check{ display:none !important; }
+  .arena-setup-grid{ grid-template-columns:1fr 1fr; }
+  .arena-bottom-row{ flex-direction:column; }
+}
+@media(max-width:520px){
+  .arena-setup-grid{ grid-template-columns:1fr; }
+  .arena-stats-row{ gap:12px; font-size:10px; }
+}

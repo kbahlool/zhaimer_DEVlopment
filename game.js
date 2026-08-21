@@ -1521,7 +1521,7 @@ const I18N = {
     dailyResultHeading:'Daily Challenge Complete', dailyBestLabel:'Your Best', dailyStreakLabel:'Day Streak',
     dailyRetryNote:'Your best score is saved. Retry as many times as you like — only today\'s streak counts once.',
     dailyRetryBtn:'Try Again',
-    diff_easy:'Easy', diff_medium:'Medium', diff_hard:'Hard', dealBtn:'Deal the cards',
+    diff_easy:'Easy', diff_medium:'Normal', diff_hard:'Strategist', dealBtn:'Deal the cards',
     timeLeft:'Time left',
     howToPlayBtn:'How to Play', rulesTitle:'How to Play ZHAIMER',
     themeBtn:'Theme', themeRandomLabel:'Random (Default)',
@@ -1679,6 +1679,17 @@ const I18N = {
     gameModeLabel:'Game Mode', classicModeName:'Classic ZHAIMER', ultimateModeName:'Ultimate ZHAIMER',
     classicModeTagline:'The Original Memory Battle', ultimateModeTagline:'Master the Z. Risk Everything.', newBadge:'NEW',
     ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
+    welcomeArena:'Welcome to the Memory Arena', chooseBattle1:'Choose', chooseBattle2:'Your', chooseBattle3:'Battle',
+    chooseBattleSub:'Every battle is a test of memory. Every victory is earned.',
+    classicPanelTagline:'The Original Memory Battle',
+    classicBulletStrategy:'Pure Strategy', classicBulletMemory:'Pure Memory', classicBulletVictory:'Pure Victory',
+    ultimatePanelTagline:'Master the Z.',
+    ultimateBulletCopy:'Copy.', ultimateBulletDefend:'Defend.', ultimateBulletProtect:'Protect.', ultimateBulletCombo:'Combo.',
+    selectModeContinue:'Select a Mode to Continue',
+    playersLabel:'Players', opponentsAiLabel:'AI', opponentsAiSub:'Artificial Intelligence',
+    startGameBtn:'Start Game', howToPlayBtn:'How to Play', howToPlaySub:'Learn the rules',
+    backHomeBtn:'Back Home', backHomeSub:'Return to main menu',
+    statPremium:'Premium Experience', statAnim:'Sleek Animations', statMemory:'Built for Memory Masters', statReplay:'Endless Replayability',
     zRulesTitle:'Master the Z (Ultimate ZHAIMER only)',
     zRulesIntro:'Ultimate ZHAIMER uses every Classic rule, plus one extra card: Z (worth 5 points). It never appears in Classic games.',
     zRuleCopyTitle:'⚡ Copy', zRuleCopyBody:'Draw Z directly from the Deck and choose ONE ability to copy: J (Swap), Q (Reveal), or K (Draw Two) — or skip and just keep Z.',
@@ -1783,7 +1794,7 @@ const I18N = {
     dailyResultHeading:'اكتمل التحدي اليومي', dailyBestLabel:'أفضل نتيجة', dailyStreakLabel:'أيام متتالية',
     dailyRetryNote:'أفضل نتيجة محفوظة. أعد المحاولة كما تشاء — سلسلة اليوم تُحتسب مرة واحدة فقط.',
     dailyRetryBtn:'حاول مجددًا',
-    diff_easy:'سهل', diff_medium:'متوسط', diff_hard:'صعب', dealBtn:'وزّع الأوراق',
+    diff_easy:'سهل', diff_medium:'عادي', diff_hard:'استراتيجي', dealBtn:'وزّع الأوراق',
     timeLeft:'الوقت المتبقي',
     howToPlayBtn:'كيف تلعب', rulesTitle:'كيف تلعب زهايمر',
     themeBtn:'المظهر', themeRandomLabel:'عشوائي (افتراضي)',
@@ -1982,6 +1993,17 @@ const I18N = {
     gameModeLabel:'نمط اللعب', classicModeName:'ZHAIMER الكلاسيكية', ultimateModeName:'ZHAIMER المطلقة',
     classicModeTagline:'معركة الذاكرة الأصلية', ultimateModeTagline:'أتقن Z. جازف بكل شيء.', newBadge:'جديد',
     ultimateModeNote:'تضيف بطاقة Z الغامضة — انسخ J/Q/K، دافع بالتضحية، احمِ نتيجتك، أو أكمل كومبو ZHAIMER.',
+    welcomeArena:'مرحبًا بك في ساحة الذاكرة', chooseBattle1:'اختر', chooseBattle2:'', chooseBattle3:'معركتك',
+    chooseBattleSub:'كل معركة اختبار للذاكرة. وكل انتصار يُكتسب بجدارة.',
+    classicPanelTagline:'معركة الذاكرة الأصلية',
+    classicBulletStrategy:'استراتيجية خالصة', classicBulletMemory:'ذاكرة خالصة', classicBulletVictory:'انتصار خالص',
+    ultimatePanelTagline:'أتقن Z.',
+    ultimateBulletCopy:'نسخ.', ultimateBulletDefend:'دفاع.', ultimateBulletProtect:'حماية.', ultimateBulletCombo:'كومبو.',
+    selectModeContinue:'اختر نمطًا للمتابعة',
+    playersLabel:'اللاعبون', opponentsAiLabel:'ذكاء اصطناعي', opponentsAiSub:'خصم آلي',
+    startGameBtn:'ابدأ اللعبة', howToPlayBtn:'طريقة اللعب', howToPlaySub:'تعلّم القواعد',
+    backHomeBtn:'الرئيسية', backHomeSub:'العودة للقائمة الرئيسية',
+    statPremium:'تجربة فاخرة', statAnim:'حركات سلسة', statMemory:'مصممة لأبطال الذاكرة', statReplay:'إعادة لعب بلا حدود',
     zRulesTitle:'إتقان بطاقة Z (فقط في ZHAIMER المطلقة)',
     zRulesIntro:'تستخدم ZHAIMER المطلقة كل قواعد النسخة الكلاسيكية، بالإضافة إلى بطاقة واحدة إضافية: Z (بقيمة 5 نقاط). لا تظهر أبدًا في النسخة الكلاسيكية.',
     zRuleCopyTitle:'⚡ نسخ', zRuleCopyBody:'اسحب Z مباشرة من الحزمة واختر قوة واحدة لنسخها: J (تبديل)، Q (كشف)، أو K (سحب ورقتين) — أو تخطَّ ذلك واحتفظ بـ Z كما هي.',
@@ -2762,48 +2784,91 @@ function renderRules(){
   </div>`;
 }
 function renderAISetup(){
-  return `${screenHeader()}
-  <div class="setup-card">
-    <h2>${PENDING_PRACTICE ? t('practiceModeBtn') : t('playAIBtn')}</h2>
-    ${PENDING_PRACTICE ? `<div class="setup-explainer" style="border-top:none;color:var(--teal);">${t('practiceModeNote')}</div>` : ''}
-    <div class="setup-row">
-      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('gameModeLabel')}</label>
-      <div class="game-mode-toggle">
-        <button class="mode-card classic ${GAME_MODE==='classic'?'active':''}" data-action="setGameMode" data-val="classic">
-          <div class="mode-card-icon">🧠</div>
-          <div class="mode-card-name">${t('classicModeName')}</div>
-          <div class="mode-card-tagline">${t('classicModeTagline')}</div>
-          <div class="mode-card-check">✓</div>
-        </button>
-        <button class="mode-card ultimate ${GAME_MODE==='ultimate'?'active':''}" data-action="setGameMode" data-val="ultimate">
-          <div class="mode-card-shine"></div>
-          <div class="mode-card-badge">${t('newBadge')}</div>
-          <div class="mode-card-icon">⚡</div>
-          <div class="mode-card-name">${t('ultimateModeName')}</div>
-          <div class="mode-card-tagline">${t('ultimateModeTagline')}</div>
-          <div class="mode-card-check">✓</div>
-        </button>
+  const totalPlayers = NUM_AI + 1;
+  return `<div class="header arena-header">
+    <a class="title arena-brand" href="#" data-action="goBackToLanding">${t('title')}</a>
+    <div class="choice-group" style="align-self:flex-start">
+      <button class="quit-btn" data-action="goRules" title="${t('howToPlayBtn')}">?</button>
+      <button class="quit-btn" data-action="toggleSound" title="${t('soundBtn')}">${soundOn?'🔊':'🔇'}</button>
+      <button class="choice-btn ${LANG==='en'?'active':''}" data-action="setLang" data-val="en">EN</button>
+      <button class="choice-btn ${LANG==='ar'?'active':''}" data-action="setLang" data-val="ar">ع</button>
+    </div>
+  </div>
+  <div class="arena-kicker">◈&nbsp; ${t('welcomeArena')} &nbsp;◈</div>
+  <h1 class="arena-heading"><span class="arena-h-gold">${t('chooseBattle1')}</span> <span class="arena-h-white">${t('chooseBattle2')}</span> <span class="arena-h-gold">${t('chooseBattle3')}</span></h1>
+  <p class="arena-subheading">${t('chooseBattleSub')}</p>
+
+  <div class="battle-panels">
+    <button class="battle-panel battle-panel-classic ${GAME_MODE==='classic'?'active':''}" data-action="setGameMode" data-val="classic">
+      <div class="battle-cardart" aria-hidden="true">
+        <div class="mp-card mp-card-back mp1"></div>
+        <div class="mp-card mp-card-back mp2"></div>
+        <div class="mp-card mp-card-back mp3"><span class="mp-z-mini">Z</span></div>
       </div>
-      ${GAME_MODE==='ultimate' ? `<div class="small-note" style="margin-top:6px;color:var(--brass-soft);">${t('ultimateModeNote')}</div>` : ''}
+      <div class="battle-panel-text">
+        <h2>${t('classicModeName')}</h2>
+        <p class="battle-panel-tagline">${t('classicPanelTagline')}</p>
+        <ul class="battle-bullets">
+          <li>♟️ ${t('classicBulletStrategy')}</li>
+          <li>🧠 ${t('classicBulletMemory')}</li>
+          <li>🏆 ${t('classicBulletVictory')}</li>
+        </ul>
+      </div>
+      <div class="battle-panel-check">✓</div>
+    </button>
+
+    <div class="battle-divider" aria-hidden="true">
+      <div class="battle-divider-card"><span class="mp-z-mini">Z</span></div>
     </div>
-    <div class="setup-row">
-      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('yourNameLabel')}</label>
-      <input id="aiNameField" class="field-input" maxlength="20" placeholder="${t('namePlaceholder')}" value="${(myName||'').replace(/"/g,'')}" />
-    </div>
-    <div class="setup-row">
-      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('opponentsLabel')}</label>
-      <div class="choice-group">
-        ${[1,2,3,4,5].map(n=>`<button class="choice-btn ${NUM_AI===n?'active':''}" data-action="setNumAI" data-val="${n}">${n}</button>`).join('')}
+
+    <button class="battle-panel battle-panel-ultimate ${GAME_MODE==='ultimate'?'active':''}" data-action="setGameMode" data-val="ultimate">
+      <div class="battle-panel-text">
+        <h2>${t('ultimateModeName')}</h2>
+        <p class="battle-panel-tagline battle-panel-tagline-purple">${t('ultimatePanelTagline')}</p>
+        <ul class="battle-bullets">
+          <li><span class="mini-card mini-card-purple">Z</span> ${t('ultimateBulletCopy')}</li>
+          <li>🛡️ ${t('ultimateBulletDefend')}</li>
+          <li>🎯 ${t('ultimateBulletProtect')}</li>
+          <li>🔥 ${t('ultimateBulletCombo')}</li>
+        </ul>
+      </div>
+      <div class="battle-cardart battle-cardart-ultimate" aria-hidden="true">
+        <div class="mp-card mp-card-u mpu1"><span class="mp-u-rank">J</span></div>
+        <div class="mp-card mp-card-u mpu2"><span class="mp-u-rank">K</span></div>
+        <div class="mp-card mp-card-u mpu3"><span class="mp-z-mini mp-z-purple">Z</span></div>
+      </div>
+      <div class="battle-panel-check">✓</div>
+    </button>
+  </div>
+
+  <p class="arena-select-note">◈&nbsp; ${t('selectModeContinue')} &nbsp;▾</p>
+
+  <div class="setup-card arena-setup-card">
+    <div class="arena-setup-grid">
+      <div class="setup-row">
+        <label class="arena-setup-label">${t('yourNameLabel')}</label>
+        <input id="aiNameField" class="field-input" maxlength="20" placeholder="${t('namePlaceholder')}" value="${(myName||'').replace(/"/g,'')}" />
+      </div>
+      <div class="setup-row">
+        <label class="arena-setup-label">${t('playersLabel')}</label>
+        <div class="choice-group">
+          ${[1,2,3,4,5].map(n=>`<button class="choice-btn ${NUM_AI===n?'active':''}" data-action="setNumAI" data-val="${n}">${n+1}</button>`).join('')}
+        </div>
+      </div>
+      <div class="setup-row">
+        <label class="arena-setup-label">${t('opponentsLabel')}</label>
+        <div class="arena-ai-chip">🤖 <span><b>${t('opponentsAiLabel')}</b><br /><small>${t('opponentsAiSub')}</small></span></div>
+      </div>
+      <div class="setup-row">
+        <label class="arena-setup-label">${t('difficultyLabel')}</label>
+        <div class="choice-group">
+          ${['easy','medium','hard'].map(d=>`<button class="choice-btn diff-${d} ${DIFFICULTY===d?'active':''}" data-action="setDifficulty" data-val="${d}">${t('diff_'+d)}</button>`).join('')}
+        </div>
       </div>
     </div>
-    <div class="setup-row">
-      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('difficultyLabel')}</label>
-      <div class="choice-group">
-        ${['easy','medium','hard'].map(d=>`<button class="choice-btn ${DIFFICULTY===d?'active':''}" data-action="setDifficulty" data-val="${d}">${t('diff_'+d)}</button>`).join('')}
-      </div>
-    </div>
+
     <div class="setup-row ai-persona-preview">
-      <label style="display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">${t('opponentsPreviewLabel')}</label>
+      <label class="arena-setup-label">${t('opponentsPreviewLabel')}</label>
       <div class="ai-persona-list">
         ${aiPersonasFor(DIFFICULTY).slice(0, NUM_AI).map(p=>`
           <div class="ai-persona-card">
@@ -2813,10 +2878,23 @@ function renderAISetup(){
           </div>`).join('')}
       </div>
     </div>
-    <div class="actions" style="margin-top:16px">
-      <button class="ghost-btn" data-action="goBackToLanding">${t('backBtn')}</button>
-      <button class="primary-btn" data-action="submitAISetup">${t('dealBtn')}</button>
-    </div>
+
+    <button class="arena-start-btn" data-action="submitAISetup">${t('startGameBtn')} <span class="arena-start-arrow">›</span></button>
+  </div>
+
+  <div class="arena-bottom-row">
+    <button class="arena-link-card" data-action="goRules">
+      <span class="arena-link-icon">📖</span>
+      <span><b>${t('howToPlayBtn')}</b><br /><small>${t('howToPlaySub')}</small></span>
+    </button>
+    <button class="arena-link-card" data-action="goBackToLanding">
+      <span class="arena-link-icon">🏠</span>
+      <span><b>${t('backHomeBtn')}</b><br /><small>${t('backHomeSub')}</small></span>
+    </button>
+  </div>
+
+  <div class="arena-stats-row">
+    <span>👑 ${t('statPremium')}</span><span>✨ ${t('statAnim')}</span><span>🧠 ${t('statMemory')}</span><span>♾️ ${t('statReplay')}</span>
   </div>`;
 }
 
