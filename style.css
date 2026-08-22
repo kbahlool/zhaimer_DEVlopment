@@ -1366,3 +1366,133 @@ html.mode-ultimate .pile > .card.faceDown{ box-shadow:0 0 22px rgba(140,80,230,.
   .landing-tagline-banner{ flex-direction:column; text-align:center; }
   [dir="rtl"] .landing-tagline-banner{ text-align:center; }
 }
+
+/* ============================================================
+   ZHAIMER — MEMORY VAULT landing menu
+   ============================================================ */
+.vault-shell{ max-width:640px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.vault-topbrand{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; position:relative; }
+.vault-topbrand-logo{ height:44px; width:auto; object-fit:contain; }
+.vault-htp-btn{
+  position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--panel2);
+  color:var(--brass-soft); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+[dir="rtl"] .vault-htp-btn{ right:auto; left:0; }
+.vault-htp-btn:hover{ border-color:var(--brass); }
+
+.vault-mode-switch{ display:flex; align-items:center; gap:10px; font-size:12px; font-weight:700; letter-spacing:1px; }
+.vault-mode-opt{ background:none; border:none; color:var(--muted); cursor:pointer; font-family:inherit; font-size:12px; font-weight:700; letter-spacing:1px; padding:4px; }
+.vault-mode-opt.active{ color:var(--brass-soft); }
+.vault-mode-opt-ultimate.active{ color:var(--purple-soft); }
+.vault-mode-track{ position:relative; width:44px; height:22px; border-radius:20px; border:1px solid var(--line); background:var(--panel2); display:inline-block; }
+.vault-mode-thumb{
+  position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+  background:var(--brass); transition:transform .2s ease, background .2s ease;
+}
+.vault-mode-thumb.thumb-ultimate{ transform:translateX(22px); background:var(--purple); }
+
+.memory-core-wrap{ position:relative; width:150px; height:150px; display:flex; align-items:center; justify-content:center; margin:4px 0; }
+.memory-core-ring{ position:absolute; border-radius:50%; border:1px solid rgba(201,162,39,.35); }
+.memory-core-ring.ring1{ inset:0; }
+.memory-core-ring.ring2{ inset:14px; border-color:rgba(201,162,39,.2); }
+.memory-core-wrap.core-ultimate .memory-core-ring{ border-color:rgba(140,80,230,.4); }
+.memory-core-pulse{
+  position:absolute; inset:-6px; border-radius:50%; border:1px solid var(--brass);
+  opacity:0; animation:memoryPulse 4.5s ease-out infinite;
+}
+.memory-core-wrap.core-ultimate .memory-core-pulse{ border-color:var(--purple); }
+@keyframes memoryPulse{ 0%{ transform:scale(.85); opacity:.6; } 100%{ transform:scale(1.35); opacity:0; } }
+.memory-core{
+  position:relative; width:108px; height:108px; border-radius:50%;
+  background:radial-gradient(circle at 35% 25%, #1c1c1c, #050505 70%);
+  border:2px solid var(--brass); box-shadow:0 0 30px rgba(201,162,39,.3), inset 0 0 16px rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+  animation:memoryBreathe 3.6s ease-in-out infinite;
+}
+.memory-core-wrap.core-ultimate .memory-core{ border-color:var(--purple); box-shadow:0 0 34px rgba(140,80,230,.35), inset 0 0 16px rgba(0,0,0,.6); }
+@keyframes memoryBreathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.03); } }
+.memory-core span{
+  font-family:Georgia,serif; font-weight:900; font-size:46px;
+  background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.memory-core-wrap.core-ultimate .memory-core span{
+  background:linear-gradient(180deg,#f1e8ff,#c9a2ff); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+@media (prefers-reduced-motion: reduce){
+  .memory-core, .memory-core-pulse{ animation:none; }
+}
+
+.vault-paths{ display:flex; flex-direction:column; gap:10px; width:100%; }
+.vault-path-card{
+  display:flex; flex-direction:column; align-items:center; gap:4px; width:100%;
+  padding:16px; border-radius:14px; border:1px solid var(--line); background:var(--panel2);
+  color:var(--cream); cursor:pointer; font-family:inherit; text-align:center;
+  transition:transform .15s ease, border-color .15s ease;
+}
+.vault-path-card:hover{ transform:translateY(-2px); }
+.vault-path-icon{ font-size:22px; color:var(--brass-soft); }
+.vault-path-name{ font-size:15px; font-weight:800; letter-spacing:.5px; }
+.vault-path-sub{ font-size:11.5px; color:var(--muted); }
+.vault-path-battle:hover{ border-color:var(--brass); }
+.vault-path-train:hover{ border-color:var(--teal); }
+.vault-path-friends:hover{ border-color:var(--purple); }
+
+.vault-subpanel{ display:flex; flex-direction:column; gap:10px; width:100%; }
+.vault-back-btn{
+  align-self:flex-start; background:none; border:1px solid var(--line); border-radius:8px; padding:6px 12px;
+  color:var(--muted); font-family:inherit; font-size:12px; cursor:pointer;
+}
+.vault-back-btn:hover{ color:var(--brass-soft); border-color:var(--brass); }
+.vault-subpanel-heading{ text-align:center; font-family:Georgia,serif; font-size:1.2rem; color:var(--brass-soft); margin-bottom:2px; }
+
+.vault-utility-card{ width:100%; margin-top:4px; }
+
+@media(max-width:520px){
+  .memory-core-wrap{ width:120px; height:120px; }
+  .memory-core{ width:88px; height:88px; }
+  .memory-core span{ font-size:38px; }
+  .vault-path-card{ padding:14px; min-height:48px; }
+}
+
+/* ---- Memory Vault: one-time "Remember them" intro ---- */
+.vault-intro-overlay{
+  position:fixed; inset:0; z-index:500; background:#050505; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:24px; cursor:pointer;
+}
+.vault-intro-cards{ display:flex; gap:12px; perspective:800px; }
+.vault-intro-card{
+  position:relative; width:64px; aspect-ratio:2.4/3.4; transform-style:preserve-3d;
+  animation:vaultCardFlip 2.4s ease-in-out forwards;
+}
+.vault-intro-card:nth-child(2){ animation-delay:.08s; }
+.vault-intro-card:nth-child(3){ animation-delay:.16s; }
+.vault-intro-card:nth-child(4){ animation-delay:.24s; }
+.vic-face, .vic-back{
+  position:absolute; inset:0; border-radius:8px; backface-visibility:hidden;
+  border:1px solid rgba(215,173,79,.5);
+}
+.vic-face{ background:linear-gradient(160deg,#1c1c1c,#0a0a0a); }
+.vic-back{ background:linear-gradient(160deg,#141210,#050403); transform:rotateY(180deg);
+  display:flex; align-items:center; justify-content:center; }
+.vic-back::after{ content:"Z"; font-family:Georgia,serif; font-weight:800; font-size:1.4rem; color:var(--brass-soft); }
+@keyframes vaultCardFlip{
+  0%{ transform:rotateY(0deg); }
+  20%{ transform:rotateY(0deg); }
+  45%{ transform:rotateY(180deg); }
+  75%{ transform:rotateY(180deg); }
+  100%{ transform:rotateY(0deg); }
+}
+.vault-intro-text{
+  position:absolute; left:50%; top:65%; transform:translate(-50%,-50%); width:90%;
+  opacity:0; text-align:center; font-family:Georgia,serif; font-size:1.3rem; color:var(--brass-soft);
+  letter-spacing:1px;
+}
+.vault-intro-text-1{ animation:vaultTextFade1 2.6s ease forwards; }
+.vault-intro-text-2{ animation:vaultTextFade2 2.6s ease forwards; }
+@keyframes vaultTextFade1{ 0%{opacity:0;} 8%{opacity:1;} 38%{opacity:1;} 46%{opacity:0;} 100%{opacity:0;} }
+@keyframes vaultTextFade2{ 0%{opacity:0;} 55%{opacity:0;} 63%{opacity:1;} 92%{opacity:1;} 100%{opacity:0;} }
+.vault-intro-skip{ position:absolute; bottom:26px; font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+@media (prefers-reduced-motion: reduce){
+  .vault-intro-overlay{ display:none; }
+}

@@ -1086,6 +1086,18 @@ let NUM_AI = 2;
 // (adds the Z card). Chosen on the game-mode / AI-setup screen.
 let GAME_MODE = 'classic';
 function setGameModeVal(mode){ preserveAINameField(); GAME_MODE = (mode==='ultimate') ? 'ultimate' : 'classic'; render(); }
+// ZHAIMER — Memory Vault landing menu: which of the 3 paths is expanded
+// (null = show all 3 path cards; 'battle'|'train'|'friends' = show that
+// path's real existing menu items + a Back control). Purely UI state.
+let LANDING_PATH = null;
+function setLandingPath(path){ LANDING_PATH = path; render(); }
+// ZHAIMER — Memory Vault: brief one-time visual intro (in-memory flag, so
+// it resets on a fresh page load but never repeats within the same visit).
+// Purely decorative — never touches the real deck, cards, or scoring.
+let vaultIntroShown = false;
+let vaultIntroTimerStarted = false;
+function skipVaultIntro(){ vaultIntroShown = true; vaultIntroTimerStarted = true; render(); }
+function prefersReducedMotion(){ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
 let processingLocalAI = false;
 
 // Stage C: AI personalities. Purely presentational layer (name, avatar,
@@ -1527,6 +1539,10 @@ const I18N = {
     whyDefendTitle:'Defend', whyDefendSub:'Protect your cards',
     whyConquerTitle:'Conquer', whyConquerSub:'Be the last Zhaimer standing',
     taglineHeadline:'Memory. Strategy. Victory.', taglineSub:'Every decision counts.',
+    pathBattleName:'Battle', pathBattleSub:'Test your memory. Outsmart your opponents.', pathBattleHeading:'Choose Your Battle',
+    pathTrainName:'Train', pathTrainSub:'Sharpen your memory before the battle.', pathTrainHeading:'Train Your Memory',
+    pathFriendsName:'Play with Friends', pathFriendsSub:'Challenge other minds.', pathFriendsHeading:'Play with Friends',
+    vaultIntroLine1:'Remember them.', vaultIntroLine2:'Your memory has already been tested.', vaultIntroSkip:'Tap to skip',
     practiceModeNote:"Practice games don't affect your stats, achievements, or the leaderboard.",
     dailyChallengeBtn:'Daily Challenge', dailyChallengeSub:'Same cards for everyone, once a day',
     dailyPlayedTodaySub:(b,s)=>`Best: ${b} · Streak: ${s} 🔥`,
@@ -1820,6 +1836,10 @@ const I18N = {
     whyDefendTitle:'دافع', whyDefendSub:'احمِ أوراقك',
     whyConquerTitle:'انتصر', whyConquerSub:'كن آخر زهايمري صامد',
     taglineHeadline:'ذاكرة. استراتيجية. انتصار.', taglineSub:'كل قرار له وزنه.',
+    pathBattleName:'المعركة', pathBattleSub:'اختبر ذاكرتك. تفوّق على منافسيك.', pathBattleHeading:'اختر معركتك',
+    pathTrainName:'التدريب', pathTrainSub:'اصقل ذاكرتك قبل المعركة.', pathTrainHeading:'درّب ذاكرتك',
+    pathFriendsName:'العب مع الأصدقاء', pathFriendsSub:'تحدَّ عقولًا أخرى.', pathFriendsHeading:'العب مع الأصدقاء',
+    vaultIntroLine1:'تذكّرها.', vaultIntroLine2:'ذاكرتك اختُبرت للتو.', vaultIntroSkip:'اضغط للتخطي',
     practiceModeNote:'مباريات التدريب لا تؤثر على إحصائياتك أو إنجازاتك أو لوحة المتصدرين.',
     dailyChallengeBtn:'التحدي اليومي', dailyChallengeSub:'نفس الأوراق للجميع، مرة كل يوم',
     dailyPlayedTodaySub:(b,s)=>`الأفضل: ${b} · سلسلة: ${s} 🔥`,
@@ -2674,103 +2694,144 @@ function renderLandingEmblem(){
 }
 
 function renderLanding(){
+  const showVaultIntro = !vaultIntroShown && !prefersReducedMotion();
+  if(showVaultIntro){
+    if(!vaultIntroTimerStarted){
+      vaultIntroTimerStarted = true;
+      setTimeout(()=>{ vaultIntroShown = true; render(); }, 2600);
+    }
+    return `<div class="vault-intro-overlay" data-action="skipVaultIntro">
+      <div class="vault-intro-cards">
+        <div class="vault-intro-card"><div class="vic-face"></div><div class="vic-back"></div></div>
+        <div class="vault-intro-card"><div class="vic-face"></div><div class="vic-back"></div></div>
+        <div class="vault-intro-card"><div class="vic-face"></div><div class="vic-back"></div></div>
+        <div class="vault-intro-card"><div class="vic-face"></div><div class="vic-back"></div></div>
+      </div>
+      <div class="vault-intro-text vault-intro-text-1">${t('vaultIntroLine1')}</div>
+      <div class="vault-intro-text vault-intro-text-2">${t('vaultIntroLine2')}</div>
+      <div class="vault-intro-skip">${t('vaultIntroSkip')}</div>
+    </div>`;
+  }
   let fbNote = '';
   if(!fbReady){
     fbNote = `<div class="setup-explainer" style="border-top:none;margin-top:14px;color:var(--crimson)">${t('firebaseMissing')}</div>`;
   }
+  const isUltimate = GAME_MODE==='ultimate';
+
+  // Each path's real existing menu items — same data-actions as before,
+  // just grouped. Nothing here is a new feature.
+  const pathItems = {
+    battle: `
+      <button class="dest-row dest-gold" data-action="goAISetup">
+        <span class="dest-icon">🧠</span>
+        <span class="dest-text"><span class="dest-label">${t('playAIBtn')}</span><span class="dest-sub">${t('playAIBtnSub')}</span></span>
+        <span class="dest-arrow">›</span>
+      </button>
+      <button class="dest-row dest-purple" data-action="startDailyChallenge">
+        <span class="dest-icon">📅</span>
+        <span class="dest-text">
+          <span class="dest-label">${t('dailyChallengeBtn')} ${!dailyChallengeAlreadyPlayedToday() ? `<span class="dest-new-badge">${t('newBadge')}</span>` : ''}</span>
+          <span class="dest-sub">${dailyChallengeSubLabel()}</span>
+        </span>
+        <span class="dest-arrow">›</span>
+      </button>`,
+    train: `
+      <button class="dest-row dest-blue" data-action="startTutorial">
+        <span class="dest-icon">🎓</span>
+        <span class="dest-text"><span class="dest-label">${LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play'}</span><span class="dest-sub">${t('learnToPlaySub')}</span></span>
+        <span class="dest-arrow">›</span>
+      </button>
+      <button class="dest-row dest-teal" data-action="goPracticeSetup">
+        <span class="dest-icon">🎯</span>
+        <span class="dest-text">
+          <span class="dest-label">${t('practiceModeBtn')}</span>
+          <span class="dest-sub">${t('practiceModeSub')}</span>
+        </span>
+        <span class="dest-arrow">›</span>
+      </button>`,
+    friends: `
+      <button class="dest-row dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
+        <span class="dest-icon">👥</span>
+        <span class="dest-text"><span class="dest-label">${t('createRoomBtn')}</span><span class="dest-sub">${t('createRoomSub')}</span></span>
+        <span class="dest-arrow">›</span>
+      </button>
+      <button class="dest-row dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
+        <span class="dest-icon">🔑</span>
+        <span class="dest-text"><span class="dest-label">${t('joinRoomBtn')}</span><span class="dest-sub">${t('joinRoomSub')}</span></span>
+        <span class="dest-arrow">›</span>
+      </button>`
+  };
+  const pathTitles = { battle:t('pathBattleHeading'), train:t('pathTrainHeading'), friends:t('pathFriendsHeading') };
+
+  const pathsHtml = !LANDING_PATH ? `
+    <div class="vault-paths">
+      <button class="vault-path-card vault-path-battle" data-action="setLandingPath" data-val="battle">
+        <span class="vault-path-icon">⚔</span>
+        <span class="vault-path-name">${t('pathBattleName')}</span>
+        <span class="vault-path-sub">${t('pathBattleSub')}</span>
+      </button>
+      <button class="vault-path-card vault-path-train" data-action="setLandingPath" data-val="train">
+        <span class="vault-path-icon">◉</span>
+        <span class="vault-path-name">${t('pathTrainName')}</span>
+        <span class="vault-path-sub">${t('pathTrainSub')}</span>
+      </button>
+      <button class="vault-path-card vault-path-friends" data-action="setLandingPath" data-val="friends">
+        <span class="vault-path-icon">♟</span>
+        <span class="vault-path-name">${t('pathFriendsName')}</span>
+        <span class="vault-path-sub">${t('pathFriendsSub')}</span>
+      </button>
+    </div>` : `
+    <div class="vault-subpanel">
+      <button class="vault-back-btn" data-action="setLandingPath" data-val="">‹ ${t('backBtn')}</button>
+      <div class="vault-subpanel-heading">${pathTitles[LANDING_PATH]}</div>
+      ${pathItems[LANDING_PATH]}
+    </div>`;
+
   return `${renderLandingHeader()}
-  <div class="landing-layout">
-    <aside class="landing-brand-col">
-      <div class="landing-brand-visual" aria-hidden="true">
-        <div class="landing-brand-glow"></div>
-        <div class="landing-z-emblem"><span>Z</span></div>
-        <div class="landing-float-card lfc-k">K<small>♠</small></div>
-        <div class="landing-float-card lfc-ten">10<small class="red">♥</small></div>
-        <div class="landing-float-card lfc-z">Z</div>
-      </div>
-      <div class="why-zhaimer-panel">
-        <div class="why-zhaimer-title">◈ ${t('whyZhaimerTitle')} ◈</div>
-        <div class="why-zhaimer-item"><span>🧠</span><div><b>${t('whyStrategizeTitle')}</b><small>${t('whyStrategizeSub')}</small></div></div>
-        <div class="why-zhaimer-item"><span>🛡️</span><div><b>${t('whyDefendTitle')}</b><small>${t('whyDefendSub')}</small></div></div>
-        <div class="why-zhaimer-item"><span>👑</span><div><b>${t('whyConquerTitle')}</b><small>${t('whyConquerSub')}</small></div></div>
-      </div>
-    </aside>
+  <div class="vault-shell">
+    <div class="vault-topbrand">
+      <img class="vault-topbrand-logo" src="assets/images/logo-full.webp" alt="Zhaimer" width="120" height="66" />
+      <button class="vault-htp-btn" data-action="goRules" title="${t('howToPlayBtn')}">📖</button>
+    </div>
 
-    <main class="landing-menu-col">
-      ${renderPublicPlayerCount()}
-      <div class="setup-card landing-card">
-        <div class="dest-title">${t('modeQuestion')}</div>
-        <button class="dest-row dest-gold" data-action="goAISetup">
-          <span class="dest-icon">🧠</span>
-          <span class="dest-text"><span class="dest-label">${t('playAIBtn')}</span><span class="dest-sub">${t('playAIBtnSub')}</span></span>
-          <span class="dest-arrow">›</span>
-        </button>
-        <button class="dest-row dest-blue" data-action="startTutorial">
-          <span class="dest-icon">🎓</span>
-          <span class="dest-text"><span class="dest-label">${LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play'}</span><span class="dest-sub">${t('learnToPlaySub')}</span></span>
-          <span class="dest-arrow">›</span>
-        </button>
-        <button class="dest-row dest-teal" data-action="goPracticeSetup">
-          <span class="dest-icon">🎯</span>
-          <span class="dest-text">
-            <span class="dest-label">${t('practiceModeBtn')}</span>
-            <span class="dest-sub">${t('practiceModeSub')}</span>
-          </span>
-          <span class="dest-arrow">›</span>
-        </button>
-        <button class="dest-row dest-purple" data-action="startDailyChallenge">
-          <span class="dest-icon">📅</span>
-          <span class="dest-text">
-            <span class="dest-label">${t('dailyChallengeBtn')} ${!dailyChallengeAlreadyPlayedToday() ? `<span class="dest-new-badge">${t('newBadge')}</span>` : ''}</span>
-            <span class="dest-sub">${dailyChallengeSubLabel()}</span>
-          </span>
-          <span class="dest-arrow">›</span>
-        </button>
-        <button class="dest-row dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
-          <span class="dest-icon">👥</span>
-          <span class="dest-text"><span class="dest-label">${t('createRoomBtn')}</span><span class="dest-sub">${t('createRoomSub')}</span></span>
-          <span class="dest-arrow">›</span>
-        </button>
-        <button class="dest-row dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
-          <span class="dest-icon">🔑</span>
-          <span class="dest-text"><span class="dest-label">${t('joinRoomBtn')}</span><span class="dest-sub">${t('joinRoomSub')}</span></span>
-          <span class="dest-arrow">›</span>
-        </button>
-        <button class="dest-row dest-purple" data-action="goRules">
-          <span class="dest-icon">📖</span>
-          <span class="dest-text"><span class="dest-label">${t('howToPlayBtn')}</span><span class="dest-sub">${t('howToPlayMenuSub')}</span></span>
-          <span class="dest-arrow">›</span>
-        </button>
+    <div class="memory-core-wrap ${isUltimate?'core-ultimate':''}" aria-hidden="true">
+      <span class="memory-core-ring ring1"></span>
+      <span class="memory-core-ring ring2"></span>
+      <span class="memory-core-pulse"></span>
+      <div class="memory-core"><span>Z</span></div>
+    </div>
 
-        <!-- Compact 2-column grid for the remaining utility items, keeping
-             the menu short enough to avoid scrolling while still showing
-             every option directly — nothing hidden behind extra menus. -->
-        <div class="dest-grid-2">
-          <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
-            <span class="dest-icon">👤</span>
-            <span class="dest-label">${t('profileBtn')}</span>
-          </a>
-          <button class="dest-row-compact dest-purple" data-action="goSettings">
-            <span class="dest-icon">⚙️</span>
-            <span class="dest-label">${t('settingsBtn')}</span>
-          </button>
-          <button class="dest-row-compact dest-theme" data-action="goTheme">
-            <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
-            <span class="dest-label">${t('themeBtn')}</span>
-          </button>
-          <a class="dest-row-compact dest-gold" href="leaderboard.html">
-            <span class="dest-icon">🏆</span>
-            <span class="dest-label">${t('navLeaderboard')}</span>
-          </a>
-        </div>
-        ${fbNote}
-      </div>
+    <div class="vault-mode-switch" role="group" aria-label="${t('gameModeLabel')}">
+      <button class="vault-mode-opt ${!isUltimate?'active':''}" data-action="setGameMode" data-val="classic">${t('classicModeName')}</button>
+      <span class="vault-mode-track"><span class="vault-mode-thumb ${isUltimate?'thumb-ultimate':''}"></span></span>
+      <button class="vault-mode-opt vault-mode-opt-ultimate ${isUltimate?'active':''}" data-action="setGameMode" data-val="ultimate">${t('ultimateModeName')}</button>
+    </div>
 
-      <div class="landing-tagline-banner">
-        <span class="landing-tagline-emblem">Z</span>
-        <div><b>${t('taglineHeadline')}</b><small>${t('taglineSub')}</small></div>
+    ${renderPublicPlayerCount()}
+
+    ${pathsHtml}
+
+    <div class="setup-card landing-card vault-utility-card">
+      <div class="dest-grid-2">
+        <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
+          <span class="dest-icon">👤</span>
+          <span class="dest-label">${t('profileBtn')}</span>
+        </a>
+        <button class="dest-row-compact dest-purple" data-action="goSettings">
+          <span class="dest-icon">⚙️</span>
+          <span class="dest-label">${t('settingsBtn')}</span>
+        </button>
+        <button class="dest-row-compact dest-theme" data-action="goTheme">
+          <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
+          <span class="dest-label">${t('themeBtn')}</span>
+        </button>
+        <a class="dest-row-compact dest-gold" href="leaderboard.html">
+          <span class="dest-icon">🏆</span>
+          <span class="dest-label">${t('navLeaderboard')}</span>
+        </a>
       </div>
-    </main>
+      ${fbNote}
+    </div>
   </div>
 
   <div class="trailer-slot" id="trailerSlot">
@@ -3910,6 +3971,8 @@ function attach(){
       case 'actZFinalBlockAnswer': actZFinalBlockAnswer(val==='yes'); break;
       case 'actZCenterChoice': actZCenterChoice(val==='yes'); break;
       case 'setGameMode': setGameModeVal(val); break;
+      case 'setLandingPath': setLandingPath(val||null); break;
+      case 'skipVaultIntro': skipVaultIntro(); break;
       case 'toggleBurnSlot': toggleBurnSlot(slot); break;
       case 'confirmBurn': confirmBurn(); break;
       case 'declareBurnAttempt': declareBurnAttempt(); break;
