@@ -1664,7 +1664,7 @@ const I18N = {
     joiningErrorStarted:'That game has already started.',
     joiningErrorMissing:'No room found with that code.',
     round:'Round', pts:'pts', theirTurn:'their turn', eliminatedTag:'eliminated', declaredTag:'declared finished',
-    deckLabel:'Deck', leftLabel:'left', discardLabel:'Discard', inPileLabel:'in pile',
+    deckLabel:'Deck', leftLabel:'cards', discardLabel:'Discard', inPileLabel:'cards',
     you:'You', waitingFor:(n)=>`Waiting for ${n}…`,
     jackVictimTitle:'A card was swapped', jackVictimBody:(slot)=>`One of your cards (position ${slot}) was just swapped by another player using a Jack. You won't see what it became.`,
     peekHint:'Click 2 of your cards above to peek at them for 4 seconds.',
@@ -1988,7 +1988,7 @@ const I18N = {
     joiningErrorStarted:'اللعبة بدأت خلاص.',
     joiningErrorMissing:'ما لقينا غرفة بهذا الكود.',
     round:'الجولة', pts:'نقطة', theirTurn:'دورهم الآن', eliminatedTag:'مُقصى', declaredTag:'أعلن الانتهاء',
-    deckLabel:'المجموعة', leftLabel:'متبقٍ', discardLabel:'الأوراق المرمية', inPileLabel:'في الكومة',
+    deckLabel:'المجموعة', leftLabel:'بطاقة', discardLabel:'الأوراق المرمية', inPileLabel:'بطاقة',
     you:'أنت', waitingFor:(n)=>`في انتظار ${n}…`,
     jackVictimTitle:'تم تبديل إحدى أوراقك', jackVictimBody:(slot)=>`قام لاعب آخر بتبديل إحدى أوراقك (الموضع ${slot}) باستخدام الولد. لن ترى ما أصبحت عليه.`,
     peekHint:'انقر على ورقتين من أوراقك أعلاه لتنظر إليهما لمدة 4 ثوانٍ.',
@@ -2606,9 +2606,12 @@ function copyInviteLink(){
 
 /* ============================= RENDER: SCREENS ============================= */
 function screenHeader(subtitleOverride, showQuit, compact){
+  const modeTag = (ROOM && ROOM.gameMode==='ultimate')
+    ? `<span class="header-mode-tag header-mode-ultimate">${t('ultimateModeName')}</span>`
+    : (ROOM ? `<span class="header-mode-tag header-mode-classic">${t('classicModeName')}</span>` : '');
   return `<div class="header ${compact?'header-compact':''}">
     <div>
-      <div class="title">${t('title')}</div>
+      <div class="title">${t('title')} ${modeTag}</div>
       ${compact?'':`<div class="tagline">${subtitleOverride || t('subtitle')}</div>`}
       ${compact?`<div class="tagline" style="font-size:9px;letter-spacing:1px">${subtitleOverride||''}</div>`:''}
     </div>
@@ -2818,7 +2821,7 @@ function renderRules(){
 function renderAISetup(){
   const totalPlayers = NUM_AI + 1;
   return `<div class="header arena-header">
-    <a class="title arena-brand" href="#" data-action="goBackToLanding">${t('title')}</a>
+    <button class="title arena-brand" data-action="goBackToLanding">${t('title')}</button>
     <div class="choice-group" style="align-self:flex-start">
       <button class="quit-btn" data-action="goRules" title="${t('howToPlayBtn')}">?</button>
       <button class="quit-btn" data-action="toggleSound" title="${t('soundBtn')}">${soundOn?'🔊':'🔇'}</button>
@@ -3078,6 +3081,19 @@ function renderGameLogPanel(){
   </div>`;
 }
 
+// ZHAIMER — decides which arena zone (left / top / right) each real
+// opponent renders in, purely for layout. Never adds/removes players.
+function distributeOpponentZones(uids){
+  const left=[], top=[], right=[];
+  const n = uids.length;
+  if(n===0) return {left,top,right};
+  if(n===1){ top.push(uids[0]); }
+  else if(n===2){ left.push(uids[0]); right.push(uids[1]); }
+  else if(n===3){ left.push(uids[0]); top.push(uids[1]); right.push(uids[2]); }
+  else if(n===4){ left.push(uids[0]); top.push(uids[1],uids[2]); right.push(uids[3]); }
+  else { left.push(uids[0],uids[1]); top.push(uids[2]); right.push(uids[3],uids[4]); }
+  return {left,top,right};
+}
 function renderPlayerBlock(uid){
   const p = ROOM.players[uid];
   const col = playerColor(uid);
@@ -3227,7 +3243,7 @@ function renderActionsInner(){
       <button class="primary-btn" data-action="actDraw" data-val="deck">${t('drawDeckBtn')}</button>
       <button class="ghost-btn" data-action="actDraw" data-val="discard" ${ROOM.discard.length===0?'disabled':''}>${t('drawDiscardBtn')}</button>
       ${ROOM.discard.length>0?`<button class="ghost-btn burn-btn" data-action="declareBurnAttempt">🔥 ${t('burnBtn')}</button>`:''}
-      <button class="ghost-btn" style="border-color:var(--teal);color:var(--teal);font-weight:700;" data-action="actFinishCheckAnswer" data-val="yes">🏁 ${t('declareFinishedBtn')}</button>
+      <button class="ghost-btn finish-btn" data-action="actFinishCheckAnswer" data-val="yes">🏁 ${t('declareFinishedBtn')}</button>
     </div>`;
   }
   if(ROOM.modal) return '';
@@ -3635,10 +3651,19 @@ function render(){
   const compact = others.length >= 4;
   html = `<div class="table">`;
   html += screenHeader(`${t('round')} ${ROOM.round}${ROOM_CODE? ' · '+ROOM_CODE : ''}`, true, compact);
-  html += `<div class="opponents">`;
-  for(const uid of others) html += renderPlayerBlock(uid);
-  html += `</div>`;
-  html += renderMidRow(compact);
+  // ZHAIMER — arena layout (matches reference composition): opponents are
+  // distributed left / top-center / right around the Deck+Discard "memory
+  // core", instead of one flat row. Purely a presentation grouping — same
+  // renderPlayerBlock() per uid, same real hand/score data, no fake seats.
+  const zones = distributeOpponentZones(others);
+  html += `<div class="arena-grid">
+    <div class="arena-col arena-left">${zones.left.map(renderPlayerBlock).join('')}</div>
+    <div class="arena-col arena-center">
+      <div class="arena-top-row">${zones.top.map(renderPlayerBlock).join('')}</div>
+      ${renderMidRow(compact)}
+    </div>
+    <div class="arena-col arena-right">${zones.right.map(renderPlayerBlock).join('')}</div>
+  </div>`;
   const me = ROOM.players[myUid];
   const myCol = playerColor(myUid);
   const myActiveNow = ROOM.phase==='playing' && ROOM.currentUid===myUid;

@@ -468,7 +468,7 @@
   .midrow{display:flex; align-items:center; justify-content:center; gap:20px; padding:6px 0; flex-shrink:0;}
   .pile{display:flex; flex-direction:column; align-items:center; gap:4px;}
   .pile-label{font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted);}
-  .pile-count{font-size:10px; color:var(--muted);}
+  .pile-count{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px;}
   .empty-slot{
     width:var(--card-w,64px); height:calc(var(--card-w,64px) * 1.5);
     border:1px dashed var(--line); border-radius:8px; background:transparent;
@@ -1076,7 +1076,7 @@ html[data-theme="living"] .avatar{ border-radius:40% 60% 55% 45%; }
    ULTIMATE ZHAIMER — pre-game "Choose Your Battle" arena screen
    ============================================================ */
 .arena-header{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px; }
-.arena-brand{ text-decoration:none; cursor:pointer; }
+.arena-brand{ text-decoration:none; cursor:pointer; background:none; border:none; padding:0; font:inherit; text-align:left; -webkit-appearance:none; appearance:none; }
 .arena-kicker{ text-align:center; color:var(--brass); font-size:11px; letter-spacing:4px; text-transform:uppercase; margin:6px 0 2px; }
 .arena-heading{ text-align:center; font-family:Georgia,serif; font-size:clamp(24px,4vw,40px); letter-spacing:1px; margin:2px 0 4px; }
 .arena-h-gold{ background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent; }
@@ -1231,3 +1231,45 @@ html[dir="rtl"] .side-panel-title, html[dir="rtl"] .game-log-entry{ text-align:r
   html[dir="rtl"] .overlay-side .side-panel-modal{ text-align:right; }
 }
 html[dir="rtl"] .zpower-btn{ text-align:right; justify-content:flex-start; flex-direction:row-reverse; }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — gameplay table polish (reference match pass 2)
+   ============================================================ */
+.finish-btn{
+  background:linear-gradient(180deg, var(--brass-soft), var(--brass)) !important;
+  border-color:var(--brass) !important; color:var(--ink) !important;
+  font-weight:800 !important; letter-spacing:1px; padding:10px 20px !important;
+  box-shadow:0 8px 20px rgba(201,162,39,.3);
+}
+.finish-btn:hover{ transform:translateY(-1px); }
+.tagline{ display:inline-block; padding:2px 12px; border:1px solid var(--line); border-radius:20px; background:rgba(255,255,255,.02); }
+.turn-banner{ display:inline-block; margin:0 auto 6px; padding:4px 14px; border-radius:20px; border:1px solid var(--pc,var(--brass));
+  color:var(--pc-soft,var(--brass-soft)); font-weight:700; font-size:12px; letter-spacing:.5px; text-align:center; }
+.pile > .card.faceDown, .pile > .card.faceUp{ box-shadow:0 0 20px color-mix(in srgb, var(--brass-soft) 25%, transparent), 0 10px 24px rgba(0,0,0,.5); }
+html.mode-ultimate .pile > .card.faceDown{ box-shadow:0 0 22px rgba(140,80,230,.3), 0 10px 24px rgba(0,0,0,.5); }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — arena layout (left/top/right opponent zones)
+   ============================================================ */
+.header-mode-tag{
+  display:inline-block; margin-inline-start:8px; font-size:11px; font-weight:700; letter-spacing:2px;
+  vertical-align:middle; padding:2px 8px; border-radius:10px; border:1px solid var(--line);
+}
+.header-mode-tag.header-mode-classic{ color:var(--brass-soft); border-color:var(--brass); }
+.header-mode-tag.header-mode-ultimate{ color:var(--purple-soft); border-color:var(--purple); }
+
+.arena-grid{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2.1fr) minmax(0,1fr);
+  gap:10px; align-items:start; flex-shrink:0;
+}
+.arena-col{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+.arena-col.arena-left, .arena-col.arena-right{ justify-content:center; }
+.arena-top-row{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.arena-center{ align-items:stretch; }
+@media(max-width:900px){
+  .arena-grid{ grid-template-columns:1fr; }
+  .arena-top-row{ order:1; }
+  .arena-center{ order:1; }
+  .arena-left{ order:2; }
+  .arena-right{ order:3; }
+}
