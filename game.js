@@ -1517,6 +1517,16 @@ const I18N = {
     panelLeaderboardTitle:'Leaderboard', panelLeaderboardBody:'See how your best scores compare.', viewLeaderboardBtn:'View Leaderboard',
     menuBtnLabel:'Menu', menuCompleteRules:'Complete Rules', menuFAQ:'FAQ', menuTroubleshooting:'Troubleshooting', menuReportProblem:'Report a Problem',
     practiceModeBtn:'Practice Mode', practiceModeSub:'Play freely — nothing is recorded',
+    playAIBtnSub:'Challenge smart opponents and sharpen your strategy.',
+    learnToPlaySub:'Master the rules and become a Zhaimer.',
+    createRoomSub:'Create a private room and invite your friends.',
+    joinRoomSub:'Join a room using the room code.',
+    howToPlayMenuSub:'All rules, powers and strategies.',
+    whyZhaimerTitle:'Why Zhaimer?',
+    whyStrategizeTitle:'Strategize', whyStrategizeSub:'Outthink your opponents',
+    whyDefendTitle:'Defend', whyDefendSub:'Protect your cards',
+    whyConquerTitle:'Conquer', whyConquerSub:'Be the last Zhaimer standing',
+    taglineHeadline:'Memory. Strategy. Victory.', taglineSub:'Every decision counts.',
     practiceModeNote:"Practice games don't affect your stats, achievements, or the leaderboard.",
     dailyChallengeBtn:'Daily Challenge', dailyChallengeSub:'Same cards for everyone, once a day',
     dailyPlayedTodaySub:(b,s)=>`Best: ${b} · Streak: ${s} 🔥`,
@@ -1800,6 +1810,16 @@ const I18N = {
     panelLeaderboardTitle:'المتصدرون', panelLeaderboardBody:'شاهد كيف تقارن أفضل نتائجك.', viewLeaderboardBtn:'عرض المتصدرين',
     menuBtnLabel:'القائمة', menuCompleteRules:'القواعد الكاملة', menuFAQ:'الأسئلة الشائعة', menuTroubleshooting:'حل المشكلات', menuReportProblem:'الإبلاغ عن مشكلة',
     practiceModeBtn:'وضع التدريب', practiceModeSub:'العب بحرية — لا شيء يُسجَّل',
+    playAIBtnSub:'تحدَّ خصومًا أذكياء واصقل استراتيجيتك.',
+    learnToPlaySub:'أتقن القواعد وكن زهايمريًا محترفًا.',
+    createRoomSub:'أنشئ غرفة خاصة وادعُ أصدقاءك.',
+    joinRoomSub:'انضم لغرفة باستخدام رمز الغرفة.',
+    howToPlayMenuSub:'كل القواعد والقوى والاستراتيجيات.',
+    whyZhaimerTitle:'لماذا زهايمر؟',
+    whyStrategizeTitle:'خطّط', whyStrategizeSub:'تفوّق بالتفكير على منافسيك',
+    whyDefendTitle:'دافع', whyDefendSub:'احمِ أوراقك',
+    whyConquerTitle:'انتصر', whyConquerSub:'كن آخر زهايمري صامد',
+    taglineHeadline:'ذاكرة. استراتيجية. انتصار.', taglineSub:'كل قرار له وزنه.',
     practiceModeNote:'مباريات التدريب لا تؤثر على إحصائياتك أو إنجازاتك أو لوحة المتصدرين.',
     dailyChallengeBtn:'التحدي اليومي', dailyChallengeSub:'نفس الأوراق للجميع، مرة كل يوم',
     dailyPlayedTodaySub:(b,s)=>`الأفضل: ${b} · سلسلة: ${s} 🔥`,
@@ -2193,6 +2213,11 @@ function humanTogglePeek(idx){
 function goCreate(){ PENDING_MODE='create'; VIEW='nameEntry'; render(); }
 function goJoin(){ PENDING_MODE='join'; VIEW='nameEntry'; render(); }
 let PENDING_PRACTICE = false;
+function dailyChallengeAlreadyPlayedToday(){
+  if(!window.ZhaimerProfile) return false;
+  const dc = window.ZhaimerProfile.load().dailyChallenge;
+  return !!(dc && dc.lastPlayedDate === todayKey());
+}
 function dailyChallengeSubLabel(){
   if(!window.ZhaimerProfile) return t('dailyChallengeSub');
   const dc = window.ZhaimerProfile.load().dailyChallenge;
@@ -2654,77 +2679,100 @@ function renderLanding(){
     fbNote = `<div class="setup-explainer" style="border-top:none;margin-top:14px;color:var(--crimson)">${t('firebaseMissing')}</div>`;
   }
   return `${renderLandingHeader()}
-  <div class="landing-hero">
-    <img class="landing-hero-banner" src="assets/images/landing-hero.webp" alt="Zhaimer - The Game of Hidden Strategy" />
-  </div>
-  ${renderPublicPlayerCount()}
-  <div class="setup-card landing-card">
-    <div class="dest-title">${t('modeQuestion')}</div>
-    <button class="dest-row dest-gold" data-action="goAISetup">
-      <span class="dest-icon">🧠</span>
-      <span class="dest-text"><span class="dest-label">${t('playAIBtn')}</span></span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-learn" data-action="startTutorial">
-      <span class="dest-icon">🎓</span>
-      <span class="dest-text"><span class="dest-label">${LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play'}</span></span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-teal" data-action="goPracticeSetup">
-      <span class="dest-icon">🎯</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('practiceModeBtn')}</span>
-        <span class="dest-sub">${t('practiceModeSub')}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-gold" data-action="startDailyChallenge">
-      <span class="dest-icon">📅</span>
-      <span class="dest-text">
-        <span class="dest-label">${t('dailyChallengeBtn')}</span>
-        <span class="dest-sub">${dailyChallengeSubLabel()}</span>
-      </span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
-      <span class="dest-icon">👥</span>
-      <span class="dest-text"><span class="dest-label">${t('createRoomBtn')}</span></span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
-      <span class="dest-icon">🔑</span>
-      <span class="dest-text"><span class="dest-label">${t('joinRoomBtn')}</span></span>
-      <span class="dest-arrow">›</span>
-    </button>
-    <button class="dest-row dest-purple" data-action="goRules">
-      <span class="dest-icon">📖</span>
-      <span class="dest-text"><span class="dest-label">${t('howToPlayBtn')}</span></span>
-      <span class="dest-arrow">›</span>
-    </button>
+  <div class="landing-layout">
+    <aside class="landing-brand-col">
+      <div class="landing-brand-visual" aria-hidden="true">
+        <div class="landing-brand-glow"></div>
+        <div class="landing-z-emblem"><span>Z</span></div>
+        <div class="landing-float-card lfc-k">K<small>♠</small></div>
+        <div class="landing-float-card lfc-ten">10<small class="red">♥</small></div>
+        <div class="landing-float-card lfc-z">Z</div>
+      </div>
+      <div class="why-zhaimer-panel">
+        <div class="why-zhaimer-title">◈ ${t('whyZhaimerTitle')} ◈</div>
+        <div class="why-zhaimer-item"><span>🧠</span><div><b>${t('whyStrategizeTitle')}</b><small>${t('whyStrategizeSub')}</small></div></div>
+        <div class="why-zhaimer-item"><span>🛡️</span><div><b>${t('whyDefendTitle')}</b><small>${t('whyDefendSub')}</small></div></div>
+        <div class="why-zhaimer-item"><span>👑</span><div><b>${t('whyConquerTitle')}</b><small>${t('whyConquerSub')}</small></div></div>
+      </div>
+    </aside>
 
-    <!-- Compact 2-column grid for the remaining utility items, keeping
-         the menu short enough to avoid scrolling while still showing
-         every option directly — nothing hidden behind extra menus. -->
-    <div class="dest-grid-2">
-      <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
-        <span class="dest-icon">👤</span>
-        <span class="dest-label">${t('profileBtn')}</span>
-      </a>
-      <button class="dest-row-compact dest-purple" data-action="goSettings">
-        <span class="dest-icon">⚙️</span>
-        <span class="dest-label">${t('settingsBtn')}</span>
-      </button>
-      <button class="dest-row-compact dest-theme" data-action="goTheme">
-        <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
-        <span class="dest-label">${t('themeBtn')}</span>
-      </button>
-      <a class="dest-row-compact dest-gold" href="leaderboard.html">
-        <span class="dest-icon">🏆</span>
-        <span class="dest-label">${t('navLeaderboard')}</span>
-      </a>
-    </div>
-    ${fbNote}
+    <main class="landing-menu-col">
+      ${renderPublicPlayerCount()}
+      <div class="setup-card landing-card">
+        <div class="dest-title">${t('modeQuestion')}</div>
+        <button class="dest-row dest-gold" data-action="goAISetup">
+          <span class="dest-icon">🧠</span>
+          <span class="dest-text"><span class="dest-label">${t('playAIBtn')}</span><span class="dest-sub">${t('playAIBtnSub')}</span></span>
+          <span class="dest-arrow">›</span>
+        </button>
+        <button class="dest-row dest-blue" data-action="startTutorial">
+          <span class="dest-icon">🎓</span>
+          <span class="dest-text"><span class="dest-label">${LANG==='ar' ? 'تعلّم طريقة اللعب' : 'Learn to Play'}</span><span class="dest-sub">${t('learnToPlaySub')}</span></span>
+          <span class="dest-arrow">›</span>
+        </button>
+        <button class="dest-row dest-teal" data-action="goPracticeSetup">
+          <span class="dest-icon">🎯</span>
+          <span class="dest-text">
+            <span class="dest-label">${t('practiceModeBtn')}</span>
+            <span class="dest-sub">${t('practiceModeSub')}</span>
+          </span>
+          <span class="dest-arrow">›</span>
+        </button>
+        <button class="dest-row dest-purple" data-action="startDailyChallenge">
+          <span class="dest-icon">📅</span>
+          <span class="dest-text">
+            <span class="dest-label">${t('dailyChallengeBtn')} ${!dailyChallengeAlreadyPlayedToday() ? `<span class="dest-new-badge">${t('newBadge')}</span>` : ''}</span>
+            <span class="dest-sub">${dailyChallengeSubLabel()}</span>
+          </span>
+          <span class="dest-arrow">›</span>
+        </button>
+        <button class="dest-row dest-blue" data-action="goCreate" ${!fbReady?'disabled':''}>
+          <span class="dest-icon">👥</span>
+          <span class="dest-text"><span class="dest-label">${t('createRoomBtn')}</span><span class="dest-sub">${t('createRoomSub')}</span></span>
+          <span class="dest-arrow">›</span>
+        </button>
+        <button class="dest-row dest-teal" data-action="goJoin" ${!fbReady?'disabled':''}>
+          <span class="dest-icon">🔑</span>
+          <span class="dest-text"><span class="dest-label">${t('joinRoomBtn')}</span><span class="dest-sub">${t('joinRoomSub')}</span></span>
+          <span class="dest-arrow">›</span>
+        </button>
+        <button class="dest-row dest-purple" data-action="goRules">
+          <span class="dest-icon">📖</span>
+          <span class="dest-text"><span class="dest-label">${t('howToPlayBtn')}</span><span class="dest-sub">${t('howToPlayMenuSub')}</span></span>
+          <span class="dest-arrow">›</span>
+        </button>
+
+        <!-- Compact 2-column grid for the remaining utility items, keeping
+             the menu short enough to avoid scrolling while still showing
+             every option directly — nothing hidden behind extra menus. -->
+        <div class="dest-grid-2">
+          <a class="dest-row-compact dest-blue" href="${LANG==='ar'?'profile-ar.html':'profile.html'}">
+            <span class="dest-icon">👤</span>
+            <span class="dest-label">${t('profileBtn')}</span>
+          </a>
+          <button class="dest-row-compact dest-purple" data-action="goSettings">
+            <span class="dest-icon">⚙️</span>
+            <span class="dest-label">${t('settingsBtn')}</span>
+          </button>
+          <button class="dest-row-compact dest-theme" data-action="goTheme">
+            <span class="dest-icon">${THEME_DEFS[currentTheme]?.icon || '🎨'}</span>
+            <span class="dest-label">${t('themeBtn')}</span>
+          </button>
+          <a class="dest-row-compact dest-gold" href="leaderboard.html">
+            <span class="dest-icon">🏆</span>
+            <span class="dest-label">${t('navLeaderboard')}</span>
+          </a>
+        </div>
+        ${fbNote}
+      </div>
+
+      <div class="landing-tagline-banner">
+        <span class="landing-tagline-emblem">Z</span>
+        <div><b>${t('taglineHeadline')}</b><small>${t('taglineSub')}</small></div>
+      </div>
+    </main>
   </div>
+
   <div class="trailer-slot" id="trailerSlot">
     ${hasSeenTrailer() ? `
     <video id="zhaimerTrailer" class="trailer-video" src="assets/videos/zhaimer-trailer.mp4"

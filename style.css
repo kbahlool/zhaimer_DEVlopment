@@ -70,7 +70,7 @@
   .setup-card h2{font-family:Georgia,serif; letter-spacing:2px; color:var(--brass-soft); margin-top:0;}
 
   /* ---------- landing hero ---------- */
-  .header-landing{ margin-bottom:0; justify-content:flex-end; }
+  .header-landing{ margin-bottom:0; justify-content:flex-end; padding-top:env(safe-area-inset-top,0px); }
   .landing-hero{ text-align:center; margin:0 auto; max-width:640px; }
   .landing-hero-banner{ width:100%; max-width:520px; height:auto; display:block; margin:0 auto; }
   .landing-card{ padding-top:clamp(14px,3vh,22px); }
@@ -162,6 +162,7 @@
   .signature-mark{
     text-align:center; margin:18px 0 4px; font-family:Georgia, serif;
     font-size:11px; letter-spacing:4px; color:var(--muted); opacity:.75;
+    padding-bottom:env(safe-area-inset-bottom,0px);
   }
 
   .ad-slot{
@@ -1288,4 +1289,80 @@ html.mode-ultimate .pile > .card.faceDown{ box-shadow:0 0 22px rgba(140,80,230,.
 @media (prefers-reduced-motion: reduce){
   .hint-banner.swap-alert{ animation:none; }
   .card.faceDown.just-changed{ animation:none; outline:2px solid var(--teal); }
+}
+
+/* ============================================================
+   ULTIMATE ZHAIMER — game.html landing menu redesign
+   ============================================================ */
+.landing-layout{ display:grid; grid-template-columns:.85fr 1.15fr; gap:26px; align-items:start; max-width:1240px; margin:0 auto; padding:0 4px; }
+@media(max-width:900px){ .landing-layout{ grid-template-columns:1fr; gap:16px; } }
+
+.landing-brand-col{ display:flex; flex-direction:column; gap:16px; }
+.landing-brand-visual{ position:relative; height:260px; display:flex; align-items:center; justify-content:center; }
+.landing-brand-glow{ position:absolute; inset:10%; border-radius:50%;
+  background:radial-gradient(circle, rgba(140,80,230,0.22) 0%, rgba(201,162,39,0.1) 45%, transparent 70%);
+  filter:blur(6px); }
+.landing-z-emblem{
+  position:relative; width:150px; height:150px; border-radius:50%;
+  background:radial-gradient(circle at 35% 25%, #1c1c1c, #050505 70%);
+  border:2px solid var(--brass); box-shadow:0 0 40px rgba(201,162,39,.3), 0 0 70px rgba(140,80,230,.18), inset 0 0 20px rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+}
+.landing-z-emblem span{
+  font-family:Georgia,serif; font-weight:900; font-size:64px;
+  background:linear-gradient(180deg,#f6e2a8,#c99c3a); -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 20px rgba(201,162,39,.4);
+}
+.landing-float-card{
+  position:absolute; width:64px; aspect-ratio:2.4/3.4; border-radius:8px;
+  background:linear-gradient(160deg,#141210,#050403); border:1px solid rgba(215,173,79,.5);
+  display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-weight:800; font-size:1.3rem;
+  color:var(--brass-soft); box-shadow:0 12px 24px rgba(0,0,0,.5);
+}
+.landing-float-card small{ font-size:.6em; margin-inline-start:2px; }
+.landing-float-card small.red{ color:#c23b3b; }
+.lfc-k{ top:6%; left:2%; transform:rotate(-16deg); }
+.lfc-ten{ top:10%; right:4%; transform:rotate(14deg); }
+.lfc-z{ bottom:2%; right:14%; transform:rotate(8deg); border-color:rgba(185,140,255,.6); color:#c9a2ff;
+  box-shadow:0 0 20px rgba(140,80,230,.35), 0 12px 24px rgba(0,0,0,.5); }
+
+.why-zhaimer-panel{ border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel2); }
+.why-zhaimer-title{ text-align:center; color:var(--brass-soft); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+.why-zhaimer-item{ display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
+.why-zhaimer-item:first-of-type{ border-top:none; }
+.why-zhaimer-item span{ font-size:18px; flex-shrink:0; }
+.why-zhaimer-item b{ display:block; color:var(--cream); font-size:13px; }
+.why-zhaimer-item small{ color:var(--muted); font-size:11px; }
+
+.landing-menu-col{ min-width:0; }
+.dest-row{ min-height:64px; }
+.dest-label{ font-size:15px; }
+.dest-new-badge{ display:inline-block; margin-inline-start:6px; font-size:9px; font-weight:800; letter-spacing:1px;
+  padding:2px 7px; border-radius:20px; color:#1a0f2e; background:linear-gradient(90deg,#7be0e0,#b98cff); vertical-align:middle; }
+
+.landing-tagline-banner{
+  display:flex; align-items:center; gap:14px; margin-top:18px; padding:16px 20px; border-radius:12px;
+  border:1px solid var(--brass); background:linear-gradient(150deg, rgba(201,162,39,.08), rgba(140,80,230,.06));
+  text-align:left;
+}
+[dir="rtl"] .landing-tagline-banner{ text-align:right; }
+.landing-tagline-emblem{ flex-shrink:0; width:38px; height:38px; border-radius:50%; border:1px solid var(--brass);
+  display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-weight:800; color:var(--brass-soft); }
+.landing-tagline-banner b{ display:block; color:var(--brass-soft); font-size:14px; letter-spacing:.5px; }
+.landing-tagline-banner small{ color:var(--muted); font-size:11.5px; }
+
+@media(max-width:900px){
+  .landing-brand-visual{ height:190px; }
+  .landing-z-emblem{ width:110px; height:110px; }
+  .landing-z-emblem span{ font-size:46px; }
+  .landing-float-card{ width:46px; }
+  .why-zhaimer-panel{ order:2; }
+  .landing-brand-visual{ order:1; }
+}
+@media(max-width:520px){
+  .landing-brand-visual{ height:150px; }
+  .why-zhaimer-panel{ padding:12px; }
+  .dest-row{ min-height:56px; padding:12px 14px; }
+  .landing-tagline-banner{ flex-direction:column; text-align:center; }
+  [dir="rtl"] .landing-tagline-banner{ text-align:center; }
 }
