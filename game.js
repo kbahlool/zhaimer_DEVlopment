@@ -766,6 +766,30 @@ const firebaseConfig = {
   appId: "1:829673467316:web:88c998e216cbaf437b56e1"
 };
 
+/* ============================= SUPABASE — LIVE PLAYERS ONLINE =============================
+   Realtime Presence only, purely additive. No auth, no tables, no
+   multiplayer logic — completely separate from Firebase above. */
+const SUPABASE_URL = "https://vtobwhaiqhvuggkldjin.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WGPEnNQq4-blQf0hdMQZbw_4-l7dX78";
+let livePlayersOnline = null;
+try{
+  if(window.supabase && SUPABASE_URL && SUPABASE_KEY){
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const presenceChannel = sb.channel('zhaimer-online', {
+      config: { presence: { key: (genUid ? genUid() : String(Math.random())) } }
+    });
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        livePlayersOnline = Object.keys(state).length;
+        if(typeof render === 'function') render();
+      })
+      .subscribe((status) => {
+        if(status === 'SUBSCRIBED') presenceChannel.track({ online_at: Date.now() });
+      });
+  }
+}catch(e){ /* live counter is non-critical — fail silently */ }
+
 /* ============================= MONETIZATION CONFIG =============================
    Set your Ko-fi / Buy Me a Coffee page URL here once you've created one
    (https://ko-fi.com or https://buymeacoffee.com — both free to sign up). */
@@ -985,9 +1009,14 @@ function fetchPublicPlayerCount(){
     .catch(()=>{});
 }
 function renderPublicPlayerCount(){
-  if(!fbReady) return '';
-  if(publicPlayerCount===null){ fetchPublicPlayerCount(); return ''; }
-  return `<div class="small-note" style="text-align:center;margin:6px 0 2px;">🎮 ${t('playerCountMsg', publicPlayerCount)}</div>`;
+  let html = '';
+  if(livePlayersOnline!==null){
+    html += `<div class="live-players-pill">🟢 ${livePlayersOnline} ${t('playersOnlineLabel')}</div>`;
+  }
+  if(!fbReady) return html;
+  if(publicPlayerCount===null){ fetchPublicPlayerCount(); return html; }
+  html += `<div class="small-note" style="text-align:center;margin:6px 0 2px;">🎮 ${t('playerCountMsg', publicPlayerCount)}</div>`;
+  return html;
 }
 
 function loadStats(){
@@ -1543,6 +1572,7 @@ const I18N = {
     pathTrainName:'Train', pathTrainSub:'Sharpen your memory before the battle.', pathTrainHeading:'Train Your Memory',
     pathFriendsName:'Play with Friends', pathFriendsSub:'Challenge other minds.', pathFriendsHeading:'Play with Friends',
     vaultIntroLine1:'Remember them.', vaultIntroLine2:'Your memory has already been tested.', vaultIntroSkip:'Tap to skip',
+    playersOnlineLabel:'Players Online',
     practiceModeNote:"Practice games don't affect your stats, achievements, or the leaderboard.",
     dailyChallengeBtn:'Daily Challenge', dailyChallengeSub:'Same cards for everyone, once a day',
     dailyPlayedTodaySub:(b,s)=>`Best: ${b} · Streak: ${s} 🔥`,
@@ -1840,6 +1870,7 @@ const I18N = {
     pathTrainName:'التدريب', pathTrainSub:'اصقل ذاكرتك قبل المعركة.', pathTrainHeading:'درّب ذاكرتك',
     pathFriendsName:'العب مع الأصدقاء', pathFriendsSub:'تحدَّ عقولًا أخرى.', pathFriendsHeading:'العب مع الأصدقاء',
     vaultIntroLine1:'تذكّرها.', vaultIntroLine2:'ذاكرتك اختُبرت للتو.', vaultIntroSkip:'اضغط للتخطي',
+    playersOnlineLabel:'لاعب متصل الآن',
     practiceModeNote:'مباريات التدريب لا تؤثر على إحصائياتك أو إنجازاتك أو لوحة المتصدرين.',
     dailyChallengeBtn:'التحدي اليومي', dailyChallengeSub:'نفس الأوراق للجميع، مرة كل يوم',
     dailyPlayedTodaySub:(b,s)=>`الأفضل: ${b} · سلسلة: ${s} 🔥`,
