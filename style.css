@@ -1273,3 +1273,19 @@ html.mode-ultimate .pile > .card.faceDown{ box-shadow:0 0 22px rgba(140,80,230,.
   .arena-left{ order:2; }
   .arena-right{ order:3; }
 }
+
+/* ============================================================
+   ULTIMATE ZHAIMER — J-Swap feedback (Classic + Ultimate, same
+   mechanism; colors auto-adapt via --teal -> --purple in mode-ultimate)
+   ============================================================ */
+.hint-banner.swap-alert{
+  border-color:var(--teal); box-shadow:0 0 24px color-mix(in srgb, var(--teal) 35%, transparent), var(--shadow);
+  animation:swapAlertIn .25s ease-out;
+}
+.hint-banner.swap-alert h3{ color:var(--teal); }
+.hint-banner.swap-alert strong{ color:var(--cream); }
+@keyframes swapAlertIn{ from{ opacity:0; transform:translate(-50%,-8px); } to{ opacity:1; transform:translate(-50%,0); } }
+@media (prefers-reduced-motion: reduce){
+  .hint-banner.swap-alert{ animation:none; }
+  .card.faceDown.just-changed{ animation:none; outline:2px solid var(--teal); }
+}

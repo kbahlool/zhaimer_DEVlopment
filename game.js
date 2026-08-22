@@ -564,7 +564,7 @@ function performJackSwap(room, uid, ownSlot, targetUid, targetSlot){
   // of these two slots resets to unknown, since the physical cards moved.
   if(p.mem) p.mem[ownSlot] = { known:true, rank:p.hand[ownSlot].rank, value:cardValue(p.hand[ownSlot]), conf:1 };
   if(opp.mem) opp.mem[targetSlot] = { known:false, rank:null, value:null, conf:0 };
-  roomPushLog(room, `jackSwap:${uid}:${targetUid}`);
+  roomPushLog(room, `jackSwap:${uid}:${targetUid}:${targetSlot}`);
   // The victim (and everyone else) now gets a position-only marker on the
   // affected slot — same mechanic as a normal draw-and-swap (see
   // roomChooseSlot). This lets the victim SEE that their card at this
@@ -1666,7 +1666,7 @@ const I18N = {
     round:'Round', pts:'pts', theirTurn:'their turn', eliminatedTag:'eliminated', declaredTag:'declared finished',
     deckLabel:'Deck', leftLabel:'cards', discardLabel:'Discard', inPileLabel:'cards',
     you:'You', waitingFor:(n)=>`Waiting for ${n}…`,
-    jackVictimTitle:'A card was swapped', jackVictimBody:(slot)=>`One of your cards (position ${slot}) was just swapped by another player using a Jack. You won't see what it became.`,
+    jackVictimTitle:'⚠️ Incoming Swap', jackVictimBody:(slot)=>`Another player used J — Swap on you.<br><strong>Position ${slot} changed.</strong> You won't see what it became.`,
     peekHint:'Click 2 of your cards above to peek at them for 4 seconds.',
     drawDeckBtn:'Draw from Deck', drawDiscardBtn:'Draw from Discard', declareFinishedBtn:'Declare Finished',
     declareConfirmMsg:(s)=>`Are you sure you're finished? (${s}s)`,
@@ -1688,11 +1688,11 @@ const I18N = {
     gameLogTitle:'Game Log',
     logRoundStarted:(n)=>`Round ${n} started`, logDrew:(n)=>`${n} drew a card`,
     logSwappedSlot:(n)=>`${n} swapped a card`, logDiscarded:(n)=>`${n} discarded a card`,
-    logZCopy:(n,c)=>`${n} used Z — Copy ${c}`, logZDefendedYou:'You defended with Z', logZDefended:(n)=>`${n} defended with Z`,
-    logZFinalDefendedYou:'You blocked a swap with Final Z Defense', logZFinalDefended:(n)=>`${n} used Final Z Defense`,
+    logZCopy:(n,c)=>`${n} used Z — Copy ${c}`, logZDefendedYou:'Swap Blocked — Z Defense Activated', logZDefended:(n)=>`Swap Blocked — ${n} used Z Defense`,
+    logZFinalDefendedYou:'Swap Blocked — Final Z Defense Activated', logZFinalDefended:(n)=>`Swap Blocked — ${n} used Final Z Defense`,
     logZDeclined:(n)=>`${n} declined to block with Z`, logZTaken:(n)=>`${n} took Z from the center`,
     logKingUsed:(n)=>`${n} used K — Draw Two`, logKingSkipped:(n)=>`${n} skipped K's power`,
-    logJackUsed:(n,t2)=>`${n} used J — Swap with ${t2}`, logQueenUsed:(n)=>`${n} used Q — Reveal`,
+    logJackUsed:(n,t2,pos)=>`${n} used J — Swap on ${t2}${pos?` • Position ${pos} changed`:''}`, logQueenUsed:(n)=>`${n} used Q — Reveal`,
     logBurnSuccess:(n)=>`${n} burned a card`, logBurnFail:(n)=>`${n} misfired a Burn (+2)`,
     logDeclared:(n)=>`${n} declared Finish`, logScored:(n)=>`Round ${n} scored`,
     ultimateModeNote:'Adds the mysterious Z card — copy J/Q/K, defend with a sacrifice, protect your score, or complete the ZHAIMER Combo.',
@@ -1990,7 +1990,7 @@ const I18N = {
     round:'الجولة', pts:'نقطة', theirTurn:'دورهم الآن', eliminatedTag:'مُقصى', declaredTag:'أعلن الانتهاء',
     deckLabel:'المجموعة', leftLabel:'بطاقة', discardLabel:'الأوراق المرمية', inPileLabel:'بطاقة',
     you:'أنت', waitingFor:(n)=>`في انتظار ${n}…`,
-    jackVictimTitle:'تم تبديل إحدى أوراقك', jackVictimBody:(slot)=>`قام لاعب آخر بتبديل إحدى أوراقك (الموضع ${slot}) باستخدام الولد. لن ترى ما أصبحت عليه.`,
+    jackVictimTitle:'⚠️ تبديل وارد', jackVictimBody:(slot)=>`قام لاعب آخر باستخدام J — تبديل عليك.<br><strong>تغيّر الموضع ${slot}.</strong> لن ترى ما أصبحت عليه ورقتك.`,
     peekHint:'انقر على ورقتين من أوراقك أعلاه لتنظر إليهما لمدة 4 ثوانٍ.',
     drawDeckBtn:'اسحب من المجموعة', drawDiscardBtn:'اسحب من الأوراق المرمية', declareFinishedBtn:'أعلن الانتهاء',
     declareConfirmMsg:(s)=>`متأكد إنك خلصت؟ (${s} ثواني)`,
@@ -2011,11 +2011,11 @@ const I18N = {
     gameLogTitle:'سجل اللعبة',
     logRoundStarted:(n)=>`بدأت الجولة ${n}`, logDrew:(n)=>`${n} سحب بطاقة`,
     logSwappedSlot:(n)=>`${n} بدّل بطاقة`, logDiscarded:(n)=>`${n} رمى بطاقة`,
-    logZCopy:(n,c)=>`${n} استخدم Z — نسخ ${c}`, logZDefendedYou:'دافعت بـ Z', logZDefended:(n)=>`${n} دافع بـ Z`,
-    logZFinalDefendedYou:'صددت تبديلاً بدفاع Z النهائي', logZFinalDefended:(n)=>`${n} استخدم دفاع Z النهائي`,
+    logZCopy:(n,c)=>`${n} استخدم Z — نسخ ${c}`, logZDefendedYou:'تم صد التبديل — تفعيل دفاع Z', logZDefended:(n)=>`تم صد التبديل — ${n} استخدم دفاع Z`,
+    logZFinalDefendedYou:'تم صد التبديل — تفعيل دفاع Z النهائي', logZFinalDefended:(n)=>`تم صد التبديل — ${n} استخدم دفاع Z النهائي`,
     logZDeclined:(n)=>`${n} رفض الصد بـ Z`, logZTaken:(n)=>`${n} أخذ Z من المنتصف`,
     logKingUsed:(n)=>`${n} استخدم K — سحب ورقتين`, logKingSkipped:(n)=>`${n} تخطّى قوة K`,
-    logJackUsed:(n,t2)=>`${n} استخدم J — تبديل مع ${t2}`, logQueenUsed:(n)=>`${n} استخدم Q — كشف`,
+    logJackUsed:(n,t2,pos)=>`${n} استخدم J — تبديل على ${t2}${pos?` • تغيّر الموضع ${pos}`:''}`, logQueenUsed:(n)=>`${n} استخدم Q — كشف`,
     logBurnSuccess:(n)=>`${n} حرق بطاقة`, logBurnFail:(n)=>`${n} أخطأ في الحرق (+٢)`,
     logDeclared:(n)=>`${n} أعلن الإنهاء`, logScored:(n)=>`تم احتساب الجولة ${n}`,
     classicModeTagline:'معركة الذاكرة الأصلية', ultimateModeTagline:'أتقن Z. جازف بكل شيء.', newBadge:'جديد',
@@ -2124,7 +2124,7 @@ function modalWrap(inner){ return `<div class="overlay"><div class="modal">${inn
 // side panel (like "Z POWER AVAILABLE" in the reference) on desktop, and
 // falls back to a normal centered modal on narrow screens.
 function sidePanelModalWrap(inner){ return `<div class="overlay overlay-side"><div class="modal side-panel-modal">${inner}</div></div>`; }
-function bannerWrap(title, text){ return `<div class="hint-banner"><h3>${title}</h3><p>${text}</p></div>`; }
+function bannerWrap(title, text, extraClass){ return `<div class="hint-banner ${extraClass||''}"><h3>${title}</h3><p>${text}</p></div>`; }
 
 /* ============================= LOCAL PEEK TIMER (client-side only) ============================= */
 let peekSelected = [];
@@ -3058,7 +3058,7 @@ function formatLogEntry(entry){
     case 'zTaken': txt = t('logZTaken', name); break;
     case 'kingSlot': case 'kingSlotBoth': txt = t('logKingUsed', name); break;
     case 'kingNone': txt = t('logKingSkipped', name); break;
-    case 'jackSwap': { const p2 = ROOM.players[parts[2]]; txt = t('logJackUsed', name, p2?(parts[2]===myUid?t('you'):p2.name):'?'); break; }
+    case 'jackSwap': { const p2 = ROOM.players[parts[2]]; const posLabel = parts[3]!==undefined ? slotLabel(parseInt(parts[3],10)) : ''; txt = t('logJackUsed', name, p2?(parts[2]===myUid?t('you'):p2.name):'?', posLabel); break; }
     case 'queenPeek': txt = t('logQueenUsed', name); break;
     case 'burnSuccess': txt = t('logBurnSuccess', name); break;
     case 'burnFail': txt = t('logBurnFail', name); break;
@@ -3302,7 +3302,7 @@ function renderModal(){
     // but never what the card actually is. Everyone else (non-victims,
     // spectators) still just sees the generic waiting banner below.
     if(ROOM.modal.type==='swapDone' && ROOM.modal.victimUid===myUid){
-      return bannerWrap(t('jackVictimTitle'), t('jackVictimBody', ROOM.modal.victimSlot+1));
+      return bannerWrap(t('jackVictimTitle'), t('jackVictimBody', slotLabel(ROOM.modal.victimSlot)), 'swap-alert');
     }
     return bannerWrap(t('waitingFor', ROOM.players[ROOM.currentUid].name), '');
   }
